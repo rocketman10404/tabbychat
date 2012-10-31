@@ -37,7 +37,6 @@ public class TabbyChat {
 	protected Calendar cal = Calendar.getInstance();
 	public List<ChatChannel> channels = new ArrayList<ChatChannel>(20);
 	public int nextID = 3600;
-	public boolean showLastChat;
 	public GlobalSettings globalPrefs = new GlobalSettings();
 	public ServerSettings serverPrefs = new ServerSettings();
 	public GuiSettings prefsWindow;
@@ -50,7 +49,6 @@ public class TabbyChat {
 		this.filtersWindow = new GuiChatFilters(this);
 		this.globalPrefs.loadSettings();
 		if (enabled()) {		
-			this.showLastChat = true;
 			this.channels.add(0, new ChatChannel("*"));
 			this.channels.get(0).active = true;
 			
@@ -64,22 +62,19 @@ public class TabbyChat {
 	}
 	
 	private int addToChannel(int index, ChatLine thisChat) {
+		int ret = 0;
 		ChatLine newChat = this.withTimeStamp(thisChat);
 		this.channels.get(index).chatLog.add(0, newChat);
 		this.channels.get(index).trimLog();
-		if (!this.channels.get(index).active && !this.channels.get(0).active) {
-			this.showLastChat = false;
-			if (index != 0)
-				this.channels.get(index).unread = true;
-		} else
-			this.showLastChat = true;
-		return 0;
+		if (this.channels.get(index).active || this.channels.get(0).active)
+			ret = 1;
+		return ret;
 	}
 
 	private int addToChannel(int index, ChatLine[] thisChat) {
-		int ret = -1;
+		int ret = 0;
 		for (ChatLine cl : thisChat) {
-			ret = this.addToChannel(index, cl);
+			ret += this.addToChannel(index, cl);
 		}
 		return ret;
 	}
@@ -87,22 +82,23 @@ public class TabbyChat {
 	private int addToChannel(String _name, ChatLine[] thisChat) {
 		for (String ichan : this.serverPrefs.ignoredChans) {
 			if (ichan.length() > 0 && _name.equals(ichan)) {
-				return 1;
+				return 0;
 			}
-		}		
-		if (this.channels.size() > 20) return 1; // Too many tabs
+		}	
 		
 		for (int i = 0; i < this.channels.size(); i++) {
 			if (_name.equals(this.channels.get(i).title)) {
 				return this.addToChannel(i, thisChat);
 			}
 		}
+		
+		if (this.channels.size() >= 20) return 0; // Too many tabs
 
 		if (this.globalPrefs.autoSearchEnabled) {
 			this.channels.add(new ChatChannel(_name));
 			return this.addToChannel(this.channels.size()-1, thisChat);
 		}
-		return -1;
+		return 0;
 	}
 	
 	private int getChanIndexByID(int _id) {
@@ -149,7 +145,6 @@ public class TabbyChat {
 	
 	protected void enable() {
 		this.globalPrefs.TCenabled = true;
-		this.showLastChat = true;
 		if (this.getChanId("*") < 0) {
 			this.channels.add(0, new ChatChannel("*"));
 			this.channels.get(0).active = true;
@@ -190,7 +185,7 @@ public class TabbyChat {
 			keeper = false;
 			for (CustomChatFilter cf : this.serverPrefs.customFilters) {
 				if (cf.chanID == this.channels.get(i).chanID && cf.sendToTab) {
-					track.add(cf.chanID);
+					track.add(new Integer(cf.chanID));
 					keeper = true;
 				}
 			}
@@ -203,7 +198,7 @@ public class TabbyChat {
 		// Now, all remaining channels have existing associated updated filters
 		// Still need to search through all OTHER filters for any needing new tabs		
 		for (CustomChatFilter cf : this.serverPrefs.customFilters) {
-			if (cf.sendToTab && !track.contains(cf.chanID)) {
+			if (cf.sendToTab && !track.contains(new Integer(cf.chanID))) {
 				this.channels.add(new ChatChannel(cf.name));
 				this.channels.get(this.channels.size()-1).hasFilter = true;
 				cf.chanID = this.channels.get(this.channels.size()-1).chanID;
@@ -230,10 +225,6 @@ public class TabbyChat {
 	
 	public void displayChatLines(Minecraft mc, int index) {
 		mc.ingameGUI.getChatGUI().addChatLines(this.channels.get(index).chatLog);
-	}
-	
-	public boolean doesButtonEqual(int index, GuiButton btnObj) {
-		return this.channels.get(index).doesButtonEqual(btnObj);
 	}
 	
 	public boolean enabled() {
@@ -265,12 +256,21 @@ public class TabbyChat {
 		return -1;
 	}
 	
+	public int getChanInd(String _name) {
+		for (int i=0; i<this.channels.size(); i++) {
+			if (_name.equals(this.channels.get(i).title)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
 	public ChatLine getChatLine(int _chan, int _line) {
 		return this.channels.get(_chan).chatLog.get(_line);
 	}
-	
-	public int numberOfTabs() {
-		return this.channels.size();
+
+	public boolean matchChannelWithButton(int index, GuiButton btnObj) {
+		return (this.channels.get(index).chanID == btnObj.id);
 	}
 	
 	public static void printErr(String err) {
@@ -284,6 +284,7 @@ public class TabbyChat {
 		goesHere.add(0);
 		String filteredChat;
 		int _ind;
+		int ret = 0;
 		
 		for (int z=0; z<theChat.length; z++) {
 			filteredChat = theChat[z].getChatLineString();
@@ -292,7 +293,7 @@ public class TabbyChat {
 				filteredChat = filter.getLastMatchPretty();
 				if (filter.sendToTab) {
 					_ind = this.getChanIndexByID(filter.chanID);
-					if (_ind > 0) goesHere.add(_ind);
+					if (_ind > 0) goesHere.add(new Integer(_ind));
 				}
 				if (filter.ding) this.ding(); 
 		}
@@ -301,11 +302,10 @@ public class TabbyChat {
 		
 		
 		for (Integer c : goesHere) {
-			this.addToChannel(c, filteredChatLine);
+			this.addToChannel(c.intValue(), filteredChatLine);
 		}
-		if (goesHere.contains(this.getActive())) this.showLastChat = true;			
+		if (goesHere.contains(new Integer(this.getActive()))) ret += 1;
 		
-		int ret = 1;
 		String coloredChat = "";
 		for (ChatLine cl : theChat)
 			coloredChat = coloredChat + cl.getChatLineString();
@@ -315,16 +315,31 @@ public class TabbyChat {
 		
 		Matcher findChannelClean = this.chatChannelPatternClean.matcher(cleanedChat);
 		Matcher findChannelDirty = this.chatChannelPatternDirty.matcher(coloredChat);
-		if (findChannelClean.find() && findChannelDirty.find())
-			ret = this.addToChannel(cleanedChat.substring(findChannelClean.start(1), findChannelClean.end(1)), filteredChatLine);
-		else {
+		String cName;
+		if (findChannelClean.find() && findChannelDirty.find()) {
+			cName = cleanedChat.substring(findChannelClean.start(1), findChannelClean.end(1));
+			ret += this.addToChannel(cName, filteredChatLine);
+			goesHere.add(new Integer(this.getChanInd(cName)));
+		} else {
 			Matcher findPMtoMe = this.chatPMtoMePattern.matcher(cleanedChat);
 			if (findPMtoMe.find()) {
-				ret = this.addToChannel(cleanedChat.substring(findPMtoMe.start(1), findPMtoMe.end(1)), filteredChatLine);
+				cName = cleanedChat.substring(findPMtoMe.start(1), findPMtoMe.end(1));
+				ret += this.addToChannel(cName, filteredChatLine);
+				goesHere.add(new Integer(this.getChanInd(cName)));
 			} else {
 				Matcher findPMfromMe = this.chatPMfromMePattern.matcher(cleanedChat);
-				if (findPMfromMe.find())
-					ret = this.addToChannel(cleanedChat.substring(findPMfromMe.start(1), findPMfromMe.end(1)), filteredChatLine);
+				if (findPMfromMe.find()) {
+					cName = cleanedChat.substring(findPMfromMe.start(1), findPMfromMe.end(1));
+					ret += this.addToChannel(cName, filteredChatLine);
+					goesHere.add(new Integer(this.getChanInd(cName)));
+				}
+			}
+		}
+		
+		if (ret == 0) {
+			for (Integer read : goesHere) {
+				if (read.intValue() > 0)
+					this.channels.get(read.intValue()).unread = true;
 			}
 		}
 		return ret;

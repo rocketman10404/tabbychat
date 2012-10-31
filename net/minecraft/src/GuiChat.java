@@ -276,7 +276,7 @@ public class GuiChat extends GuiScreen {
 			return;
 		}
 		if (!tc.globalPrefs.TCenabled) return;
-		int n = tc.numberOfTabs();
+		int n = tc.channels.size();
 		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
 			for (int j = 0; j < n; j++) {
 				if (j != 0 && tc.channels.get(j).doesButtonEqual(par1GuiButton)) {
@@ -286,16 +286,13 @@ public class GuiChat extends GuiScreen {
 						if (tc.serverPrefs.filterMatchesChannel(z, tc.channels.get(j).getID()))
 							tc.serverPrefs.filterSentToTab(z, false);
 					}
-					for (int k = j+1; k < n; k++) {
-						tc.copyTab(k-1, k);
-					}
-					tc.removeTab(n - 1);
+					tc.channels.remove(j);
 					break;
 				}
 			}
 		} else {
 			for(int i = 0; i < n; i++) {
-				if (tc.doesButtonEqual(i, par1GuiButton)) {
+				if (tc.matchChannelWithButton(i, par1GuiButton)) {
 					if (!tc.channels.get(i).active) {
 						this.scrollBar.scrollBarMouseWheel();
 						tc.channels.get(i).active = true;
@@ -315,7 +312,7 @@ public class GuiChat extends GuiScreen {
 		int clines = (mc.ingameGUI.getChatGUI().GetChatHeight() < 20) ? mc.ingameGUI.getChatGUI().GetChatHeight() : 20;
 		int vert = mc.currentScreen.height - ((clines-1) * 9 + 8) - 55;
 		int horiz = 3;
-		int n = tc.numberOfTabs();
+		int n = tc.channels.size();
 		String title = "";
 		
 		int xOff = 0;

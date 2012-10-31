@@ -60,6 +60,10 @@ public class ChatChannel {
 		this.tab = btnObj;
 		this.tab.channel = this;
 	}
+	
+	public String toString() {
+		return this.getDisplayTitle();
+	}
 
 	public void clear() {
 		this.chatLog.clear();

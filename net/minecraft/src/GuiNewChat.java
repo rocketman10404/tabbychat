@@ -61,8 +61,7 @@ public class GuiNewChat extends Gui {
                      if(var12 > 3) {
                         byte var13 = 3;
                         int var14 = -var7 * 9;
-                        
-                        //TODO: add extra width to chat window for timestamps
+
                         int xOf = 0;
                         if (TabbyChat.instance.globalPrefs.TCenabled && TabbyChat.instance.globalPrefs.timestampsEnabled) {
                         	xOf = mc.fontRenderer.getStringWidth(TabbyChat.instance.globalPrefs.timestampStyle.maxTime);
@@ -144,7 +143,7 @@ public class GuiNewChat extends Gui {
       /**** modded here ****/
       if (tc.enabled()) {
     	  int ret = tc.processChat(multiLineChat.toArray(ab));
-    	  if (tc.showLastChat) {
+    	  if (ret > 0) {
     		  int _ind = tc.getActive();
     		  for (int c = multiLineChat.size()-1; c >= 0; c--) {
     			  this.chatLines.add(0, tc.getChatLine(_ind, c));
