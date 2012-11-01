@@ -12,7 +12,11 @@ package acs.tabbychat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.Calendar;
@@ -34,6 +38,7 @@ public class TabbyChat {
 	private Pattern chatChannelPatternDirty = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
 	private Pattern chatPMfromMePattern = Pattern.compile("^\\[(?:me)[ ]\\-\\>[ ]([A-Za-z0-9_]{1,16})\\]");
 	private Pattern chatPMtoMePattern = Pattern.compile("^\\[([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\]");
+	protected static String version = "1.1.0";
 	protected Calendar cal = Calendar.getInstance();
 	public List<ChatChannel> channels = new ArrayList<ChatChannel>(20);
 	public int nextID = 3600;
@@ -51,6 +56,20 @@ public class TabbyChat {
 		if (enabled()) {		
 			this.channels.add(0, new ChatChannel("*"));
 			this.channels.get(0).active = true;
+			
+			String ver = TabbyChat.getNewestVersion();
+			if (!ver.equals(version)) {
+				ver = "§7TabbyChat: An update is available!  (Current version is "+version+", newest is "+ver+")";
+				String ver2 = "§7Visit the TabbyChat forum thread at minecraftforum.net to download.";
+				ChatLine updateLine = new ChatLine(mc.ingameGUI.getUpdateCounter(), ver, 0);
+				ChatLine updateLine2 = new ChatLine(mc.ingameGUI.getUpdateCounter(), ver2, 0);
+				this.channels.add(new ChatChannel("TabbyChat"));
+				this.addToChannel(0, updateLine);
+				this.addToChannel(0, updateLine2);
+				this.addToChannel(this.channels.size()-1, updateLine);
+				this.addToChannel(this.channels.size()-1, updateLine2);
+				
+			}
 			
 			this.serverPrefs.loadSettings();			
 			this.loadPatterns();
@@ -219,6 +238,19 @@ public class TabbyChat {
 		}
 	}
 
+	public static String getNewestVersion() {
+		try {
+			URLConnection conn = new URL("http://dl.dropbox.com/u/8347166/tabbychat_ver.txt").openConnection();
+			BufferedReader buffer = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			String newestVersion = buffer.readLine();
+			buffer.close();
+			return newestVersion;
+		} catch (Throwable e) {
+			printErr("Unable to check for TabbyChat update.");
+		}
+		return TabbyChat.version;
+	}
+	
 	public void copyTab(int toIndex, int fromIndex) {
 		this.channels.set(toIndex, this.channels.get(fromIndex));
 	}

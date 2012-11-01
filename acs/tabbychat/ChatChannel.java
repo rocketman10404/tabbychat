@@ -77,7 +77,7 @@ public class ChatChannel {
 	}
 	
 	public void trimLog() {
-		if (this.chatLog.size() >= TabbyChat.instance.globalPrefs.retainedChats + 5) {
+		if (TabbyChat.instance != null && this.chatLog.size() >= TabbyChat.instance.globalPrefs.retainedChats + 5) {
 			for (int i = 0; i <= 10; i++) {
 				this.chatLog.remove(this.chatLog.size()-1);
 			}
