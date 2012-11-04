@@ -101,7 +101,7 @@ public class GuiNewChat extends Gui {
             }
          }
          if (!this.getChatOpen()) {
-             TabbyChat.instance.pollForUnread((Gui)this, tc_x, tc_y, par1);
+             TabbyChat.instance.pollForUnread(this, tc_x, tc_y, par1);
          }
       }
    }
@@ -266,11 +266,5 @@ public class GuiNewChat extends Gui {
    
    public int lastUpdate() {
 	   return ((ChatLine)this.chatLines.get(this.chatLines.size()-1)).getUpdatedCounter();
-   }
-   
-   public void notifyNewChat(ChatChannel _chan) {
-	   GuiButton myTab = (GuiButton)_chan.tab;
-	   drawRect(myTab.xPosition, myTab.yPosition, myTab.xPosition + myTab.width, myTab.yPosition + myTab.height, 0x66000000);
-	   drawCenteredString(this.mc.fontRenderer, _chan.getDisplayTitle(), myTab.xPosition + myTab.width/2, myTab.yPosition + myTab.height/2, 0xff0000);
    }
 }
