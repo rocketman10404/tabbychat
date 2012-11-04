@@ -311,9 +311,9 @@ public class TabbyChat {
 		int _opacity;
 		int tickdiff = _tick - this.lastChat.getUpdatedCounter();
 		
-		if (tickdiff < 200) {
+		if (tickdiff < 50) {
 			float var6 = this.mc.gameSettings.chatOpacity * 0.9F + 0.1F;
-			double var10 = (double)tickdiff / 200.0D;
+			double var10 = (double)tickdiff / 50.0D;
 			var10 = 1.0D - var10;
 			var10 *= 10.0D;
 			if (var10 < 0.0D) var10 = 0.0D;
