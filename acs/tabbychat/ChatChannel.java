@@ -3,9 +3,11 @@ package acs.tabbychat;
 import java.util.List;
 import java.util.ArrayList;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.src.ChatLine;
+import net.minecraft.src.Gui;
 import net.minecraft.src.GuiButton;
 
 public class ChatChannel {
@@ -82,5 +84,14 @@ public class ChatChannel {
 				this.chatLog.remove(this.chatLog.size()-1);
 			}
 		}
+	}
+
+	public void unreadNotify(Gui _gui, int _x, int _y, int _opacity) {
+		_gui.drawRect(this.tab.xPosition, this.tab.yPosition - 1, this.tab.xPosition + this.tab.width(), this.tab.yPosition + this.tab.height(), (_opacity/2 << 24));
+		//_gui.drawCenteredString(TabbyChat.instance.mc.fontRenderer, this.getDisplayTitle(), this.tab.xPosition + this.tab.width()/2, this.tab.yPosition - this.tab.height()/2, 16777215+(_opacity << 24));
+		GL11.glEnable(GL11.GL_BLEND);
+		_gui.drawCenteredString(TabbyChat.instance.mc.fontRenderer, this.getDisplayTitle(), this.tab.xPosition + this.tab.width()/2, this.tab.yPosition + (this.tab.height()-8)/2, 16711680 + (_opacity << 24));
+		//TabbyChat.instance.mc.fontRenderer.drawStringWithShadow(this.getDisplayTitle(), this.tab.xPosition, this.tab.yPosition,  16711680 + (_opacity << 24));
+		//System.out.println("Notifying unread chat on channel "+this.title);
 	}
 }

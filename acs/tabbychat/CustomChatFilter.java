@@ -140,8 +140,8 @@ public class CustomChatFilter implements java.io.Serializable {
 			return true;
 		else if (matched && this.invert)
 			return false;
-		else if (matched)
-			return true;
+		else if (!matched && !this.invert)
+			return false;
 		return false;
 	}
 	

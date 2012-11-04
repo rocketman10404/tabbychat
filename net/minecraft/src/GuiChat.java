@@ -5,8 +5,13 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import net.minecraft.client.Minecraft;
+
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+
+import acs.tabbychat.ChatChannel;
 import acs.tabbychat.TabbyChat;
 import acs.tabbychat.TabbyChatUtils;
 import acs.tabbychat.ChatScrollBar;
@@ -22,7 +27,7 @@ public class GuiChat extends GuiScreen {
    private URI clickedURI = null;
    protected GuiTextField inputField;
    private String defaultInputFieldText = "";
-   private ChatScrollBar scrollBar;
+   public ChatScrollBar scrollBar;
 
    public GuiChat() {}
 
@@ -309,6 +314,7 @@ public class GuiChat extends GuiScreen {
 	public void drawChatTabs() {
 		TabbyChat tc = TabbyChat.instance;
 		this.controlList.clear();
+		/*
 		int clines = (mc.ingameGUI.getChatGUI().GetChatHeight() < 20) ? mc.ingameGUI.getChatGUI().GetChatHeight() : 20;
 		int vert = mc.currentScreen.height - ((clines-1) * 9 + 8) - 55;
 		int horiz = 3;
@@ -352,5 +358,10 @@ public class GuiChat extends GuiScreen {
 					tc.channels.get(i).getDisplayTitle()));
 			tc.channels.get(i).setButtonObj((ChatButton)this.controlList.get(this.controlList.size() - 1));
 		}
+		*/
+		tc.updateButtonLocations();
+		for (ChatChannel _chan : tc.channels) {
+			this.controlList.add(_chan.tab);
+		}		
 	}
 }

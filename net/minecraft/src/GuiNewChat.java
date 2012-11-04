@@ -6,6 +6,7 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL11;
 import acs.tabbychat.TabbyChat;
+import acs.tabbychat.ChatChannel;
 
 public class GuiNewChat extends Gui {
    private final Minecraft mc;
@@ -25,6 +26,8 @@ public class GuiNewChat extends Gui {
          int var4 = 0;
          int var5 = this.chatLines.size();
          float var6 = this.mc.gameSettings.chatOpacity * 0.9F + 0.1F;
+         int tc_x = 0;
+         int tc_y = 0;
          if(var5 > 0) {
             if(this.getChatOpen()) {
                var2 = 20;
@@ -75,6 +78,8 @@ public class GuiNewChat extends Gui {
                         }
 
                         this.mc.fontRenderer.drawStringWithShadow(var15, var13, var14, 16777215 + (var12 << 24));
+                        tc_x = var13;
+                        tc_y = var14;
                      }
                   }
                }
@@ -94,6 +99,9 @@ public class GuiNewChat extends Gui {
                   drawRect(2, -var17, 1, -var17 - var11, 13421772 + (var12 << 24));
                }
             }
+         }
+         if (!this.getChatOpen()) {
+             TabbyChat.instance.pollForUnread((Gui)this, tc_x, tc_y, par1);
          }
       }
    }
@@ -137,7 +145,6 @@ public class GuiNewChat extends Gui {
          
          multiLineChat.add(new ChatLine(this.mc.ingameGUI.getUpdateCounter(), var6, par2));
          var4 = false;
-         //this.chatLines.add(0, new ChatLine(this.mc.ingameGUI.getUpdateCounter(), var6, par2));
       }
       
       /**** modded here ****/
@@ -259,5 +266,11 @@ public class GuiNewChat extends Gui {
    
    public int lastUpdate() {
 	   return ((ChatLine)this.chatLines.get(this.chatLines.size()-1)).getUpdatedCounter();
+   }
+   
+   public void notifyNewChat(ChatChannel _chan) {
+	   GuiButton myTab = (GuiButton)_chan.tab;
+	   drawRect(myTab.xPosition, myTab.yPosition, myTab.xPosition + myTab.width, myTab.yPosition + myTab.height, 0x66000000);
+	   drawCenteredString(this.mc.fontRenderer, _chan.getDisplayTitle(), myTab.xPosition + myTab.width/2, myTab.yPosition + myTab.height/2, 0xff0000);
    }
 }

@@ -15,6 +15,7 @@ import java.util.List;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.regex.Pattern;
@@ -33,13 +34,14 @@ import net.minecraft.src.Gui;
 import net.minecraft.src.GuiContainer;
 
 public class TabbyChat {
-	private static Minecraft mc;
+	protected static Minecraft mc;
 	private Pattern chatChannelPatternClean = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
 	private Pattern chatChannelPatternDirty = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
 	private Pattern chatPMfromMePattern = Pattern.compile("^\\[(?:me)[ ]\\-\\>[ ]([A-Za-z0-9_]{1,16})\\]");
 	private Pattern chatPMtoMePattern = Pattern.compile("^\\[([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\]");
 	protected static String version = "1.1.0";
 	protected Calendar cal = Calendar.getInstance();
+	protected ChatLine lastChat;
 	public List<ChatChannel> channels = new ArrayList<ChatChannel>(20);
 	public int nextID = 3600;
 	public GlobalSettings globalPrefs = new GlobalSettings();
@@ -59,8 +61,8 @@ public class TabbyChat {
 			
 			String ver = TabbyChat.getNewestVersion();
 			if (!ver.equals(version)) {
-				ver = "§7TabbyChat: An update is available!  (Current version is "+version+", newest is "+ver+")";
-				String ver2 = "§7Visit the TabbyChat forum thread at minecraftforum.net to download.";
+				ver = "ï¿½7TabbyChat: An update is available!  (Current version is "+version+", newest is "+ver+")";
+				String ver2 = "ï¿½7Visit the TabbyChat forum thread at minecraftforum.net to download.";
 				ChatLine updateLine = new ChatLine(mc.ingameGUI.getUpdateCounter(), ver, 0);
 				ChatLine updateLine2 = new ChatLine(mc.ingameGUI.getUpdateCounter(), ver2, 0);
 				this.channels.add(new ChatChannel("TabbyChat"));
@@ -305,6 +307,31 @@ public class TabbyChat {
 		return (this.channels.get(index).chanID == btnObj.id);
 	}
 	
+	public void pollForUnread(Gui _gui, int _x, int _y, int _tick) {
+		int _opacity;
+		int tickdiff = _tick - this.lastChat.getUpdatedCounter();
+		float var6 = this.mc.gameSettings.chatOpacity * 0.9F + 0.1F;
+		
+		if (tickdiff < 200) {
+			double var10 = (double)tickdiff / 200.0D;
+			var10 = 1.0D - var10;
+			var10 *= 10.0D;
+			if (var10 < 0.0D) var10 = 0.0D;
+			if (var10 > 1.0D) var10 = 1.0D;
+			
+			var10 *= var10;
+			_opacity = (int)(255.0D * var10);
+			_opacity = (int)((float)_opacity * var6);
+			if (_opacity <= 3) return;
+			GuiChat _tmp = new GuiChat();
+			for (ChatChannel _chan : this.channels) {
+				if (_chan.unread) {
+					_chan.unreadNotify(_gui, _x, _y, _opacity); 
+				}
+			}			
+		}
+	}
+	
 	public static void printErr(String err) {
 		System.err.println(err);
 	}
@@ -328,7 +355,7 @@ public class TabbyChat {
 					if (_ind > 0) goesHere.add(new Integer(_ind));
 				}
 				if (filter.ding) this.ding(); 
-		}
+			}
 			filteredChatLine[z] = new ChatLine(theChat[z].getUpdatedCounter(), filteredChat, theChat[z].getChatLineID());
 		}
 		
@@ -374,6 +401,7 @@ public class TabbyChat {
 					this.channels.get(read.intValue()).unread = true;
 			}
 		}
+		this.lastChat = theChat[0];
 		return ret;
 	}
 	
@@ -392,4 +420,47 @@ public class TabbyChat {
  	public void removeTab(int index) {
  		this.channels.remove(index);
 	}
+
+ 	public void updateButtonLocations() {
+ 		int clines = (mc.ingameGUI.getChatGUI().GetChatHeight() < 20) ? mc.ingameGUI.getChatGUI().GetChatHeight() : 20;
+ 		int vert = mc.currentScreen.height - ((clines - 1) * 9 + 8) - 55;
+ 		int horiz = 3;
+ 		int n = this.channels.size();
+ 		
+ 		int xOff = 0;
+ 		int yOff = 0;
+ 		try {
+ 			if (TabbyChatUtils.is(mc.ingameGUI.getChatGUI(), "GuiNewChatWrapper")) {
+ 				Class aHudCls = Class.forName("ahud.ahuditem.DefaultHudItems");
+ 				Field aHudFld = aHudCls.getField("chat");
+ 				Object aHudObj = aHudFld.get(null);
+ 				aHudCls = aHudObj.getClass();
+ 				aHudFld = aHudCls.getField("config");
+ 				aHudObj = aHudFld.get(aHudObj);
+ 				aHudCls = aHudObj.getClass();
+ 				int dVert = mc.currentScreen.height - 22 - 6 * 18;
+ 				xOff = aHudCls.getField("posX").getInt(aHudObj) - 3;
+ 				yOff = aHudCls.getField("posY").getInt(aHudObj) - dVert;
+ 				horiz += xOff;
+ 				vert += yOff;
+ 				if (mc.ingameGUI.getChatGUI().getChatOpen())
+ 					((GuiChat)mc.currentScreen).scrollBar.setOffset(xOff, yOff);
+ 			}
+ 		} catch (Throwable e) {}
+ 		for (int i = 0; i < n; i++) {
+ 			if (i > 0)
+ 				horiz = this.channels.get(i-1).getButtonEnd() + 1;
+ 			if (horiz + this.channels.get(i).tab.width() > 327) {
+ 				vert = vert - this.channels.get(i).tab.height() - 1;
+ 				horiz = 3;
+ 			}
+ 			this.channels.get(i).setButtonLoc(horiz, vert);
+ 			this.channels.get(i).setButtonObj(new ChatButton(this.channels.get(i).getID(),
+ 					horiz,
+ 					vert,
+ 					this.channels.get(i).tab.width(),
+ 					this.channels.get(i).tab.height(),
+ 					this.channels.get(i).getDisplayTitle()));
+ 		}
+ 	}
 }
