@@ -309,6 +309,7 @@ public class TabbyChat {
 	
 	public void pollForUnread(Gui _gui, int _x, int _y, int _tick) {
 		int _opacity;
+		if (this.lastChat == null) return;
 		int tickdiff = _tick - this.lastChat.getUpdatedCounter();
 		
 		if (tickdiff < 50) {
