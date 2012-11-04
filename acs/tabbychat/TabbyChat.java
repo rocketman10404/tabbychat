@@ -39,7 +39,7 @@ public class TabbyChat {
 	private Pattern chatChannelPatternDirty = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
 	private Pattern chatPMfromMePattern = Pattern.compile("^\\[(?:me)[ ]\\-\\>[ ]([A-Za-z0-9_]{1,16})\\]");
 	private Pattern chatPMtoMePattern = Pattern.compile("^\\[([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\]");
-	protected static String version = "1.1.0";
+	protected static String version = "1.2.0";
 	protected Calendar cal = Calendar.getInstance();
 	protected ChatLine lastChat;
 	public List<ChatChannel> channels = new ArrayList<ChatChannel>(20);
@@ -61,8 +61,8 @@ public class TabbyChat {
 			
 			String ver = TabbyChat.getNewestVersion();
 			if (!ver.equals(version)) {
-				ver = "�7TabbyChat: An update is available!  (Current version is "+version+", newest is "+ver+")";
-				String ver2 = "�7Visit the TabbyChat forum thread at minecraftforum.net to download.";
+				ver = "\u00A77TabbyChat: An update is available!  (Current version is "+version+", newest is "+ver+")";
+				String ver2 = "\u00A77Visit the TabbyChat forum thread at minecraftforum.net to download.";
 				ChatLine updateLine = new ChatLine(mc.ingameGUI.getUpdateCounter(), ver, 0);
 				ChatLine updateLine2 = new ChatLine(mc.ingameGUI.getUpdateCounter(), ver2, 0);
 				this.channels.add(new ChatChannel("TabbyChat"));
@@ -457,12 +457,18 @@ public class TabbyChat {
  				horiz = 3;
  			}
  			this.channels.get(i).setButtonLoc(horiz, vert);
- 			this.channels.get(i).setButtonObj(new ChatButton(this.channels.get(i).getID(),
- 					horiz,
- 					vert,
- 					this.channels.get(i).tab.width(),
- 					this.channels.get(i).tab.height(),
- 					this.channels.get(i).getDisplayTitle()));
+ 			if (this.channels.get(i).tab == null) {
+ 				this.channels.get(i).setButtonObj(new ChatButton(this.channels.get(i).getID(),
+ 						horiz,
+ 						vert,
+ 						this.channels.get(i).tab.width(),
+ 						this.channels.get(i).tab.height(),
+ 						this.channels.get(i).getDisplayTitle()));
+ 			} else {
+ 				this.channels.get(i).tab.id = this.channels.get(i).getID();
+ 				this.channels.get(i).tab.xPosition = horiz;
+ 				this.channels.get(i).tab.yPosition = vert;
+ 			}
  		}
  	}
 }
