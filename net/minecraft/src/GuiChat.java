@@ -314,51 +314,6 @@ public class GuiChat extends GuiScreen {
 	public void drawChatTabs() {
 		TabbyChat tc = TabbyChat.instance;
 		this.controlList.clear();
-		/*
-		int clines = (mc.ingameGUI.getChatGUI().GetChatHeight() < 20) ? mc.ingameGUI.getChatGUI().GetChatHeight() : 20;
-		int vert = mc.currentScreen.height - ((clines-1) * 9 + 8) - 55;
-		int horiz = 3;
-		int n = tc.channels.size();
-		String title = "";
-		
-		int xOff = 0;
-		int yOff = 0;
-		try {
-			if (TabbyChatUtils.is(mc.ingameGUI.getChatGUI(), "GuiNewChatWrapper")) {
-				Class aHudCls = Class.forName("ahud.ahuditem.DefaultHudItems");
-				Field aHudFld = aHudCls.getField("chat");
-				Object aHudObj = aHudFld.get(null);
-				aHudCls = aHudObj.getClass();
-				aHudFld = aHudCls.getField("config");
-				aHudObj = aHudFld.get(aHudObj);
-				aHudCls = aHudObj.getClass();
-				int dVert = mc.currentScreen.height - 22 - 6 * 18;
-				xOff = aHudCls.getField("posX").getInt(aHudObj) - 3;
-				yOff = aHudCls.getField("posY").getInt(aHudObj) - dVert;
-				horiz += xOff;
-				vert += yOff;
-				this.scrollBar.setOffset(xOff, yOff);
-			}
-		} catch (Throwable e) {}
-		
-		for (int i = 0; i < n; i++) {
-			if (i > 0) {
-				horiz = tc.channels.get(i-1).getButtonEnd() + 1;
-			}
-			if (horiz + tc.channels.get(i).tab.width > 327) {
-				vert = vert - tc.channels.get(i).tab.height - 1;
-				horiz = 3;
-			}
-			tc.channels.get(i).setButtonLoc(horiz, vert);
-			this.controlList.add(new ChatButton(tc.channels.get(i).getID(),
-					horiz,
-					vert,
-					tc.channels.get(i).tab.width,
-					tc.channels.get(i).tab.height,
-					tc.channels.get(i).getDisplayTitle()));
-			tc.channels.get(i).setButtonObj((ChatButton)this.controlList.get(this.controlList.size() - 1));
-		}
-		*/
 		tc.updateButtonLocations();
 		for (ChatChannel _chan : tc.channels) {
 			this.controlList.add(_chan.tab);

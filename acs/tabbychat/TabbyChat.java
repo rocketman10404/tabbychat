@@ -310,9 +310,9 @@ public class TabbyChat {
 	public void pollForUnread(Gui _gui, int _x, int _y, int _tick) {
 		int _opacity;
 		int tickdiff = _tick - this.lastChat.getUpdatedCounter();
-		float var6 = this.mc.gameSettings.chatOpacity * 0.9F + 0.1F;
 		
 		if (tickdiff < 200) {
+			float var6 = this.mc.gameSettings.chatOpacity * 0.9F + 0.1F;
 			double var10 = (double)tickdiff / 200.0D;
 			var10 = 1.0D - var10;
 			var10 *= 10.0D;
@@ -323,7 +323,7 @@ public class TabbyChat {
 			_opacity = (int)(255.0D * var10);
 			_opacity = (int)((float)_opacity * var6);
 			if (_opacity <= 3) return;
-			GuiChat _tmp = new GuiChat();
+			this.updateButtonLocations();
 			for (ChatChannel _chan : this.channels) {
 				if (_chan.unread) {
 					_chan.unreadNotify(_gui, _x, _y, _opacity); 
@@ -422,6 +422,8 @@ public class TabbyChat {
 	}
 
  	public void updateButtonLocations() {
+ 		if (mc.currentScreen == null) return;
+ 		
  		int clines = (mc.ingameGUI.getChatGUI().GetChatHeight() < 20) ? mc.ingameGUI.getChatGUI().GetChatHeight() : 20;
  		int vert = mc.currentScreen.height - ((clines - 1) * 9 + 8) - 55;
  		int horiz = 3;
