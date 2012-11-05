@@ -24,10 +24,9 @@ public class GuiNewChat extends Gui {
          byte var2 = 10;
          boolean var3 = false;
          int var4 = 0;
+         int _y = 0;
          int var5 = this.chatLines.size();
          float var6 = this.mc.gameSettings.chatOpacity * 0.9F + 0.1F;
-         int tc_x = 0;
-         int tc_y = 0;
          if(var5 > 0) {
             if(this.getChatOpen()) {
                var2 = 20;
@@ -64,7 +63,7 @@ public class GuiNewChat extends Gui {
                      if(var12 > 3) {
                         byte var13 = 3;
                         int var14 = -var7 * 9;
-
+                        _y = var14;
                         int xOf = 0;
                         if (TabbyChat.instance.globalPrefs.TCenabled && TabbyChat.instance.globalPrefs.timestampsEnabled) {
                         	xOf = mc.fontRenderer.getStringWidth(TabbyChat.instance.globalPrefs.timestampStyle.maxTime);
@@ -78,8 +77,6 @@ public class GuiNewChat extends Gui {
                         }
 
                         this.mc.fontRenderer.drawStringWithShadow(var15, var13, var14, 16777215 + (var12 << 24));
-                        tc_x = var13;
-                        tc_y = var14;
                      }
                   }
                }
@@ -101,7 +98,7 @@ public class GuiNewChat extends Gui {
             }
          }
          if (!this.getChatOpen()) {
-             TabbyChat.instance.pollForUnread(this, tc_x, tc_y, par1);
+             TabbyChat.instance.pollForUnread(this, _y, par1);
          }
       }
    }

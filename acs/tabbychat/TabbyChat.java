@@ -307,8 +307,8 @@ public class TabbyChat {
 		return (this.channels.get(index).chanID == btnObj.id);
 	}
 	
-	public void pollForUnread(Gui _gui, int _x, int _y, int _tick) {
-		int _opacity;
+	public void pollForUnread(Gui _gui, int _y, int _tick) {
+		int _opacity = 0;
 		if (this.lastChat == null) return;
 		int tickdiff = _tick - this.lastChat.getUpdatedCounter();
 		
@@ -327,7 +327,7 @@ public class TabbyChat {
 			this.updateButtonLocations();
 			for (ChatChannel _chan : this.channels) {
 				if (_chan.unread) {
-					_chan.unreadNotify(_gui, _x, _y, _opacity); 
+					_chan.unreadNotify(_gui, _y, _opacity); 
 				}
 			}			
 		}
@@ -423,10 +423,9 @@ public class TabbyChat {
 	}
 
  	public void updateButtonLocations() {
- 		if (mc.currentScreen == null) return;
- 		
+ 		boolean screenPresent = (mc.currentScreen != null);
  		int clines = (mc.ingameGUI.getChatGUI().GetChatHeight() < 20) ? mc.ingameGUI.getChatGUI().GetChatHeight() : 20;
- 		int vert = mc.currentScreen.height - ((clines - 1) * 9 + 8) - 55;
+ 		int vert = screenPresent ? mc.currentScreen.height - ((clines - 1) * 9 + 8) - 55 : 0;
  		int horiz = 3;
  		int n = this.channels.size();
  		
@@ -446,7 +445,7 @@ public class TabbyChat {
  				yOff = aHudCls.getField("posY").getInt(aHudObj) - dVert;
  				horiz += xOff;
  				vert += yOff;
- 				if (mc.ingameGUI.getChatGUI().getChatOpen())
+ 				if (mc.ingameGUI.getChatGUI().getChatOpen() && screenPresent)
  					((GuiChat)mc.currentScreen).scrollBar.setOffset(xOff, yOff);
  			}
  		} catch (Throwable e) {}
@@ -469,6 +468,7 @@ public class TabbyChat {
  				this.channels.get(i).tab.id = this.channels.get(i).getID();
  				this.channels.get(i).tab.xPosition = horiz;
  				this.channels.get(i).tab.yPosition = vert;
+ 				this.channels.get(i).tab.displayString = this.channels.get(i).getDisplayTitle();
  			}
  		}
  	}
