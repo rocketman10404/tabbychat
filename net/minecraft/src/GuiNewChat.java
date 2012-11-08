@@ -63,7 +63,8 @@ public class GuiNewChat extends Gui {
                      if(var12 > 3) {
                         byte var13 = 3;
                         int var14 = -var7 * 9;
-                        _y = var14;
+                        /**** modded here ****/
+                        _y = var14 - 1;
                         int xOf = 0;
                         if (TabbyChat.instance.globalPrefs.TCenabled && TabbyChat.instance.globalPrefs.timestampsEnabled) {
                         	xOf = mc.fontRenderer.getStringWidth(TabbyChat.instance.globalPrefs.timestampStyle.maxTime);
@@ -97,6 +98,7 @@ public class GuiNewChat extends Gui {
                }
             }
          }
+         /**** modded here ****/
          if (!this.getChatOpen()) {
              TabbyChat.instance.pollForUnread(this, _y, par1);
          }

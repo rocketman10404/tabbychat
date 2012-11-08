@@ -11,6 +11,7 @@ package acs.tabbychat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.io.BufferedReader;
 import java.io.File;
@@ -39,7 +40,7 @@ public class TabbyChat {
 	private Pattern chatChannelPatternDirty = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
 	private Pattern chatPMfromMePattern = Pattern.compile("^\\[(?:me)[ ]\\-\\>[ ]([A-Za-z0-9_]{1,16})\\]");
 	private Pattern chatPMtoMePattern = Pattern.compile("^\\[([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\]");
-	protected static String version = "1.2.0";
+	protected static String version = "1.2.2";
 	protected Calendar cal = Calendar.getInstance();
 	protected ChatLine lastChat;
 	public List<ChatChannel> channels = new ArrayList<ChatChannel>(20);
@@ -92,7 +93,7 @@ public class TabbyChat {
 		return ret;
 	}
 
-	private int addToChannel(int index, ChatLine[] thisChat) {
+	private int addToChannel(int index, ArrayList<ChatLine> thisChat) {
 		int ret = 0;
 		for (ChatLine cl : thisChat) {
 			ret += this.addToChannel(index, cl);
@@ -100,7 +101,7 @@ public class TabbyChat {
 		return ret;
 	}
 	
-	private int addToChannel(String _name, ChatLine[] thisChat) {
+	private int addToChannel(String _name, ArrayList<ChatLine> thisChat) {
 		for (String ichan : this.serverPrefs.ignoredChans) {
 			if (ichan.length() > 0 && _name.equals(ichan)) {
 				return 0;
@@ -325,11 +326,11 @@ public class TabbyChat {
 			_opacity = (int)((float)_opacity * var6);
 			if (_opacity <= 3) return;
 			this.updateButtonLocations();
-			for (ChatChannel _chan : this.channels) {
-				if (_chan.unread) {
-					_chan.unreadNotify(_gui, _y, _opacity); 
-				}
-			}			
+			int n = this.channels.size();
+			for (int i = 1; i < n; i++) {
+				if (this.channels.get(i).unread)
+					this.channels.get(i).unreadNotify(_gui, _y, _opacity);
+			}
 		}
 	}
 	
@@ -338,28 +339,31 @@ public class TabbyChat {
 	}
 	
 	public int processChat(ChatLine[] theChat) {
-		
-		ChatLine[] filteredChatLine = new ChatLine[theChat.length]; 
+		ArrayList<ChatLine> filteredChatLine = new ArrayList<ChatLine>(theChat.length);
 		ArrayList<Integer> goesHere = new ArrayList<Integer>();
 		goesHere.add(0);
-		String filteredChat;
+
 		int _ind;
 		int ret = 0;
+
+		StringBuilder filteredChat = new StringBuilder(theChat[0].getChatLineString().length() * theChat.length);
+		for (int z=0; z<theChat.length; z++)
+			filteredChat.append(theChat[z].getChatLineString());
 		
-		for (int z=0; z<theChat.length; z++) {
-			filteredChat = theChat[z].getChatLineString();
-			for (CustomChatFilter filter : this.serverPrefs.customFilters) {
-				if (!filter.applyFilterToDirtyChat(filteredChat)) continue;
-				filteredChat = filter.getLastMatchPretty();
-				if (filter.sendToTab) {
-					_ind = this.getChanIndexByID(filter.chanID);
-					if (_ind > 0) goesHere.add(new Integer(_ind));
-				}
-				if (filter.ding) this.ding(); 
+		for (CustomChatFilter filter : this.serverPrefs.customFilters) {
+			if (!filter.applyFilterToDirtyChat(filteredChat.toString())) continue;
+			filteredChat = new StringBuilder(filter.getLastMatchPretty());
+			if (filter.sendToTab) {
+				_ind = this.getChanIndexByID(filter.chanID);
+				if (_ind > 0) goesHere.add(new Integer(_ind));
 			}
-			filteredChatLine[z] = new ChatLine(theChat[z].getUpdatedCounter(), filteredChat, theChat[z].getChatLineID());
+			if (filter.ding) this.ding(); 
 		}
 		
+		Iterator splitChat = mc.fontRenderer.listFormattedStringToWidth(filteredChat.toString(), 320).iterator();
+		while (splitChat.hasNext()) {
+			filteredChatLine.add(new ChatLine(theChat[0].getUpdatedCounter(), (String)splitChat.next(), theChat[0].getChatLineID()));
+		}
 		
 		for (Integer c : goesHere) {
 			this.addToChannel(c.intValue(), filteredChatLine);
