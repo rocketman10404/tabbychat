@@ -283,21 +283,7 @@ public class GuiChat extends GuiScreen {
 		}
 		if (!tc.globalPrefs.TCenabled) return;
 		int n = tc.channels.size();
-		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {			
-/*
-			for (int j = 1; j < n; j++) {
-				if (tc.channels.get(j).doesButtonEqual(par1GuiButton)) {
-					// See if tab-channel is associated with a filter
-					// if so, disable that filter's sendToTab
-					for (int z = 0; z < tc.serverPrefs.numFilters(); z++) {
-						if (tc.serverPrefs.filterMatchesChannel(z, tc.channels.get(j).getID()))
-							tc.serverPrefs.filterSentToTab(z, false);
-					}
-					tc.channels.remove(j);
-					break;
-				}
-			}
-*/				
+		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {						
 			int a = tc.serverPrefs.numFilters();
 			for (int z = 0; z < a; z++) {
 				if (tc.serverPrefs.filterMatchesChannel(z, (_button.channel.getID())))
@@ -305,26 +291,22 @@ public class GuiChat extends GuiScreen {
 			}
 			tc.channels.remove(_button.channel);
 		} else if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
-			_button.channel.active = !_button.channel.active;
-			/*TODO: **** INITIATE CHAT MERGING ******/
-			if (_button.channel.active) {
+			if (!_button.channel.active)
 				mc.ingameGUI.getChatGUI().mergeChatLines(_button.channel.chatLog);
-			} else {
-				
-			}			
+			_button.channel.active = !_button.channel.active;
+			if (!_button.channel.active)
+				tc.resetDisplayedChat();
 		} else {
-			for(int i = 0; i < n; i++) {
-				if (tc.matchChannelWithButton(i, par1GuiButton)) {
-					if (!tc.channels.get(i).active) {
-						this.scrollBar.scrollBarMouseWheel();
-						tc.channels.get(i).active = true;
-						mc.ingameGUI.getChatGUI().clearChatLines();
-						tc.displayChatLines(mc, i);
-						tc.channels.get(i).unread = false;
-					}
-				} else
+			for (int i=0; i<n; i++) {
+				if (!_button.equals(tc.channels.get(i).tab))
 					tc.channels.get(i).active = false;
 			}
+			if (!_button.channel.active) {
+				this.scrollBar.scrollBarMouseWheel();
+				_button.channel.active = true;
+				_button.channel.unread = false;
+			}
+			tc.resetDisplayedChat();
 		}
 	}
 	

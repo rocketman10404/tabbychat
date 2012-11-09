@@ -178,8 +178,9 @@ public class GuiSettings extends net.minecraft.src.GuiScreen {
 		case cancelButton:
 			tc.filtersWindow.tmp_customFilters = CustomChatFilter.copyList(tc.serverPrefs.customFilters);
 			this.mc.displayGuiScreen((GuiScreen)null);
-			this.mc.ingameGUI.getChatGUI().clearChatLines();
-			tc.displayChatLines(this.mc, tc.getActive());
+			//this.mc.ingameGUI.getChatGUI().clearChatLines();
+			//tc.displayChatLines(this.mc, tc.getActive());
+			tc.resetDisplayedChat();
 			break;
 		case saveButton:		
 			this.applySettings();
@@ -187,8 +188,9 @@ public class GuiSettings extends net.minecraft.src.GuiScreen {
 			tc.globalPrefs.saveSettings();
 			tc.serverPrefs.saveSettings();
 			this.mc.displayGuiScreen((GuiScreen)null);
-			this.mc.ingameGUI.getChatGUI().clearChatLines();
-			tc.displayChatLines(this.mc, tc.getActive());
+			//this.mc.ingameGUI.getChatGUI().clearChatLines();
+			//tc.displayChatLines(this.mc, tc.getActive());
+			tc.resetDisplayedChat();
 			break;
 		case filtersWindowButton:
 			applyTextFields();

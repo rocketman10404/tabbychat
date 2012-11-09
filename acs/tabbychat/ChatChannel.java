@@ -80,9 +80,7 @@ public class ChatChannel {
 	
 	public void trimLog() {
 		if (TabbyChat.instance != null && this.chatLog.size() >= TabbyChat.instance.globalPrefs.retainedChats + 5) {
-			for (int i = 0; i <= 10; i++) {
-				this.chatLog.remove(this.chatLog.size()-1);
-			}
+			this.chatLog.subList(this.chatLog.size()-11, this.chatLog.size()-1).clear();
 		}
 	}
 

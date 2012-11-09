@@ -127,8 +127,7 @@ public class GuiNewChat extends Gui {
       TabbyChat tc = TabbyChat.instance;
       if (tc.enabled() && tc.serverPrefs.ip != this.mc.getServerData().serverIP)
     	  tc.reloadServerPrefs();
-      ArrayList<ChatLine> multiLineChat = new ArrayList<ChatLine>();
-      ChatLine[] ab = new ChatLine[0];
+      List<ChatLine> multiLineChat = new ArrayList<ChatLine>();
       multiLineChat.clear();
 
       while(var5.hasNext()) {
@@ -141,29 +140,29 @@ public class GuiNewChat extends Gui {
          if(!var4) {
             var6 = " " + var6;
          }
-         
          multiLineChat.add(new ChatLine(this.mc.ingameGUI.getUpdateCounter(), var6, par2));
          var4 = false;
       }
       
       /**** modded here ****/
+      int n;
       if (tc.enabled()) {
-    	  int ret = tc.processChat(multiLineChat.toArray(ab));
+    	  int ret = tc.processChat(multiLineChat);
     	  if (ret > 0) {
-    		  int _ind = tc.getActive();
-    		  for (int c = multiLineChat.size()-1; c >= 0; c--) {
-    			  this.chatLines.add(0, tc.getChatLine(_ind, c));
+    		  n = tc.lastChat.size();
+    		  for (int c=0; c<n; c++) {
+    			  this.chatLines.add(0, tc.lastChat.get(c));
     		  }
     	  }
       } else {
-    	  for (int d = 0; d < multiLineChat.size(); d++) {
+    	  n = multiLineChat.size();
+    	  for (int d=0; d<n; d++) {
     		  this.chatLines.add(0, multiLineChat.get(d));
     	  }
       }
       multiLineChat = null;
-      ab = null;
-      while(this.chatLines.size() > tc.globalPrefs.retainedChats) {
-         this.chatLines.remove(this.chatLines.size() - 1);
+      if (this.chatLines.size() >= tc.globalPrefs.retainedChats + 5) {
+    	  this.chatLines.subList(this.chatLines.size()-11, this.chatLines.size()-1).clear();
       }
    }
 
@@ -252,6 +251,7 @@ public class GuiNewChat extends Gui {
    }
    
    public void clearChatLines() {
+	   this.resetScroll();
 	   this.chatLines.clear();
    }
    
@@ -266,20 +266,33 @@ public class GuiNewChat extends Gui {
    public int lastUpdate() {
 	   return ((ChatLine)this.chatLines.get(this.chatLines.size()-1)).getUpdatedCounter();
    }
-   
-   protected void mergeChatLines(List<ChatLine> _new) {
+
+public void mergeChatLines(List<ChatLine> _new) {
 	   ArrayList<ChatLine> _current = (ArrayList<ChatLine>)this.chatLines;
-	   int j = _new.size() - 1;
-	   for (int i = this.chatLines.size() - 1; i >= 0; i--) {
-		   while (_new.get(j).getUpdatedCounter() >= _current.get(i).getUpdatedCounter()) {
-			   _current.add(i + 1, _new.get(j));
-			   if (j == 0) return;
-			   j--;
-		   }
+	   if (_new == null || _new.size() <= 0) return;
+	   
+	   int _c = 0;
+	   int _n = 0;
+	   int dt = 0;
+	   int max = _new.size();
+	   while (_n < max && _c < _current.size()) {
+		   dt = _new.get(_n).getUpdatedCounter() - _current.get(_c).getUpdatedCounter();
+		   if (dt > 0) {
+			   _current.add(_c, _new.get(_n));
+			   _n++;
+		   } else if (dt == 0) {
+			   if (_current.get(_c).equals(_new.get(_n))) {
+				   _c++;
+				   _n++;
+			   } else
+				   _c++;
+		   } else
+			   _c++;
 	   }
-	   while (j >= 0) {
-		   _current.add(0, _new.get(j));
-		   j--;
-	   }	   
+	   
+	   while (_n < max) {
+		   _current.add(_current.size(), _new.get(_n));
+		   _n++;
+	   }
    }
 }

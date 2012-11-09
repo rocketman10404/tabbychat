@@ -42,7 +42,7 @@ public class TabbyChat {
 	private Pattern chatPMtoMePattern = Pattern.compile("^\\[([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\]");
 	protected static String version = "1.2.2";
 	protected Calendar cal = Calendar.getInstance();
-	protected ChatLine lastChat;
+	public List<ChatLine> lastChat;
 	public List<ChatChannel> channels = new ArrayList<ChatChannel>(20);
 	public int nextID = 3600;
 	public GlobalSettings globalPrefs = new GlobalSettings();
@@ -272,20 +272,11 @@ public class TabbyChat {
 		} else
 			return this.globalPrefs.TCenabled;
 	}
-/*	
-	public int getActive() {
-		for (int i = 0; i < this.channels.size(); i++) {
-			if (this.channels.get(i).active) {
-				return i;
-			}
-		}
-		return 0;
-	}
-*/
 	
 	public List<Integer> getActive() {
-		List<Integer> actives = new ArrayList<Integer>(this.channels.size());
-		for (int i = 0; i < this.channels.size(); i++) {
+		int n = this.channels.size();
+		List<Integer> actives = new ArrayList<Integer>(n);
+		for (int i=0; i<n; i++) {
 			if (this.channels.get(i).active)
 				actives.add(new Integer(i));
 		}
@@ -293,7 +284,8 @@ public class TabbyChat {
 	}
 	
 	public int getChanId(String _name) {
-		for (int i=0; i<this.channels.size(); i++) {
+		int n = this.channels.size();
+		for (int i=0; i<n; i++) {
 			if (_name.equals(this.channels.get(i).title)) {
 				return this.channels.get(i).chanID;
 			}
@@ -320,8 +312,8 @@ public class TabbyChat {
 	
 	public void pollForUnread(Gui _gui, int _y, int _tick) {
 		int _opacity = 0;
-		if (this.lastChat == null) return;
-		int tickdiff = _tick - this.lastChat.getUpdatedCounter();
+		if (this.lastChat == null || this.lastChat.size() == 0) return;
+		int tickdiff = _tick - this.lastChat.get(0).getUpdatedCounter();
 		
 		if (tickdiff < 50) {
 			float var6 = this.mc.gameSettings.chatOpacity * 0.9F + 0.1F;
@@ -348,17 +340,18 @@ public class TabbyChat {
 		System.err.println(err);
 	}
 	
-	public int processChat(ChatLine[] theChat) {
-		ArrayList<ChatLine> filteredChatLine = new ArrayList<ChatLine>(theChat.length);
+	public int processChat(List<ChatLine> theChat) {
+		ArrayList<ChatLine> filteredChatLine = new ArrayList<ChatLine>(theChat.size());
 		ArrayList<Integer> goesHere = new ArrayList<Integer>();
 		goesHere.add(0);
 
 		int _ind;
 		int ret = 0;
-
-		StringBuilder filteredChat = new StringBuilder(theChat[0].getChatLineString().length() * theChat.length);
-		for (int z=0; z<theChat.length; z++)
-			filteredChat.append(theChat[z].getChatLineString());
+		
+		int n = theChat.size();
+		StringBuilder filteredChat = new StringBuilder(theChat.get(0).getChatLineString().length() * n);
+		for (int z=0; z<n; z++)
+			filteredChat.append(theChat.get(z).getChatLineString());
 		
 		for (CustomChatFilter filter : this.serverPrefs.customFilters) {
 			if (!filter.applyFilterToDirtyChat(filteredChat.toString())) continue;
@@ -372,7 +365,7 @@ public class TabbyChat {
 		
 		Iterator splitChat = mc.fontRenderer.listFormattedStringToWidth(filteredChat.toString(), 320).iterator();
 		while (splitChat.hasNext()) {
-			filteredChatLine.add(new ChatLine(theChat[0].getUpdatedCounter(), (String)splitChat.next(), theChat[0].getChatLineID()));
+			filteredChatLine.add(new ChatLine(theChat.get(0).getUpdatedCounter(), (String)splitChat.next(), theChat.get(0).getChatLineID()));
 		}
 		
 		for (Integer c : goesHere) {
@@ -421,7 +414,7 @@ public class TabbyChat {
 					this.channels.get(read.intValue()).unread = true;
 			}
 		}
-		this.lastChat = theChat[0];
+		this.lastChat = theChat;
 		return ret;
 	}
 	
@@ -445,13 +438,12 @@ public class TabbyChat {
  		mc.ingameGUI.getChatGUI().clearChatLines();
  		List<Integer> actives = this.getActive();
  		if (actives.size() < 1) return;
- 		mc.ingameGUI.getChatGUI().addChatLines(this.channels.get(actives.get(0)).chatLog);
+ 		mc.ingameGUI.getChatGUI().addChatLines(this.channels.get(actives.get(0).intValue()).chatLog);
  		int n = actives.size();
  		for (int i = 1; i < n; i++) {
- 			mc.ingameGUI.getChatGUI().merge
+ 			mc.ingameGUI.getChatGUI().mergeChatLines(this.channels.get(actives.get(i).intValue()).chatLog);
  		}
  	}
- 	
  	
  	public void updateButtonLocations() {
  		boolean screenPresent = (mc.currentScreen != null);
