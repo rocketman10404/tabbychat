@@ -93,7 +93,7 @@ public class TabbyChat {
 		return ret;
 	}
 
-	private int addToChannel(int index, ArrayList<ChatLine> thisChat) {
+	private int addToChannel(int index, List<ChatLine> thisChat) {
 		int ret = 0;
 		for (ChatLine cl : thisChat) {
 			ret += this.addToChannel(index, cl);
@@ -101,7 +101,7 @@ public class TabbyChat {
 		return ret;
 	}
 	
-	private int addToChannel(String _name, ArrayList<ChatLine> thisChat) {
+	private int addToChannel(String _name, List<ChatLine> thisChat) {
 		for (String ichan : this.serverPrefs.ignoredChans) {
 			if (ichan.length() > 0 && _name.equals(ichan)) {
 				return 0;
@@ -272,7 +272,7 @@ public class TabbyChat {
 		} else
 			return this.globalPrefs.TCenabled;
 	}
-	
+/*	
 	public int getActive() {
 		for (int i = 0; i < this.channels.size(); i++) {
 			if (this.channels.get(i).active) {
@@ -280,6 +280,16 @@ public class TabbyChat {
 			}
 		}
 		return 0;
+	}
+*/
+	
+	public List<Integer> getActive() {
+		List<Integer> actives = new ArrayList<Integer>(this.channels.size());
+		for (int i = 0; i < this.channels.size(); i++) {
+			if (this.channels.get(i).active)
+				actives.add(new Integer(i));
+		}
+		return actives;
 	}
 	
 	public int getChanId(String _name) {
@@ -368,7 +378,12 @@ public class TabbyChat {
 		for (Integer c : goesHere) {
 			this.addToChannel(c.intValue(), filteredChatLine);
 		}
-		if (goesHere.contains(new Integer(this.getActive()))) ret += 1;
+		
+		//if (goesHere.contains(new Integer(this.getActive()))) ret += 1;
+		for (Integer _act : this.getActive()) {
+			if (goesHere.contains(_act))
+				ret += 1;
+		}
 		
 		String coloredChat = "";
 		for (ChatLine cl : theChat)
@@ -426,6 +441,18 @@ public class TabbyChat {
  		this.channels.remove(index);
 	}
 
+ 	public void resetDisplayedChat() {
+ 		mc.ingameGUI.getChatGUI().clearChatLines();
+ 		List<Integer> actives = this.getActive();
+ 		if (actives.size() < 1) return;
+ 		mc.ingameGUI.getChatGUI().addChatLines(this.channels.get(actives.get(0)).chatLog);
+ 		int n = actives.size();
+ 		for (int i = 1; i < n; i++) {
+ 			mc.ingameGUI.getChatGUI().merge
+ 		}
+ 	}
+ 	
+ 	
  	public void updateButtonLocations() {
  		boolean screenPresent = (mc.currentScreen != null);
  		int clines = (mc.ingameGUI.getChatGUI().GetChatHeight() < 20) ? mc.ingameGUI.getChatGUI().GetChatHeight() : 20;

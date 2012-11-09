@@ -273,7 +273,8 @@ public class GuiChat extends GuiScreen {
    
 	protected void actionPerformed(GuiButton par1GuiButton) {
 		TabbyChat tc = TabbyChat.instance;
-		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) && tc.channels.get(0).doesButtonEqual(par1GuiButton)) {
+		ChatButton _button = (ChatButton)par1GuiButton;
+		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) && tc.channels.get(0) == _button.channel) {
 			this.mc.ingameGUI.getChatGUI().func_73761_a();
 			tc.prefsWindow.prepareTempVars();
 			tc.filtersWindow.prepareTempFilters();
@@ -282,9 +283,10 @@ public class GuiChat extends GuiScreen {
 		}
 		if (!tc.globalPrefs.TCenabled) return;
 		int n = tc.channels.size();
-		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
-			for (int j = 0; j < n; j++) {
-				if (j != 0 && tc.channels.get(j).doesButtonEqual(par1GuiButton)) {
+		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {			
+/*
+			for (int j = 1; j < n; j++) {
+				if (tc.channels.get(j).doesButtonEqual(par1GuiButton)) {
 					// See if tab-channel is associated with a filter
 					// if so, disable that filter's sendToTab
 					for (int z = 0; z < tc.serverPrefs.numFilters(); z++) {
@@ -295,6 +297,21 @@ public class GuiChat extends GuiScreen {
 					break;
 				}
 			}
+*/				
+			int a = tc.serverPrefs.numFilters();
+			for (int z = 0; z < a; z++) {
+				if (tc.serverPrefs.filterMatchesChannel(z, (_button.channel.getID())))
+						tc.serverPrefs.filterSentToTab(z, false);
+			}
+			tc.channels.remove(_button.channel);
+		} else if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
+			_button.channel.active = !_button.channel.active;
+			/*TODO: **** INITIATE CHAT MERGING ******/
+			if (_button.channel.active) {
+				mc.ingameGUI.getChatGUI().mergeChatLines(_button.channel.chatLog);
+			} else {
+				
+			}			
 		} else {
 			for(int i = 0; i < n; i++) {
 				if (tc.matchChannelWithButton(i, par1GuiButton)) {

@@ -8,7 +8,7 @@ import net.minecraft.src.Gui;
 import net.minecraft.src.GuiButton;
 
 public class ChatButton extends net.minecraft.src.GuiButton {
-	protected ChatChannel channel;
+	public ChatChannel channel;
 	
 	public ChatButton() {
 		super(9999, 0, 0, 1, 1, "");

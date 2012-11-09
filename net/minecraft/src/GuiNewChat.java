@@ -266,4 +266,20 @@ public class GuiNewChat extends Gui {
    public int lastUpdate() {
 	   return ((ChatLine)this.chatLines.get(this.chatLines.size()-1)).getUpdatedCounter();
    }
+   
+   protected void mergeChatLines(List<ChatLine> _new) {
+	   ArrayList<ChatLine> _current = (ArrayList<ChatLine>)this.chatLines;
+	   int j = _new.size() - 1;
+	   for (int i = this.chatLines.size() - 1; i >= 0; i--) {
+		   while (_new.get(j).getUpdatedCounter() >= _current.get(i).getUpdatedCounter()) {
+			   _current.add(i + 1, _new.get(j));
+			   if (j == 0) return;
+			   j--;
+		   }
+	   }
+	   while (j >= 0) {
+		   _current.add(0, _new.get(j));
+		   j--;
+	   }	   
+   }
 }

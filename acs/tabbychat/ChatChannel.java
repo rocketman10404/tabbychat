@@ -14,7 +14,7 @@ public class ChatChannel {
 	private static int nextID = 3600;
 	protected String title;
 	public ChatButton tab;
-	protected List<ChatLine> chatLog;
+	public ArrayList<ChatLine> chatLog;
 	protected int chanID = nextID + 1;
 	public boolean unread = false;
 	public boolean active = false;
