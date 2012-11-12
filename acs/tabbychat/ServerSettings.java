@@ -29,25 +29,10 @@ public class ServerSettings {
 	public String ip;
 	public String name;
 	
-	public ServerSettings() {
-		if (!Minecraft.getMinecraft().isSingleplayer()) {
-			server = Minecraft.getMinecraft().getServerData();
-			this.name = server.serverName;
-			this.ip = server.serverIP;
-		}
-		
-		File settingsDir = new File(GlobalSettings.tabbyChatDir, "servers");
-		
-		if (!settingsDir.exists())
-			settingsDir.mkdirs();
-		if (!settingsDir.isDirectory())
-			TabbyChat.printErr("Unable to create TabbyChat Settings folder");
-		
-		this.settingsFile = new File(settingsDir, this.ip+".cfg");
-	}
+	public ServerSettings() {}
 	
 	protected void loadSettings() {
-		if (!this.settingsFile.exists()) {
+		if (this.settingsFile != null && !this.settingsFile.exists()) {
 			saveSettings();
 			return;
 		}
@@ -74,7 +59,6 @@ public class ServerSettings {
 		} catch (Exception e) {
 			TabbyChat.printErr("An error occurred while loading the server settings : '" + e.getLocalizedMessage() + "' : " + e.toString());
 		}
-		//TabbyChat.instance.filtersWindow.tmp_customFilters = CustomChatFilter.copyList(this.customFilters);
 	}
 	
 	protected void saveSettings() {
@@ -112,5 +96,31 @@ public class ServerSettings {
 	
 	public int numFilters() {
 		return this.customFilters.size();
+	}
+	
+	public void updateForServer() {
+		boolean clear = false;
+		
+		
+		if (Minecraft.getMinecraft().isSingleplayer() || Minecraft.getMinecraft().getServerData() == null) {
+			this.server = null;
+			this.settingsFile = null;
+			this.name = "";
+			this.ip = "";
+		} else {
+			this.server = Minecraft.getMinecraft().getServerData();
+			this.name = server.serverName;
+			this.ip = server.serverIP;
+		
+			File settingsDir = new File(GlobalSettings.tabbyChatDir, "servers");
+		
+			if (!settingsDir.exists())
+				settingsDir.mkdirs();
+			if (!settingsDir.isDirectory())
+				TabbyChat.printErr("Unable to create TabbyChat Settings folder");
+		
+			settingsFile = new File(settingsDir, this.ip+".cfg");
+			System.out.println("server settings file set to "+this.ip+".cfg");
+		}
 	}
 }

@@ -51,11 +51,11 @@ public class ChatChannel {
 	
 	public String getDisplayTitle() {
 		if (this.active)
-			return this.title;
+			return "[" + this.title + "]";
 		else if (this.unread)
 			return "<" + this.title + ">";
 		else
-			return "[" + this.title + "]";
+			return this.title;
 	}
 	
 	public void setButtonObj(ChatButton btnObj) {

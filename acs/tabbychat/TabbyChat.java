@@ -40,7 +40,7 @@ public class TabbyChat {
 	private Pattern chatChannelPatternDirty = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
 	private Pattern chatPMfromMePattern = Pattern.compile("^\\[(?:me)[ ]\\-\\>[ ]([A-Za-z0-9_]{1,16})\\]");
 	private Pattern chatPMtoMePattern = Pattern.compile("^\\[([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\]");
-	protected static String version = "1.2.2";
+	protected static String version = "1.3.0";
 	protected Calendar cal = Calendar.getInstance();
 	public List<ChatLine> lastChat;
 	public List<ChatChannel> channels = new ArrayList<ChatChannel>(20);
@@ -53,11 +53,14 @@ public class TabbyChat {
 	
 	private TabbyChat() {
 		mc = Minecraft.getMinecraft();
+		
 		this.prefsWindow = new GuiSettings(this);
 		this.filtersWindow = new GuiChatFilters(this);
 		this.globalPrefs.loadSettings();
-		if (enabled()) {		
-			this.channels.add(0, new ChatChannel("*"));
+		if (!this.enabled())
+			this.disable();
+		else {
+			this.enable();
 			this.channels.get(0).active = true;
 			
 			String ver = TabbyChat.getNewestVersion();
@@ -73,13 +76,6 @@ public class TabbyChat {
 				this.addToChannel(this.channels.size()-1, updateLine2);
 				
 			}
-			
-			this.serverPrefs.loadSettings();			
-			this.loadPatterns();
-			this.updateDefaults();
-			this.updateFilters();
-		} else {
-			this.globalPrefs.TCenabled = false;
 		}
 	}
 	
@@ -154,25 +150,17 @@ public class TabbyChat {
 		mc.sndManager.playSoundFX("random.orb", 1.0F, 1.0F);
 	}
 	
-	protected void disable() {
-		this.globalPrefs.TCenabled = false;
-		
-		mc.ingameGUI.getChatGUI().clearChatLines();
-		for (ChatChannel chan : this.channels) {
-			chan.clear();
-			chan = null;
-		}
+	protected void disable() {	
 		this.channels.clear();
+		this.channels.add(new ChatChannel("*"));
 	}
 	
 	protected void enable() {
-		this.globalPrefs.TCenabled = true;
 		if (this.getChanId("*") < 0) {
 			this.channels.add(0, new ChatChannel("*"));
 			this.channels.get(0).active = true;
 		}
-		
-		this.globalPrefs.loadSettings();
+		this.serverPrefs.updateForServer();
 		this.serverPrefs.loadSettings();
 		this.loadPatterns();
 		this.updateDefaults();
@@ -198,6 +186,7 @@ public class TabbyChat {
 	}
 	
 	protected void updateFilters() {
+		if (!this.globalPrefs.TCenabled) return;
 		ArrayList<Integer> track = new ArrayList<Integer>(this.serverPrefs.customFilters.size());
 		boolean keeper = false;
 		// Search through all current channels/tabs that have associated filter
@@ -229,6 +218,7 @@ public class TabbyChat {
 	}
 
 	protected void updateDefaults() {
+		if (!this.globalPrefs.TCenabled) return;
 		List<String> dList = new ArrayList(Arrays.asList(this.serverPrefs.defaultChans));
 		int ind;
 		for (ChatChannel chan : this.channels) {
@@ -240,18 +230,19 @@ public class TabbyChat {
 			if (defChan.length() > 0) this.channels.add(new ChatChannel(defChan));
 		}
 	}
-
-	public static String getNewestVersion() {
-		try {
-			URLConnection conn = new URL("http://dl.dropbox.com/u/8347166/tabbychat_ver.txt").openConnection();
-			BufferedReader buffer = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			String newestVersion = buffer.readLine();
-			buffer.close();
-			return newestVersion;
-		} catch (Throwable e) {
-			printErr("Unable to check for TabbyChat update.");
+	
+	public void checkServer() {
+		if (mc.getServerData() == null)
+			return;
+		
+		if (mc.getServerData().serverIP != this.serverPrefs.ip) {
+			this.channels.clear();
+			if (this.enabled())
+				this.enable();
+			else
+				this.disable();
 		}
-		return TabbyChat.version;
+		return;
 	}
 	
 	public void copyTab(int toIndex, int fromIndex) {
@@ -264,11 +255,7 @@ public class TabbyChat {
 	
 	public boolean enabled() {
 		if (mc.isSingleplayer()) {
-			this.disable();
 			return false;
-		} else if (!mc.isSingleplayer() && !this.globalPrefs.TCenabled) {
-			enable();
-			return true;
 		} else
 			return this.globalPrefs.TCenabled;
 	}
@@ -306,6 +293,19 @@ public class TabbyChat {
 		return this.channels.get(_chan).chatLog.get(_line);
 	}
 
+	public static String getNewestVersion() {
+		try {
+			URLConnection conn = new URL("http://dl.dropbox.com/u/8347166/tabbychat_ver.txt").openConnection();
+			BufferedReader buffer = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			String newestVersion = buffer.readLine();
+			buffer.close();
+			return newestVersion;
+		} catch (Throwable e) {
+			printErr("Unable to check for TabbyChat update.");
+		}
+		return TabbyChat.version;
+	}	
+	
 	public boolean matchChannelWithButton(int index, GuiButton btnObj) {
 		return (this.channels.get(index).chanID == btnObj.id);
 	}
@@ -372,7 +372,6 @@ public class TabbyChat {
 			this.addToChannel(c.intValue(), filteredChatLine);
 		}
 		
-		//if (goesHere.contains(new Integer(this.getActive()))) ret += 1;
 		for (Integer _act : this.getActive()) {
 			if (goesHere.contains(_act))
 				ret += 1;
@@ -414,22 +413,23 @@ public class TabbyChat {
 					this.channels.get(read.intValue()).unread = true;
 			}
 		}
-		this.lastChat = theChat;
+		this.lastChat = filteredChatLine;
 		return ret;
 	}
-	
+/*	
 	public void reloadServerPrefs() {
 		this.channels.clear();
 		this.channels.add(0, new ChatChannel("*"));
 		this.channels.get(0).active = true;
-		this.serverPrefs = null;
-		this.serverPrefs = new ServerSettings();
+//		this.serverPrefs = null;
+//		this.serverPrefs = new ServerSettings();
+		this.serverPrefs.updateForServer();
 		this.serverPrefs.loadSettings();
 		this.loadPatterns();
 		this.updateDefaults();
 		this.updateFilters();
 	}
-	
+*/	
  	public void removeTab(int index) {
  		this.channels.remove(index);
 	}

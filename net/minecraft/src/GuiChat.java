@@ -5,12 +5,9 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import net.minecraft.client.Minecraft;
-
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-
 import acs.tabbychat.ChatChannel;
 import acs.tabbychat.TabbyChat;
 import acs.tabbychat.TabbyChatUtils;
@@ -37,13 +34,16 @@ public class GuiChat extends GuiScreen {
 
    public void initGui() {
       Keyboard.enableRepeatEvents(true);
-      
       /**** modded here ****/
-      if (TabbyChat.instance.globalPrefs.TCenabled) {
+      TabbyChat.instance.checkServer();
+      if (TabbyChat.instance.enabled()) {
     	  this.drawChatTabs();
     	  if (this.scrollBar == null)
     		  this.scrollBar = new ChatScrollBar(this);
     	  this.scrollBar.drawScrollBar();
+      } else if (!Minecraft.getMinecraft().isSingleplayer()) {
+    	  TabbyChat.instance.updateButtonLocations();
+    	  this.controlList.add(TabbyChat.instance.channels.get(0).tab);
       }
       
       this.sentHistoryCursor = this.mc.ingameGUI.getChatGUI().getSentMessages().size();
@@ -114,8 +114,9 @@ public class GuiChat extends GuiScreen {
          }
 
          this.mc.ingameGUI.getChatGUI().scroll(var1);
-         this.scrollBar.scrollBarMouseWheel();
-      } else if (TabbyChat.instance.globalPrefs.TCenabled)
+         if (TabbyChat.instance.enabled())
+        	 this.scrollBar.scrollBarMouseWheel();
+      } else if (TabbyChat.instance.enabled())
     	  this.scrollBar.handleMouse();
    }
 
@@ -239,8 +240,9 @@ public class GuiChat extends GuiScreen {
       super.drawScreen(par1, par2, par3);
       
       /*** modded here ***/
-      if (TabbyChat.instance.globalPrefs.TCenabled) {
+      if (!Minecraft.getMinecraft().isSingleplayer())
     	  this.drawChatTabs();
+      if (TabbyChat.instance.enabled()) {
     	  this.scrollBar.drawScrollBar();
       }
    }
@@ -291,8 +293,10 @@ public class GuiChat extends GuiScreen {
 			}
 			tc.channels.remove(_button.channel);
 		} else if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
-			if (!_button.channel.active)
+			if (!_button.channel.active) {
 				mc.ingameGUI.getChatGUI().mergeChatLines(_button.channel.chatLog);
+				_button.channel.unread = false;
+			}
 			_button.channel.active = !_button.channel.active;
 			if (!_button.channel.active)
 				tc.resetDisplayedChat();

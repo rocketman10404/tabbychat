@@ -66,7 +66,7 @@ public class GuiNewChat extends Gui {
                         /**** modded here ****/
                         _y = var14 - 1;
                         int xOf = 0;
-                        if (TabbyChat.instance.globalPrefs.TCenabled && TabbyChat.instance.globalPrefs.timestampsEnabled) {
+                        if (TabbyChat.instance.enabled() && TabbyChat.instance.globalPrefs.timestampsEnabled) {
                         	xOf = mc.fontRenderer.getStringWidth(TabbyChat.instance.globalPrefs.timestampStyle.maxTime);
                         }
                         
@@ -99,7 +99,7 @@ public class GuiNewChat extends Gui {
             }
          }
          /**** modded here ****/
-         if (!this.getChatOpen()) {
+         if (TabbyChat.instance.enabled() && !this.getChatOpen()) {
              TabbyChat.instance.pollForUnread(this, _y, par1);
          }
       }
@@ -125,10 +125,8 @@ public class GuiNewChat extends Gui {
       
       /**** modded here ****/
       TabbyChat tc = TabbyChat.instance;
-      if (tc.enabled() && tc.serverPrefs.ip != this.mc.getServerData().serverIP)
-    	  tc.reloadServerPrefs();
+      tc.checkServer();
       List<ChatLine> multiLineChat = new ArrayList<ChatLine>();
-      multiLineChat.clear();
 
       while(var5.hasNext()) {
          String var6 = (String)var5.next();
@@ -161,7 +159,8 @@ public class GuiNewChat extends Gui {
     	  }
       }
       multiLineChat = null;
-      if (this.chatLines.size() >= tc.globalPrefs.retainedChats + 5) {
+      int maxChats = tc.enabled() ? tc.globalPrefs.retainedChats : 100;
+      if (this.chatLines.size() >= maxChats + 5) {
     	  this.chatLines.subList(this.chatLines.size()-11, this.chatLines.size()-1).clear();
       }
    }
