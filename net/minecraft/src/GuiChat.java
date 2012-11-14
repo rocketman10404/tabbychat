@@ -23,6 +23,8 @@ public class GuiChat extends GuiScreen {
    private List field_73904_o = new ArrayList();
    private URI clickedURI = null;
    protected GuiTextField inputField;
+   protected GuiTextField inputField2;
+   protected GuiTextField inputField3;
    private String defaultInputFieldText = "";
    public ChatScrollBar scrollBar;
 
@@ -47,12 +49,27 @@ public class GuiChat extends GuiScreen {
       }
       
       this.sentHistoryCursor = this.mc.ingameGUI.getChatGUI().getSentMessages().size();
-      this.inputField = new GuiTextField(this.fontRenderer, 4, this.height - 12, this.width - 4, 12);
-      this.inputField.setMaxStringLength(100);
+      this.inputField = new GuiTextField(this.fontRenderer, 4, this.height - 36, this.width - 4, 12);
+      /**** modded here ****/
+      this.inputField.setMaxStringLength(200);
       this.inputField.setEnableBackgroundDrawing(false);
       this.inputField.setFocused(true);
       this.inputField.setText(this.defaultInputFieldText);
-      this.inputField.setCanLoseFocus(false);
+      this.inputField.setCanLoseFocus(true);
+      
+      this.inputField2 = new GuiTextField(this.fontRenderer, 4, this.height - 24, this.width - 4, 12);
+      this.inputField2.setMaxStringLength(200);
+      this.inputField2.setEnableBackgroundDrawing(false);
+      this.inputField2.setFocused(false);
+      this.inputField2.setText(this.defaultInputFieldText);
+      this.inputField2.setCanLoseFocus(true);
+      
+      this.inputField3 = new GuiTextField(this.fontRenderer, 4, this.height - 12, this.width - 4, 12);
+      this.inputField3.setMaxStringLength(200);
+      this.inputField3.setEnableBackgroundDrawing(false);
+      this.inputField3.setFocused(false);
+      this.inputField3.setText(this.defaultInputFieldText);
+      this.inputField3.setCanLoseFocus(true);
    }
 
    public void onGuiClosed() {
@@ -75,14 +92,15 @@ public class GuiChat extends GuiScreen {
       if(par2 == 1) {
          this.mc.displayGuiScreen((GuiScreen)null);
       } else if(par2 == 28) {
-         String var3 = this.inputField.getText().trim();
-         if(var3.length() > 0) {
-            this.mc.ingameGUI.getChatGUI().addToSentMessages(var3);
-            if(!this.mc.handleClientCommand(var3)) {
-               this.mc.thePlayer.sendChatMessage(var3);
-            }
+    	 StringBuilder msg = new StringBuilder();
+    	 msg.append(this.inputField.getText().trim());
+    	 msg.append(this.inputField2.getText().trim());
+    	 msg.append(this.inputField3.getText().trim());
+         if(msg.toString().length() > 0) {
+        	 System.out.println("Sending chat: " + msg.toString());
+        	 /**** modded here *****/
+        	 TabbyChatUtils.writeLargeChat(msg.toString());
          }
-
          this.mc.displayGuiScreen((GuiScreen)null);
       } else if(par2 == 200) {
          this.getSentHistory(-1);
@@ -93,7 +111,25 @@ public class GuiChat extends GuiScreen {
       } else if(par2 == 209) {
          this.mc.ingameGUI.getChatGUI().scroll(-19);
       } else {
-         this.inputField.textboxKeyTyped(par1, par2);
+    	  if (this.inputField.isFocused()) {
+    		  if (mc.fontRenderer.getStringWidth(this.inputField.getText()) < mc.currentScreen.width-20)
+    			  this.inputField.textboxKeyTyped(par1, par2);
+    		  else {
+    			  this.inputField.setFocused(false);
+    			  this.inputField2.setFocused(true);
+    			  this.inputField2.textboxKeyTyped(par1, par2);
+    		  }
+    	  } else if (this.inputField2.isFocused()) {
+    		  if (mc.fontRenderer.getStringWidth(this.inputField2.getText()) < mc.currentScreen.width-20)
+    			  this.inputField2.textboxKeyTyped(par1, par2);
+    		  else {
+    			  this.inputField2.setFocused(false);
+    			  this.inputField3.setFocused(true);
+    			  this.inputField3.textboxKeyTyped(par1, par2);
+    		  }
+    	  } else if (this.inputField3.isFocused() && this.inputField3.getText().length() < this.inputField3.getMaxStringLength())
+    		  this.inputField3.textboxKeyTyped(par1, par2);
+    	  
       }
    }
 
@@ -237,6 +273,8 @@ public class GuiChat extends GuiScreen {
    public void drawScreen(int par1, int par2, float par3) {
       drawRect(2, this.height - 14, this.width - 2, this.height - 2, Integer.MIN_VALUE);
       this.inputField.drawTextBox();
+      this.inputField2.drawTextBox();
+      this.inputField3.drawTextBox();
       super.drawScreen(par1, par2, par3);
       
       /*** modded here ***/
