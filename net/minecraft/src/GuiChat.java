@@ -316,7 +316,6 @@ public class GuiChat extends GuiScreen {
 		TabbyChat tc = TabbyChat.instance;
 		ChatButton _button = (ChatButton)par1GuiButton;
 		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) && tc.channels.get(0) == _button.channel) {
-			this.mc.ingameGUI.getChatGUI().clearChatLines();
 			tc.prefsWindow.prepareTempVars();
 			tc.filtersWindow.prepareTempFilters();
 			this.mc.displayGuiScreen(tc.prefsWindow);
