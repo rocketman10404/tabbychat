@@ -150,6 +150,7 @@ public class GuiChat extends GuiScreen {
          }
 
          this.mc.ingameGUI.getChatGUI().scroll(var1);
+         /**** modded here ****/
          if (TabbyChat.instance.enabled())
         	 this.scrollBar.scrollBarMouseWheel();
       } else if (TabbyChat.instance.enabled())
@@ -315,7 +316,7 @@ public class GuiChat extends GuiScreen {
 		TabbyChat tc = TabbyChat.instance;
 		ChatButton _button = (ChatButton)par1GuiButton;
 		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) && tc.channels.get(0) == _button.channel) {
-			this.mc.ingameGUI.getChatGUI().func_73761_a();
+			this.mc.ingameGUI.getChatGUI().clearChatLines();
 			tc.prefsWindow.prepareTempVars();
 			tc.filtersWindow.prepareTempFilters();
 			this.mc.displayGuiScreen(tc.prefsWindow);
