@@ -40,7 +40,7 @@ public class TabbyChat {
 	private Pattern chatChannelPatternDirty = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
 	private Pattern chatPMfromMePattern = Pattern.compile("^\\[(?:me)[ ]\\-\\>[ ]([A-Za-z0-9_]{1,16})\\]");
 	private Pattern chatPMtoMePattern = Pattern.compile("^\\[([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\]");
-	protected static String version = "1.3.1";
+	protected static String version = "1.3.2";
 	protected Calendar cal = Calendar.getInstance();
 	public List<ChatLine> lastChat;
 	public List<ChatChannel> channels = new ArrayList<ChatChannel>(20);
@@ -414,6 +414,11 @@ public class TabbyChat {
 			}
 		}
 		this.lastChat = filteredChatLine;
+		if (this.globalPrefs.timestampsEnabled) {
+			for (int i=0; i<this.lastChat.size(); i++) {
+				this.lastChat.set(i, this.withTimeStamp(this.lastChat.get(i)));
+			}
+		}
 		return ret;
 	}
 
