@@ -40,7 +40,7 @@ public class TabbyChat {
 	private Pattern chatChannelPatternDirty = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
 	private Pattern chatPMfromMePattern = Pattern.compile("^\\[(?:me)[ ]\\-\\>[ ]([A-Za-z0-9_]{1,16})\\]");
 	private Pattern chatPMtoMePattern = Pattern.compile("^\\[([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\]");
-	protected static String version = "1.3.0";
+	protected static String version = "1.3.1";
 	protected Calendar cal = Calendar.getInstance();
 	public List<ChatLine> lastChat;
 	public List<ChatChannel> channels = new ArrayList<ChatChannel>(20);
@@ -416,20 +416,7 @@ public class TabbyChat {
 		this.lastChat = filteredChatLine;
 		return ret;
 	}
-/*	
-	public void reloadServerPrefs() {
-		this.channels.clear();
-		this.channels.add(0, new ChatChannel("*"));
-		this.channels.get(0).active = true;
-//		this.serverPrefs = null;
-//		this.serverPrefs = new ServerSettings();
-		this.serverPrefs.updateForServer();
-		this.serverPrefs.loadSettings();
-		this.loadPatterns();
-		this.updateDefaults();
-		this.updateFilters();
-	}
-*/	
+
  	public void removeTab(int index) {
  		this.channels.remove(index);
 	}

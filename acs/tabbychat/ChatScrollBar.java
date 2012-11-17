@@ -11,7 +11,7 @@ public class ChatScrollBar {
 	private int scrollBarCenter = 0;
 	private int barBottomY = 0;
 	private int barTopY = 0;
-	private int barX = 320;
+	private int barX = 324;
 	private int barMinY = 0;
 	private int barMaxY = 0;
 	private int lastY = 0;
@@ -50,7 +50,7 @@ public class ChatScrollBar {
 		int oX = 0;
 		if (TabbyChat.instance.globalPrefs.timestampsEnabled)
 			oX = mc.fontRenderer.getStringWidth(TabbyChat.instance.globalPrefs.timestampStyle.maxTime);
-		this.barX = 320 + this.offsetX + oX;
+		this.barX = 324 + this.offsetX + oX;
 		this.barMinY = mc.currentScreen.height - ((clines-1) * 9 + 8) - 35 + this.offsetY;
 		this.barMaxY = mc.currentScreen.height - 45 + this.offsetY;
 		this.barTopY = this.barMinY + barHeight/2;
@@ -108,7 +108,7 @@ public class ChatScrollBar {
 		this.offsetX = _x;
 		this.offsetY = _y;
 		int clines = (mc.ingameGUI.getChatGUI().GetChatHeight() < 20) ? mc.ingameGUI.getChatGUI().GetChatHeight() : 20;
-		this.barX = 320 + _x;
+		this.barX = 324 + _x;
 		this.barMinY = mc.currentScreen.height - ((clines-1) * 9 + 8) - 35 + _y;
 		this.barTopY = this.barMinY + barHeight/2 + _y;
 		this.barMaxY = mc.currentScreen.height - 45 + _y;
