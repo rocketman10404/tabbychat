@@ -49,13 +49,13 @@ public class GuiChat extends GuiScreen {
       }
       
       this.sentHistoryCursor = this.mc.ingameGUI.getChatGUI().getSentMessages().size();
-      this.inputField = new GuiTextField(this.fontRenderer, 4, this.height - 36, this.width - 4, 12);
+      this.inputField = new GuiTextField(this.fontRenderer, 4, this.height - 12, this.width - 4, 12);
       /**** modded here ****/
       this.inputField.setMaxStringLength(200);
       this.inputField.setEnableBackgroundDrawing(false);
       this.inputField.setFocused(true);
       this.inputField.setText(this.defaultInputFieldText);
-      this.inputField.setCanLoseFocus(true);
+      this.inputField.setCanLoseFocus(false);
       
       this.inputField2 = new GuiTextField(this.fontRenderer, 4, this.height - 24, this.width - 4, 12);
       this.inputField2.setMaxStringLength(200);
@@ -63,13 +63,15 @@ public class GuiChat extends GuiScreen {
       this.inputField2.setFocused(false);
       this.inputField2.setText(this.defaultInputFieldText);
       this.inputField2.setCanLoseFocus(true);
+      this.inputField2.setVisible(false);
       
-      this.inputField3 = new GuiTextField(this.fontRenderer, 4, this.height - 12, this.width - 4, 12);
+      this.inputField3 = new GuiTextField(this.fontRenderer, 4, this.height - 36, this.width - 4, 12);
       this.inputField3.setMaxStringLength(200);
       this.inputField3.setEnableBackgroundDrawing(false);
       this.inputField3.setFocused(false);
       this.inputField3.setText(this.defaultInputFieldText);
       this.inputField3.setCanLoseFocus(true);
+      this.inputField3.setVisible(false);
    }
 
    public void onGuiClosed() {
@@ -111,25 +113,17 @@ public class GuiChat extends GuiScreen {
       } else if(par2 == 209) {
          this.mc.ingameGUI.getChatGUI().scroll(-19);
       } else {
-    	  if (this.inputField.isFocused()) {
-    		  if (mc.fontRenderer.getStringWidth(this.inputField.getText()) < mc.currentScreen.width-20)
-    			  this.inputField.textboxKeyTyped(par1, par2);
-    		  else {
-    			  this.inputField.setFocused(false);
-    			  this.inputField2.setFocused(true);
-    			  this.inputField2.textboxKeyTyped(par1, par2);
-    		  }
-    	  } else if (this.inputField2.isFocused()) {
-    		  if (mc.fontRenderer.getStringWidth(this.inputField2.getText()) < mc.currentScreen.width-20)
-    			  this.inputField2.textboxKeyTyped(par1, par2);
-    		  else {
-    			  this.inputField2.setFocused(false);
-    			  this.inputField3.setFocused(true);
-    			  this.inputField3.textboxKeyTyped(par1, par2);
-    		  }
-    	  } else if (this.inputField3.isFocused() && this.inputField3.getText().length() < this.inputField3.getMaxStringLength())
-    		  this.inputField3.textboxKeyTyped(par1, par2);
-    	  
+   		  if (mc.fontRenderer.getStringWidth(this.inputField.getText()) >= mc.currentScreen.width-20) {
+   			  if (this.inputField2.getText().length() > 0 && this.inputField3.getText().length() == 0) {
+   				  this.inputField3.setText(this.inputField2.getText());
+   				  this.inputField2.setText("");
+   			  }
+   			  if (this.inputField2.getText().length() == 0) {
+   				  this.inputField2.setText(this.inputField.getText());
+   				  this.inputField.setText("");
+   			  }
+   		  }
+   		  this.inputField.textboxKeyTyped(par1, par2);
       }
    }
 
