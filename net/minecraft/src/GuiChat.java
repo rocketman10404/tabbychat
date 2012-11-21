@@ -120,46 +120,26 @@ public class GuiChat extends GuiScreen {
       } else {
     	  /// Backspace key has been pressed
     	  if (par2 == 14) {
-    		  int foc = this.getFocusedFieldInd();
-    		  /// If cursor is at the beginning of the field...
-    		  if (this.inputList.get(foc).getCursorPosition() == 0) {
-    			  /// If this field is the topmost displayed in the list...
-    			  if (foc == this.inputList.size()-1 || !this.inputList.get(foc+1).getVisible())
-    				  return;
-    			  this.inputList.get(foc).setFocused(false);
-    			  this.inputList.get(foc+1).setFocused(true);
-    			  this.inputList.get(foc+1).setCursorPositionEnd();
+    		  if (this.inputField.isFocused() && this.inputField.getCursorPosition() > 0)
+    			  this.inputField.textboxKeyTyped(par1, par2);
+    		  else {
+    			  StringBuilder msg = new StringBuilder();
+    			  int cPos = 0;
+    			  boolean cFound = false;
+    			  for (int i=this.inputList.size()-1; i>=0; i-=1) {
+    				  msg.append(this.inputList.get(i).getText());
+    				  if (this.inputList.get(i).isFocused()) {
+    					  cPos += this.inputList.get(i).getCursorPosition();
+    					  cFound = true;
+    				  } else if (!cFound) {
+    					  cPos += this.inputList.get(i).getText().length();
+    				  }
+    			  }
+    			  if (cPos > 0) {
+    				  msg.replace(cPos-1, cPos, "");
+    			  }
+    			  this.setText(msg.toString(), cPos-1);
     		  }
-    		  /// If cursor is not at the beginning of the field...
-   			  String moveMe = "";
-   			  int keepPos = this.inputList.get(foc).getCursorPosition();
-   			  for (int i=foc; i>= 1; i-=1) {
-   				  if (this.inputList.get(i-1).getText().length() == 0)
-   					  break;
-   				  moveMe = this.inputList.get(i-1).getText().substring(0, 1);
-   				  this.inputList.get(i).setText(this.inputList.get(i).getText().concat(moveMe));
-   				  this.inputList.get(i-1).setText(this.inputList.get(i-1).getText().substring(1));
-   			  }
-   			  this.inputList.get(foc).setCursorPosition(keepPos);
-   			  this.inputList.get(foc).textboxKeyTyped(par1, par2);
-   			  /// May have created a blank row at the bottom, thus needing input fields to be shifted
-   			  if (this.inputField.getText().length() == 0) {
-   				  for (int j=0; j<this.inputList.size()-1; j++) {
-   					  if (this.inputList.get(j+1).getText().length() == 0) {
-   						  if (j > 0)
-   							  this.inputList.get(j).setVisible(false);
-   						  break;
-   					  }
-   					  this.inputList.get(j).setText(this.inputList.get(j+1).getText());
-   					  keepPos = this.inputList.get(j+1).getCursorPosition();
-   					  this.inputList.get(j).setCursorPosition(keepPos);
-   					  this.inputList.get(j+1).setText("");
-   				  }
-   				  if (foc > 0) {
-   					  this.inputList.get(foc).setFocused(false);
-   					  this.inputList.get(foc-1).setFocused(true);
-   				  }
-   			  }
     	  } else if (mc.fontRenderer.getStringWidth(this.inputField.getText()) >= mc.currentScreen.width-20) {
     		  /* TODO: what if we're typing in the middle of the inputfield? */
    			  if (this.inputList.get(this.inputList.size()-1).getText().length() == 0) {
@@ -444,5 +424,41 @@ public class GuiChat extends GuiScreen {
 				return i;
 		}
 		return 0;
+	}
+
+	public void setText(String txt, int pos) {
+		List wList = mc.fontRenderer.listFormattedStringToWidth(txt, mc.currentScreen.width-20);
+		int t = wList.size();
+		List<String> txtList = new ArrayList<String>(t);
+		for (int a=0; a<t; a++) {
+			txtList.add((String)wList.get(a));
+			System.out.println("Line "+a+" -- screen:"+(mc.currentScreen.width-20)+" -- line:"+mc.fontRenderer.getStringWidth(txtList.get(a)));
+		}
+		int strings = txtList.size() < this.inputList.size() ? txtList.size()-1 : this.inputList.size()-1;
+		for (int i=strings; i>=0; i-=1) {
+			this.inputList.get(i).setText(txtList.get(strings-i));
+			if (pos > txtList.get(i).length()) {
+				pos -= txtList.get(i).length();
+				//this.inputList.get(i).setVisible(true);
+				//this.inputList.get(i).setFocused(false);
+			} else if (pos > 0) {
+				//this.inputList.get(i).setFocused(true);
+				//this.inputList.get(i).setVisible(true);
+				//this.inputList.get(i).setCursorPosition(pos);
+				pos = 0;
+			} else {
+				//this.inputList.get(i).setVisible(true);
+				//this.inputList.get(i).setFocused(false);
+			}
+		}
+		/*
+		if (this.inputList.size() > txtList.size()) {
+			for (int j=txtList.size(); j<this.inputList.size(); j++) {
+				this.inputList.get(j).setText("");
+				this.inputList.get(j).setFocused(false);
+				this.inputList.get(j).setVisible(false);
+			}
+		}
+		*/
 	}
 }
