@@ -93,7 +93,7 @@ public class GuiChat extends GuiScreen {
     	  /**** modded here *****/
     	 StringBuilder msg = new StringBuilder();
     	 for (int i=this.inputList.size()-1; i>=0; i-=1)
-    		 msg.append(this.inputList.get(i).getText().trim());
+    		 msg.append(this.inputList.get(i).getText());
     	 
          if(msg.toString().length() > 0) {
         	 TabbyChatUtils.writeLargeChat(msg.toString());
@@ -118,47 +118,23 @@ public class GuiChat extends GuiScreen {
         	 this.scrollBar.scrollBarMouseWheel();
          }
       } else {
-    	  /// Backspace key has been pressed
-    	  if (par2 == 14) {
+    	  if (par2 == Keyboard.KEY_BACK) {
     		  if (this.inputField.isFocused() && this.inputField.getCursorPosition() > 0)
     			  this.inputField.textboxKeyTyped(par1, par2);
-    		  else {
-    			  StringBuilder msg = new StringBuilder();
-    			  int cPos = 0;
-    			  boolean cFound = false;
-    			  for (int i=this.inputList.size()-1; i>=0; i-=1) {
-    				  msg.append(this.inputList.get(i).getText());
-    				  if (this.inputList.get(i).isFocused()) {
-    					  cPos += this.inputList.get(i).getCursorPosition();
-    					  cFound = true;
-    				  } else if (!cFound) {
-    					  cPos += this.inputList.get(i).getText().length();
-    				  }
-    			  }
-    			  if (cPos > 0) {
-    				  msg.replace(cPos-1, cPos, "");
-    			  }
-    			  this.setText(msg.toString(), cPos-1);
-    		  }
-    	  } else if (mc.fontRenderer.getStringWidth(this.inputField.getText()) >= mc.currentScreen.width-20) {
-    		  /* TODO: what if we're typing in the middle of the inputfield? */
-   			  if (this.inputList.get(this.inputList.size()-1).getText().length() == 0) {
-   				   for (int i=this.inputList.size()-1; i>=1; i-=1) {
-   					  if (this.inputList.get(i-1).getText().length() > 0) {
-   						  this.inputList.get(i).setText(this.inputList.get(i-1).getText());
-   						  this.inputList.get(i-1).setText("");
-   						  this.inputList.get(i).setVisible(true);
-   					  }
-   				   }
-   			  }
+    		  else
+    			  this.removeCharsAtCursor(-1);
+    	  } else if (par2 == Keyboard.KEY_DELETE) {
+    		  if (this.inputField.isFocused())
+    			  this.inputField.textboxKeyTyped(par1, par2);
+    		  else
+    			  this.removeCharsAtCursor(1);
+    	  } else if (this.inputField.isFocused() && mc.fontRenderer.getStringWidth(this.inputField.getText()) < mc.currentScreen.width-20) {
    			  this.inputField.textboxKeyTyped(par1, par2);
    		  } else {
-   			  int foc = this.getFocusedFieldInd();
-   			  this.inputList.get(foc).textboxKeyTyped(par1, par2);
+   			  this.insertCharsAtCursor(((Character)Keyboard.getEventCharacter()).toString());
    		  }   		  
       }
    }
-
    public void handleMouseInput() {
       super.handleMouseInput();
       int var1 = Mouse.getEventDWheel();
@@ -209,6 +185,7 @@ public class GuiChat extends GuiScreen {
 					   field.setFocused(false);
 			   }
 			   this.inputList.get(i).mouseClicked(par1, par2, par3);
+			   break;
 		   }
 	   }
 	   super.mouseClicked(par1, par2, par3);
@@ -426,32 +403,71 @@ public class GuiChat extends GuiScreen {
 		return 0;
 	}
 
-	public void setText(String txt, int pos) {
-		List wList = mc.fontRenderer.listFormattedStringToWidth(txt, mc.currentScreen.width-20);
-		int t = wList.size();
-		List<String> txtList = new ArrayList<String>(t);
-		for (int a=0; a<t; a++) {
-			txtList.add((String)wList.get(a));
-			System.out.println("Line "+a+" -- screen:"+(mc.currentScreen.width-20)+" -- line:"+mc.fontRenderer.getStringWidth(txtList.get(a)));
+	public void removeCharsAtCursor(int _del) {
+		StringBuilder msg = new StringBuilder();
+		int cPos = 0;
+		boolean cFound = false;
+		for (int i=this.inputList.size()-1; i>=0; i-=1) {
+			msg.append(this.inputList.get(i).getText());
+			if (this.inputList.get(i).isFocused()) {
+				cPos += this.inputList.get(i).getCursorPosition();
+				cFound = true;
+			} else if (!cFound) {
+				cPos += this.inputList.get(i).getText().length();
+			}
 		}
+		int other = cPos + _del;
+		other = other < 0 ? 0 : other;
+		other = other >= msg.length() ? msg.length()-1 : other;
+		if (other < cPos) {
+			msg.replace(other, cPos, "");
+			this.setText(msg, other);
+		} else if (other > cPos) {
+			msg.replace(cPos, other, "");
+			this.setText(msg, cPos);
+		} else
+			return;
+	}
+	
+	public void insertCharsAtCursor(String _chars) {
+		StringBuilder msg = new StringBuilder();
+		int cPos = 0;
+		boolean cFound = false;
+		for (int i=this.inputList.size()-1; i>=0; i-=1) {
+			msg.append(this.inputList.get(i).getText());
+			if (this.inputList.get(i).isFocused()) {
+				cPos += this.inputList.get(i).getCursorPosition();
+				cFound = true;
+			} else if (!cFound) {
+				cPos += this.inputList.get(i).getText().length();
+			}			
+		}
+		if (mc.fontRenderer.getStringWidth(msg.toString()) + mc.fontRenderer.getStringWidth(_chars) < (mc.currentScreen.width-20)*this.inputList.size()) {
+			msg.insert(cPos, _chars);
+			this.setText(msg, cPos+_chars.length());
+		}
+	}
+	
+	public void setText(StringBuilder txt, int pos) {
+		List<String> txtList = this.stringListByWidth(txt, mc.currentScreen.width-20);
+
 		int strings = txtList.size() < this.inputList.size() ? txtList.size()-1 : this.inputList.size()-1;
 		for (int i=strings; i>=0; i-=1) {
 			this.inputList.get(i).setText(txtList.get(strings-i));
-			if (pos > txtList.get(i).length()) {
-				pos -= txtList.get(i).length();
-				//this.inputList.get(i).setVisible(true);
-				//this.inputList.get(i).setFocused(false);
-			} else if (pos > 0) {
-				//this.inputList.get(i).setFocused(true);
-				//this.inputList.get(i).setVisible(true);
-				//this.inputList.get(i).setCursorPosition(pos);
-				pos = 0;
+			if (pos > txtList.get(strings-i).length()) {
+				pos -= txtList.get(strings-i).length();
+				this.inputList.get(i).setVisible(true);
+				this.inputList.get(i).setFocused(false);
+			} else if (pos >= 0) {
+				this.inputList.get(i).setFocused(true);
+				this.inputList.get(i).setVisible(true);
+				this.inputList.get(i).setCursorPosition(pos);
+				pos = -1;
 			} else {
-				//this.inputList.get(i).setVisible(true);
-				//this.inputList.get(i).setFocused(false);
+				this.inputList.get(i).setVisible(true);
+				this.inputList.get(i).setFocused(false);
 			}
 		}
-		/*
 		if (this.inputList.size() > txtList.size()) {
 			for (int j=txtList.size(); j<this.inputList.size(); j++) {
 				this.inputList.get(j).setText("");
@@ -459,6 +475,25 @@ public class GuiChat extends GuiScreen {
 				this.inputList.get(j).setVisible(false);
 			}
 		}
-		*/
+	}
+	
+	public List<String> stringListByWidth(StringBuilder _sb, int _w) {
+		List<String> result = new ArrayList<String>(5);
+		int _len = 0;
+		int _cw;
+		StringBuilder bucket = new StringBuilder(_sb.length());
+		for (int ind=0; ind<_sb.length(); ind++) {
+			_cw = mc.fontRenderer.getCharWidth(_sb.charAt(ind));
+			if (_len + _cw > _w) {
+				result.add(bucket.toString());
+				bucket = new StringBuilder(_sb.length());
+				_len = 0;
+			}
+			_len += _cw;
+			bucket.append(_sb.charAt(ind));
+		}
+		if (bucket.length() > 0)
+			result.add(bucket.toString());
+		return result;
 	}
 }
