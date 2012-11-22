@@ -135,6 +135,7 @@ public class GuiChat extends GuiScreen {
    		  }   		  
       }
    }
+   
    public void handleMouseInput() {
       super.handleMouseInput();
       int var1 = Mouse.getEventDWheel();
@@ -271,13 +272,19 @@ public class GuiChat extends GuiScreen {
       if(var2 != this.sentHistoryCursor) {
          if(var2 == var3) {
             this.sentHistoryCursor = var3;
-            this.inputField.setText(this.field_73898_b);
+            //this.inputField.setText(this.field_73898_b);
+            /*** modded here ***/
+            this.setText(new StringBuilder(""), 1);
          } else {
             if(this.sentHistoryCursor == var3) {
                this.field_73898_b = this.inputField.getText();
             }
 
-            this.inputField.setText((String)this.mc.ingameGUI.getChatGUI().getSentMessages().get(var2));
+            //this.inputField.setText((String)this.mc.ingameGUI.getChatGUI().getSentMessages().get(var2));
+            /*** modded here ***/
+            StringBuilder _sb = new StringBuilder((String)this.mc.ingameGUI.getChatGUI().getSentMessages().get(var2));
+            this.setText(_sb, _sb.length());
+            
             this.sentHistoryCursor = var2;
          }
       }
@@ -377,24 +384,6 @@ public class GuiChat extends GuiScreen {
 		}		
 	}
 
-	public void reflowChat() {
-		StringBuilder msg = new StringBuilder();
-		for (int i=this.inputList.size()-1; i>=0; i-=1)
-			msg.append(this.inputList.get(i).getText());
-		List newmsg = mc.fontRenderer.listFormattedStringToWidth(msg.toString(), mc.currentScreen.width-20);
-		
-		for (int j=newmsg.size()-1; j>=0; j-=1) {
-			if (j >= this.inputList.size())
-				j = this.inputList.size()-1;
-			this.inputList.get(j).setText((String)newmsg.get(j));
-		}
-		
-		if (this.inputList.size() > newmsg.size()) {
-			for (int k=newmsg.size(); k<this.inputList.size(); k++)
-				this.inputList.get(k).setText("");
-		}
-	}
-
 	public int getFocusedFieldInd() {
 		for (int i=0; i<this.inputList.size(); i++) {
 			if (this.inputList.get(i).isFocused() && this.inputList.get(i).getVisible())
@@ -468,6 +457,8 @@ public class GuiChat extends GuiScreen {
 				this.inputList.get(i).setFocused(false);
 			}
 		}
+		if (pos > 0)
+			this.inputField.setCursorPositionEnd();
 		if (this.inputList.size() > txtList.size()) {
 			for (int j=txtList.size(); j<this.inputList.size(); j++) {
 				this.inputList.get(j).setText("");
@@ -475,6 +466,8 @@ public class GuiChat extends GuiScreen {
 				this.inputList.get(j).setVisible(false);
 			}
 		}
+		this.inputField.setVisible(true);
+		this.inputField.setFocused(true);
 	}
 	
 	public List<String> stringListByWidth(StringBuilder _sb, int _w) {
