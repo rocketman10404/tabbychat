@@ -103,10 +103,36 @@ public class GuiChat extends GuiScreen {
         	 }
          }
          this.mc.displayGuiScreen((GuiScreen)null);
-      } else if(par2 == 200) {
-         this.getSentHistory(-1);
-      } else if(par2 == 208) {
-         this.getSentHistory(1);
+      } else if(par2 == Keyboard.KEY_UP) {
+    	  if (GuiScreen.isCtrlKeyDown())
+    		  this.getSentHistory(-1);
+    	  /*** modded here ***/
+    	  else {
+    		  int foc = this.getFocusedFieldInd();
+    		  if (foc+1<this.inputList.size() && this.inputList.get(foc+1).getVisible()) {
+    			  int gcp = this.inputList.get(foc).getCursorPosition();
+    			  int lng = this.inputList.get(foc+1).getText().length();
+    			  int newPos = (gcp >= lng) ? lng : gcp;
+    			  this.inputList.get(foc).setFocused(false);
+    			  this.inputList.get(foc+1).setFocused(true);
+    			  this.inputList.get(foc+1).setCursorPosition(newPos);
+    		  }
+    	  }
+      } else if(par2 == Keyboard.KEY_DOWN) {
+    	  if (GuiScreen.isCtrlKeyDown())
+        	 this.getSentHistory(1);
+    	  /*** modded here ***/
+    	  else {
+    		  int foc = this.getFocusedFieldInd();
+    		  if (foc-1>=0 && this.inputList.get(foc-1).getVisible()) {
+    			  int gcp = this.inputList.get(foc).getCursorPosition();
+    			  int lng = this.inputList.get(foc-1).getText().length();
+    			  int newPos = (gcp >= lng) ? lng : gcp;
+    			  this.inputList.get(foc).setFocused(false);
+    			  this.inputList.get(foc-1).setFocused(true);
+    			  this.inputList.get(foc-1).setCursorPosition(newPos);
+    		  }
+    	  }
       } else if(par2 == 201) {
          this.mc.ingameGUI.getChatGUI().scroll(19);
          if (TabbyChat.instance.enabled()) {
@@ -130,6 +156,8 @@ public class GuiChat extends GuiScreen {
     			  this.removeCharsAtCursor(1);
     	  } else if (this.inputField.isFocused() && mc.fontRenderer.getStringWidth(this.inputField.getText()) < mc.currentScreen.width-20) {
    			  this.inputField.textboxKeyTyped(par1, par2);
+    	  } else if (par2 == Keyboard.KEY_LEFT || par2 == Keyboard.KEY_RIGHT) {
+    		  this.inputList.get(this.getFocusedFieldInd()).textboxKeyTyped(par1, par2);
    		  } else {
    			  this.insertCharsAtCursor(((Character)Keyboard.getEventCharacter()).toString());
    		  }   		  
@@ -299,6 +327,9 @@ public class GuiChat extends GuiScreen {
       drawRect(2, this.height - 2 - tBoxHeight, this.width - 2, this.height - 2, Integer.MIN_VALUE);
       for (GuiTextField field : this.inputList)
     	  field.drawTextBox();
+      String sends = ((Integer)this.getCurrentSends()).toString();
+      int sendsX = mc.currentScreen.width - mc.fontRenderer.getStringWidth(sends) - 2;
+      mc.fontRenderer.drawStringWithShadow(sends, sendsX, this.height - tBoxHeight, 7368816);
       super.drawScreen(par1, par2, par3);
       
       /*** modded here ***/
@@ -457,8 +488,9 @@ public class GuiChat extends GuiScreen {
 				this.inputList.get(i).setFocused(false);
 			}
 		}
-		if (pos > 0)
+		if (pos > 0) {
 			this.inputField.setCursorPositionEnd();
+		}
 		if (this.inputList.size() > txtList.size()) {
 			for (int j=txtList.size(); j<this.inputList.size(); j++) {
 				this.inputList.get(j).setText("");
@@ -466,8 +498,10 @@ public class GuiChat extends GuiScreen {
 				this.inputList.get(j).setVisible(false);
 			}
 		}
-		this.inputField.setVisible(true);
-		this.inputField.setFocused(true);
+		if (!this.inputField.getVisible()) {
+			this.inputField.setVisible(true);
+			this.inputField.setFocused(true);
+		}
 	}
 	
 	public List<String> stringListByWidth(StringBuilder _sb, int _w) {
@@ -488,5 +522,16 @@ public class GuiChat extends GuiScreen {
 		if (bucket.length() > 0)
 			result.add(bucket.toString());
 		return result;
+	}
+
+	public int getCurrentSends() {
+		int lng = 0;
+		for (int i=this.inputList.size()-1; i>=0; i-=1) {
+			lng += this.inputList.get(i).getText().length();
+		}
+		if (lng == 0)
+			return 0;
+		else
+			return (int) Math.ceil(lng / 100.0f);
 	}
 }

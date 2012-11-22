@@ -37,14 +37,14 @@ public class TabbyChatUtils {
         mc.ingameGUI.getChatGUI().addToSentMessages(toSend);
         String[] toSplit = toSend.split(" ");
         StringBuilder sendPart = new StringBuilder(119);
-        String firstLine = (toSend.length() > 99) ? toSend.substring(0, 100) : toSend;
+        String firstLine = (toSend.length() > 100) ? toSend.substring(0, 100) : toSend;
         if (!mc.handleClientCommand(firstLine)) {
         	for (int word = 0; word < toSplit.length; word++) {
-        		if (sendPart.length() + toSplit[word].length() > 99) {
+        		if (sendPart.length() + toSplit[word].length() > 100) {
         			mc.thePlayer.sendChatMessage(sendPart.toString().trim());
         			sendPart = new StringBuilder(119);
-        		} else
-        			sendPart.append(toSplit[word] + " ");
+        		}
+        		sendPart.append(toSplit[word] + " ");
         	}
         	if (sendPart.length() > 0)
         		mc.thePlayer.sendChatMessage(sendPart.toString().trim());
