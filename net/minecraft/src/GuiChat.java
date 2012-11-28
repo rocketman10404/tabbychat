@@ -437,8 +437,8 @@ public class GuiChat extends GuiScreen {
 			}
 		}
 		int other = cPos + _del;
-		other = other < 0 ? 0 : other;
-		other = other >= msg.length() ? msg.length()-1 : other;
+		other = (other >= msg.length()) ? msg.length()-1 : other;
+		other = (other < 0) ? 0 : other;
 		if (other < cPos) {
 			msg.replace(other, cPos, "");
 			this.setText(msg, other);

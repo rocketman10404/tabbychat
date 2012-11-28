@@ -36,18 +36,30 @@ public class TabbyChatUtils {
 		Minecraft mc = Minecraft.getMinecraft();
         mc.ingameGUI.getChatGUI().addToSentMessages(toSend);
         String[] toSplit = toSend.split(" ");
-        StringBuilder sendPart = new StringBuilder(119);
-        String firstLine = (toSend.length() > 100) ? toSend.substring(0, 100) : toSend;
-        if (!mc.handleClientCommand(firstLine)) {
-        	for (int word = 0; word < toSplit.length; word++) {
-        		if (sendPart.length() + toSplit[word].length() > 100) {
-        			mc.thePlayer.sendChatMessage(sendPart.toString().trim());
-        			sendPart = new StringBuilder(119);
-        		}
-        		sendPart.append(toSplit[word] + " ");
+        String cmdPrefix = "";
+        int start = 0;
+        if (toSplit[0].startsWith("/")) {
+        	if (toSplit[0].startsWith("/msg")) {
+        		cmdPrefix = toSplit[0] + " " + toSplit[1] + " ";
+        		start = 2;
+        	} else { 
+        		cmdPrefix = toSplit[0] + " ";
+        		start = 1;
         	}
-        	if (sendPart.length() > 0)
-        		mc.thePlayer.sendChatMessage(sendPart.toString().trim());
         }
+        int suffix = cmdPrefix.length();
+        StringBuilder sendPart = new StringBuilder(119);
+       	for (int word = start; word < toSplit.length; word++) {
+       		if (sendPart.length() + toSplit[word].length() + suffix > 100) {
+       			mc.thePlayer.sendChatMessage(cmdPrefix + sendPart.toString().trim());
+       			System.out.println("Chat sent -- "+cmdPrefix+sendPart.toString().trim());
+       			sendPart = new StringBuilder(119);
+       		}
+       		sendPart.append(toSplit[word] + " ");
+       	}
+       	if (sendPart.length() > 0 || cmdPrefix.length() > 0) {
+       		mc.thePlayer.sendChatMessage(cmdPrefix + sendPart.toString().trim());
+       		System.out.println("Chat sent -- "+cmdPrefix+sendPart.toString().trim());
+       	}
 	}
 }

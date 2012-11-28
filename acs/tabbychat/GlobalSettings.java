@@ -17,7 +17,9 @@ public class GlobalSettings {
 	private File logFile;
 	private SimpleDateFormat logNameFormat = new SimpleDateFormat("'TabbyChatLog_'MM-dd-yyyy'.txt'");
 	private File settingsFile;
-	protected static File tabbyChatDir = new File(Minecraft.getMinecraftDir(), new StringBuilder().append("mods").append(File.separatorChar).append("tabbychat").toString());
+	private File oldSettingsFile;
+	protected static File oldTabbyChatDir = new File(Minecraft.getMinecraftDir(), new StringBuilder().append("mods").append(File.separatorChar).append("tabbychat").toString());
+	protected static File tabbyChatDir = new File(Minecraft.getMinecraftDir(), new StringBuilder().append("config").append(File.separatorChar).append("tabbychat").toString());
 	protected SimpleDateFormat timeStamp = new SimpleDateFormat();
 	public boolean autoSearchEnabled = true;
 	public int maxChannelNameLength = 10;
@@ -28,12 +30,11 @@ public class GlobalSettings {
 	public int retainedChats = 100;
 	
 	public GlobalSettings() {
-		File settingsDir = tabbyChatDir;
-		File logDir = new File(tabbyChatDir, "logs");
+		File logDir = this.logFile = new File(Minecraft.getMinecraftDir(), new StringBuilder().append("TabbyChatLogs").toString());
 		
-		if (!settingsDir.exists())
-			settingsDir.mkdirs();
-		if (!settingsDir.isDirectory())
+		if (!tabbyChatDir.exists())
+			tabbyChatDir.mkdirs();
+		if (!tabbyChatDir.isDirectory())
 			TabbyChat.printErr("Unable to create TabbyChat Settings folder");
 		
 		if (!logDir.exists())
@@ -41,18 +42,25 @@ public class GlobalSettings {
 		if (!logDir.isDirectory())
 			TabbyChat.printErr("Unable to create TabbyChat Log folder");
 		
-		this.settingsFile = new File(settingsDir, "global_v2.cfg");
+		this.oldSettingsFile = new File(oldTabbyChatDir, "global_v2.cfg");
+		this.settingsFile = new File(tabbyChatDir, "global.cfg");
 		this.logFile = new File(logDir, this.logNameFormat.format(this.logDay.getTime()));
 	}
 	
 	protected void loadSettings() {
+		File source;
 		if (!this.settingsFile.exists()) {
-			saveSettings();
-			return;
-		}
+			if (!this.oldSettingsFile.exists()) {
+				saveSettings();
+				return;
+			} else {
+				source = this.oldSettingsFile;
+			}
+		} else
+			source = this.settingsFile;
 		
 		try {
-			FileInputStream settingsStream = new FileInputStream(this.settingsFile);
+			FileInputStream settingsStream = new FileInputStream(source);
 			ObjectInputStream gsObjStream = new ObjectInputStream(settingsStream);
 			this.TCenabled = gsObjStream.readBoolean();
 			this.autoSearchEnabled = gsObjStream.readBoolean();
@@ -71,7 +79,7 @@ public class GlobalSettings {
 
 	protected void saveSettings() {
 		try {
-			FileOutputStream settingsStream = new FileOutputStream(settingsFile);
+			FileOutputStream settingsStream = new FileOutputStream(this.settingsFile);
 			ObjectOutputStream gsObjStream = new ObjectOutputStream(settingsStream);
 			gsObjStream.writeBoolean(this.TCenabled);
 			gsObjStream.writeBoolean(this.autoSearchEnabled);
@@ -91,7 +99,7 @@ public class GlobalSettings {
 		Calendar tmpcal = Calendar.getInstance();
 		if (tmpcal.get(Calendar.DAY_OF_YEAR) != this.logDay.get(Calendar.DAY_OF_YEAR)) {
 			this.logDay = tmpcal;
-			this.logFile = new File(tabbyChatDir, new StringBuilder().append("logs").append(File.separatorChar).append(this.logNameFormat.format(this.logDay.getTime())).toString());
+			this.logFile = new File(Minecraft.getMinecraftDir(), new StringBuilder().append("TabbyChatLogs").append(File.separatorChar).append(this.logNameFormat.format(this.logDay.getTime())).toString());
 		}
 		
 		if (!this.logFile.exists()) {

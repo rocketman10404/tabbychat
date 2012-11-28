@@ -20,6 +20,7 @@ import net.minecraft.client.Minecraft;
 public class ServerSettings {
 	private ServerData server;
 	private static File settingsFile;
+	private File oldSettingsFile;
 	protected ChannelDelimEnum chanDelims = ChannelDelimEnum.BRACKETS;
 	protected ChatColorEnum chanDelimColor = ChatColorEnum.DEFAULTCOLOR;
 	protected ChatColorEnum chanDelimFormat = ChatColorEnum.DEFAULTFORMAT;
@@ -32,13 +33,18 @@ public class ServerSettings {
 	public ServerSettings() {}
 	
 	protected void loadSettings() {
+		File source;
 		if (this.settingsFile != null && !this.settingsFile.exists()) {
-			saveSettings();
-			return;
-		}
+			if (this.oldSettingsFile != null && !this.oldSettingsFile.exists()) {
+				saveSettings();
+				return;
+			} else
+				source = this.oldSettingsFile;
+		} else
+			source = this.settingsFile;
 		
 		try {
-			FileInputStream settingsStream = new FileInputStream(this.settingsFile);
+			FileInputStream settingsStream = new FileInputStream(source);
 			ObjectInputStream ssObjStream = new ObjectInputStream(settingsStream);
 			this.chanDelims = (ChannelDelimEnum)ssObjStream.readObject();
 			this.defaultChans = (String[])ssObjStream.readObject();
@@ -120,7 +126,7 @@ public class ServerSettings {
 				TabbyChat.printErr("Unable to create TabbyChat Settings folder");
 		
 			settingsFile = new File(settingsDir, this.ip+".cfg");
-			System.out.println("server settings file set to "+this.ip+".cfg");
+			this.oldSettingsFile = new File(new File(GlobalSettings.oldTabbyChatDir, "servers"), this.ip+".cfg");
 		}
 	}
 }
