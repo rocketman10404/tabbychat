@@ -52,14 +52,12 @@ public class TabbyChatUtils {
        	for (int word = start; word < toSplit.length; word++) {
        		if (sendPart.length() + toSplit[word].length() + suffix > 100) {
        			mc.thePlayer.sendChatMessage(cmdPrefix + sendPart.toString().trim());
-       			System.out.println("Chat sent -- "+cmdPrefix+sendPart.toString().trim());
        			sendPart = new StringBuilder(119);
        		}
        		sendPart.append(toSplit[word] + " ");
        	}
        	if (sendPart.length() > 0 || cmdPrefix.length() > 0) {
        		mc.thePlayer.sendChatMessage(cmdPrefix + sendPart.toString().trim());
-       		System.out.println("Chat sent -- "+cmdPrefix+sendPart.toString().trim());
        	}
 	}
 }
