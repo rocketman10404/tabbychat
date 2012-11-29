@@ -42,7 +42,7 @@ public class TabbyChatUtils {
         	if (toSplit[0].startsWith("/msg")) {
         		cmdPrefix = toSplit[0] + " " + toSplit[1] + " ";
         		start = 2;
-        	} else { 
+        	} else if (!toSplit[0].trim().equals("/")) { 
         		cmdPrefix = toSplit[0] + " ";
         		start = 1;
         	}
