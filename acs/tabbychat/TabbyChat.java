@@ -452,9 +452,9 @@ public class TabbyChat {
  				Field aHudFld = aHudCls.getField("chat");
  				Object aHudObj = aHudFld.get(null);
  				aHudCls = aHudObj.getClass();
- 				aHudFld = aHudCls.getField("config");
- 				aHudObj = aHudFld.get(aHudObj);
- 				aHudCls = aHudObj.getClass();
+ 				//aHudFld = aHudCls.getField("config");
+ 				//aHudObj = aHudFld.get(aHudObj);
+ 				//aHudCls = aHudObj.getClass();
  				int dVert = mc.currentScreen.height - 22 - 6 * 18;
  				xOff = aHudCls.getField("posX").getInt(aHudObj) - 3;
  				yOff = aHudCls.getField("posY").getInt(aHudObj) - dVert;

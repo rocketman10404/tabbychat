@@ -59,11 +59,10 @@ public class GuiChat extends GuiScreen {
       GuiTextField placeholder;
       for (int i=1; i<3; i++) {
     	  placeholder = new GuiTextField(this.fontRenderer, 4, this.height - 12*(i+1), this.width, 12);
-    	  /* TODO: Need to handle maximum input length much better */
     	  placeholder.setMaxStringLength(500);
     	  placeholder.setEnableBackgroundDrawing(false);
     	  placeholder.setFocused(false);
-    	  placeholder.setText(this.defaultInputFieldText);
+    	  placeholder.setText("");
     	  placeholder.setCanLoseFocus(true);
     	  placeholder.setVisible(false);
     	  this.inputList.add(i, placeholder);
@@ -116,7 +115,8 @@ public class GuiChat extends GuiScreen {
     			  this.inputList.get(foc).setFocused(false);
     			  this.inputList.get(foc+1).setFocused(true);
     			  this.inputList.get(foc+1).setCursorPosition(newPos);
-    		  }
+    		  } else
+    			  this.getSentHistory(-1);
     	  }
       } else if(par2 == Keyboard.KEY_DOWN) {
     	  if (GuiScreen.isCtrlKeyDown())
@@ -131,7 +131,8 @@ public class GuiChat extends GuiScreen {
     			  this.inputList.get(foc).setFocused(false);
     			  this.inputList.get(foc-1).setFocused(true);
     			  this.inputList.get(foc-1).setCursorPosition(newPos);
-    		  }
+    		  } else
+    			  this.getSentHistory(1);
     	  }
       } else if(par2 == 201) {
          this.mc.ingameGUI.getChatGUI().scroll(19);
