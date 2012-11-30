@@ -40,7 +40,7 @@ public class TabbyChat {
 	private Pattern chatChannelPatternDirty = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
 	private Pattern chatPMfromMePattern = Pattern.compile("^\\[(?:me)[ ]\\-\\>[ ]([A-Za-z0-9_]{1,16})\\]");
 	private Pattern chatPMtoMePattern = Pattern.compile("^\\[([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\]");
-	protected static String version = "1.4.1";
+	protected static String version = "1.4.2";
 	protected Calendar cal = Calendar.getInstance();
 	public List<ChatLine> lastChat;
 	public List<ChatChannel> channels = new ArrayList<ChatChannel>(20);
@@ -448,13 +448,10 @@ public class TabbyChat {
  		int yOff = 0;
  		try {
  			if (TabbyChatUtils.is(mc.ingameGUI.getChatGUI(), "GuiNewChatWrapper")) {
- 				Class aHudCls = Class.forName("ahud.ahuditem.DefaultHudItems");
+ 				Class aHudCls = Class.forName("advancedhud.ahuditem.DefaultHudItems");
  				Field aHudFld = aHudCls.getField("chat");
  				Object aHudObj = aHudFld.get(null);
- 				aHudCls = aHudObj.getClass();
- 				//aHudFld = aHudCls.getField("config");
- 				//aHudObj = aHudFld.get(aHudObj);
- 				//aHudCls = aHudObj.getClass();
+ 				aHudCls = Class.forName("advancedhud.ahuditem.HudItem");
  				int dVert = mc.currentScreen.height - 22 - 6 * 18;
  				xOff = aHudCls.getField("posX").getInt(aHudObj) - 3;
  				yOff = aHudCls.getField("posY").getInt(aHudObj) - dVert;
