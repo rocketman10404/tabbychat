@@ -114,7 +114,7 @@ public class CustomChatFilter implements java.io.Serializable {
 				if (codeIndices.length > 0 || m > 0) {
 					if (m < codeIndices.length && codeIndices[m] <= _start)
 						suffix = removedCodes[m];
-					else
+					else if (m > 0)
 						suffix = removedCodes[m-1];
 				}
 				result.insert(_end, suffix);
