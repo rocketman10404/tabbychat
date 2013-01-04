@@ -121,14 +121,15 @@ public class CustomChatFilter implements java.io.Serializable {
 				result.insert(_start, this.highlightColor.getCode()+this.highlightFormat.getCode());				
 				for (int j = 0; j < codeIndices.length; j++) {
 					if (codeIndices[j] > _start)
-						codeIndices[j] = codeIndices[j] + 4;
+						codeIndices[j] = codeIndices[j] + this.highlightColor.getCode().length() + this.highlightFormat.getCode().length();
 					if (codeIndices[j] > _end)
-						codeIndices[j] = codeIndices[j] + 2;
+						codeIndices[j] = codeIndices[j] + suffix.length();
 				}
 			}
 		}
 		if (this.highlight) { 
 			for (int k = codeIndices.length-1; k >= 0; k--) {
+				
 				result.insert(codeIndices[k], removedCodes[k]);
 			}
 			this.lastMatch = result.toString();
