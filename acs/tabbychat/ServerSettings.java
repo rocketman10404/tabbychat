@@ -30,7 +30,9 @@ public class ServerSettings {
 	public String ip;
 	public String name;
 	
-	public ServerSettings() {}
+	public ServerSettings() {
+		this.updateForServer();
+	}
 	
 	protected void loadSettings() {
 		File source;
@@ -115,8 +117,8 @@ public class ServerSettings {
 			this.ip = "";
 		} else {
 			this.server = Minecraft.getMinecraft().getServerData();
-			this.name = server.serverName;
-			this.ip = server.serverIP;
+			this.name = this.server.serverName;
+			this.ip = this.server.serverIP;
 		
 			File settingsDir = new File(GlobalSettings.tabbyChatDir, "servers");
 		

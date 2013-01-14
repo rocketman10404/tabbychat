@@ -26,6 +26,7 @@ public class GuiChat extends GuiScreen {
    private List<GuiTextField> inputList = new ArrayList<GuiTextField>(3);
    private String defaultInputFieldText = "";
    public ChatScrollBar scrollBar;
+   private static int lastWidth = 320;
 
    public GuiChat() {}
 
@@ -84,6 +85,10 @@ public class GuiChat extends GuiScreen {
          this.completePlayerName();
       } else {
          this.field_73897_d = false;
+      }
+      
+      if (mc.currentScreen != null) {
+    	  lastWidth = mc.currentScreen.width;    		  
       }
 
       if(par2 == 1) {
@@ -155,10 +160,10 @@ public class GuiChat extends GuiScreen {
     			  this.inputField.textboxKeyTyped(par1, par2);
     		  else
     			  this.removeCharsAtCursor(1);
-    	  } else if (this.inputField.isFocused() && mc.fontRenderer.getStringWidth(this.inputField.getText()) < mc.currentScreen.width-20) {
-   			  this.inputField.textboxKeyTyped(par1, par2);
     	  } else if (par2 == Keyboard.KEY_LEFT || par2 == Keyboard.KEY_RIGHT) {
-    		  this.inputList.get(this.getFocusedFieldInd()).textboxKeyTyped(par1, par2);
+    		  this.inputList.get(this.getFocusedFieldInd()).textboxKeyTyped(par1, par2);    		  
+    	  } else if (this.inputField.isFocused() && mc.fontRenderer.getStringWidth(this.inputField.getText()) < lastWidth-20) {
+   			  this.inputField.textboxKeyTyped(par1, par2);
    		  } else {
    			  this.insertCharsAtCursor(((Character)Keyboard.getEventCharacter()).toString());
    		  }   		  
