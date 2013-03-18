@@ -59,9 +59,14 @@ public class ChatButton extends net.minecraft.src.GuiButton {
 	        	  var7 = 0xff0000;
 	        	  var8 = 0x720000;
 	          }
+	          float scaleSetting = mc.ingameGUI.getChatGUI().getScaleSetting();
+	          //GL11.glPushMatrix();
+	          //GL11.glScalef(scaleSetting, scaleSetting, 1.0F);
 	          drawRect(this.xPosition, this.yPosition, this.xPosition + this.width, this.yPosition + this.height, var8 + (_opacity / 2 << 24));
 	          GL11.glEnable(GL11.GL_BLEND);
-	          this.drawCenteredString(fr, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height - 8) / 2, var7 + (_opacity << 24));
+	          this.drawCenteredString(fr, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height-8) / 2, var7 + (_opacity << 24));
+	          //GL11.glDisable(GL11.GL_BLEND);
+	          //GL11.glPopMatrix();
 	       }		
 	}
 }

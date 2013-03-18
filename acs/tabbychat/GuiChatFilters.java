@@ -82,7 +82,7 @@ public class GuiChatFilters extends net.minecraft.src.GuiScreen {
 	}
 	
 	public void saveCurrentFilter() {
-		if (this.controlList.size() < 1)
+		if (this.buttonList.size() < 1)
 			return;
 		try {
 			this.tmp_customFilters.get(fInd).name = this.filterNamePrefs.getText();
@@ -219,7 +219,7 @@ public class GuiChatFilters extends net.minecraft.src.GuiScreen {
 	
 	public void initGui() {
 		Keyboard.enableRepeatEvents(true);
-		this.controlList.clear();
+		this.buttonList.clear();
 		this.fInd = 0;
 		
 		if (this.tmp_customFilters.size() <= 0)
@@ -243,42 +243,42 @@ public class GuiChatFilters extends net.minecraft.src.GuiScreen {
 		int bW = 40;
 		int bH = this.line_height;
 		PrefsButton savePrefs = new PrefsButton(saveButton, (this.width + effWidth)/2 - bW, (this.height + effHeight)/2 - bH, bW, bH, "Save");
-		this.controlList.add(savePrefs);
+		this.buttonList.add(savePrefs);
 		PrefsButton cancelPrefs = new PrefsButton(cancelButton, (this.width + effWidth)/2 - 2*bW - 2, (this.height + effHeight)/2 - bH, bW, bH, "Cancel");
-		this.controlList.add(cancelPrefs);
+		this.buttonList.add(cancelPrefs);
 		PrefsButton settingsWindowPrefs = new PrefsButton(settingsWindowButton, (this.width + effWidth)/2 - 2*bW-54, (this.height + effHeight)/2 - bH, 50, bH, "Settings...", 0x66a5e7e4);
-		this.controlList.add(settingsWindowPrefs);
+		this.buttonList.add(settingsWindowPrefs);
 		
 		bW = 20;
 		this.prevFilterPrefs = new PrefsButton(prevFilterButton, (this.width/2-20), row2y, bW, bH, "<", this.fColor);
 		this.filterNamePrefs = new GuiTextField(mc.fontRenderer, (this.width/2-20)+22, row2y, 60, bH);
 		this.nextFilterPrefs = new PrefsButton(nextFilterButton, (this.width/2-20) + 24 + 60, row2y, bW, bH, ">", this.fColor);
 		this.filterNamePrefs.setText(this.tmp_customFilters.get(this.fInd).name);
-		this.controlList.add(this.prevFilterPrefs);
-		this.controlList.add(this.nextFilterPrefs);
+		this.buttonList.add(this.prevFilterPrefs);
+		this.buttonList.add(this.nextFilterPrefs);
 		
 		bW = 30;
 		this.newFilterPrefs = new PrefsButton(newFilterButton, (this.width+effWidth)/2-42-bW, row2y, bW, bH, "Add", this.fColor);
-		this.controlList.add(this.newFilterPrefs);
+		this.buttonList.add(this.newFilterPrefs);
 		bW = 40;
 		this.remFilterPrefs = new PrefsButton(remFilterButton, (this.width+effWidth)/2-bW, row2y, bW, bH, "Remove", this.fColor);
-		this.controlList.add(this.remFilterPrefs);
+		this.buttonList.add(this.remFilterPrefs);
 		
 		bW = 25;
 		this.invertFilterPrefs = new PrefsToggleButton(invertFilterButton, col1x - bW, row3y, bW, bH);
 		this.invertFilterPrefs.onColor = this.fColor;
 		this.invertFilterPrefs.updateTo(this.tmp_customFilters.get(this.fInd).invert);
-		this.controlList.add(this.invertFilterPrefs);
+		this.buttonList.add(this.invertFilterPrefs);
 		
 		this.caseSenseFilterPrefs = new PrefsToggleButton(caseSenseFilterButton, col2x - bW, row3y, bW, bH);
 		this.caseSenseFilterPrefs.onColor = this.fColor;
 		this.caseSenseFilterPrefs.updateTo(this.tmp_customFilters.get(this.fInd).caseSensitive);
-		this.controlList.add(this.caseSenseFilterPrefs);
+		this.buttonList.add(this.caseSenseFilterPrefs);
 		
 		this.sendToTabPrefs = new PrefsToggleButton(sendToTabButton, col1x-bW, row4y, bW, bH);
 		this.sendToTabPrefs.onColor = this.fColor;
 		this.sendToTabPrefs.updateTo(this.tmp_customFilters.get(this.fInd).sendToTab);
-		this.controlList.add(this.sendToTabPrefs);
+		this.buttonList.add(this.sendToTabPrefs);
 		
 		this.highlightPrefs = new PrefsToggleButton(highlightButton, col2x-bW, row4y, bW, bH);
 		this.highlightPrefs.onColor = this.fColor;
@@ -289,18 +289,18 @@ public class GuiChatFilters extends net.minecraft.src.GuiScreen {
 			this.highlightPrefs.updateTo(this.tmp_customFilters.get(this.fInd).highlight);
 			this.highlightPrefs.enabled = true;
 		}
-		this.controlList.add(this.highlightPrefs);
+		this.buttonList.add(this.highlightPrefs);
 		
 		bW = 70;
 		this.highlightStylePrefs = new PrefsButton(highlightStyleButton, col2x-bW, row5y, bW, bH, this.tmp_customFilters.get(this.fInd).getHighlightDisplay(), 0x66ffffff);
 		this.highlightStylePrefs.hasControlCodes = true;
-		this.controlList.add(this.highlightStylePrefs);
+		this.buttonList.add(this.highlightStylePrefs);
 		
 		bW = 25;
 		this.dingPrefs = new PrefsToggleButton(dingButton, col1x-bW, row5y, bW, bH);
 		this.dingPrefs.onColor = this.fColor;
 		this.dingPrefs.updateTo(this.tmp_customFilters.get(this.fInd).ding);
-		this.controlList.add(this.dingPrefs);
+		this.buttonList.add(this.dingPrefs);
 		
 		bW = 220;
 		this.filterExpPrefs = new GuiTextField(mc.fontRenderer, (this.width-effWidth)/2 + 95, row6y, bW, bH);

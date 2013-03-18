@@ -234,7 +234,7 @@ public class GuiSettings extends net.minecraft.src.GuiScreen {
 	public void initGui() {
 		Keyboard.enableRepeatEvents(true);
 		
-		this.controlList.clear();
+		this.buttonList.clear();
 
 		int effWidth = this.displayWidth;
 		int effHeight = this.displayHeight;
@@ -253,27 +253,27 @@ public class GuiSettings extends net.minecraft.src.GuiScreen {
 		int bW = 40;
 		int bH = this.line_height;
 		PrefsButton savePrefs = new PrefsButton(saveButton, (this.width + effWidth)/2 - bW, (this.height + effHeight)/2 - bH, bW, bH, "Save");
-		this.controlList.add(savePrefs);
+		this.buttonList.add(savePrefs);
 		PrefsButton cancelPrefs = new PrefsButton(cancelButton, (this.width + effWidth)/2 - 2*bW - 2, (this.height + effHeight)/2 - bH, bW, bH, "Cancel");
-		this.controlList.add(cancelPrefs);
+		this.buttonList.add(cancelPrefs);
 		PrefsButton filterWindowPrefs = new PrefsButton(filtersWindowButton, (this.width + effWidth)/2 - 2*bW-54, (this.height + effHeight)/2 - bH, 50, bH, "Filters...", 0x6622ee22);
-		this.controlList.add(filterWindowPrefs);
+		this.buttonList.add(filterWindowPrefs);
 		
 		bW = 25; // Smaller width for toggles
 		
 		this.TCenabledPrefs = new PrefsToggleButton(TCenabledButton, col1x - bW, row2y, bW, bH);
 		this.TCenabledPrefs.updateTo(this.tmp_TCenabled);	
-		this.controlList.add(this.TCenabledPrefs);
+		this.buttonList.add(this.TCenabledPrefs);
 		
 		this.autoSearchEnabledPrefs = new PrefsToggleButton(autoSearchEnabledButton, col1x - bW, row3y, bW, bH);
 		this.autoSearchEnabledPrefs.updateTo(this.tmp_autoSearchEnabled);
-		this.controlList.add(this.autoSearchEnabledPrefs);
+		this.buttonList.add(this.autoSearchEnabledPrefs);
 		
 		bW = 70;
 		
 		this.chanDelimStylePrefs = new PrefsButton(chanDelimStyleButton, col2x - bW, row3y, bW, bH, delimButtonText(), 0x66ffffff);
 		this.chanDelimStylePrefs.hasControlCodes = true;
-		this.controlList.add(this.chanDelimStylePrefs);
+		this.buttonList.add(this.chanDelimStylePrefs);
 		
 		bW = 35; // Bit larger for text entry
 		
@@ -288,22 +288,22 @@ public class GuiSettings extends net.minecraft.src.GuiScreen {
 		bW = 50;
 		this.timeFormat.applyPattern(this.tmp_timeStamp.toString());
 		this.timeStampPrefs = new PrefsButton(timeStampButton, col1x - bW, row6y, bW, bH, this.timeFormat.format(tc.cal.getTime()),  0x66ffffff);
-		this.controlList.add(this.timeStampPrefs);
+		this.buttonList.add(this.timeStampPrefs);
 		
 		bW = 25; // Back to toggle width
 		
 		this.timestampsEnabledPrefs = new PrefsToggleButton(timestampsEnabledButton, col1x - bW - 52, row6y, bW, bH);
 		this.timestampsEnabledPrefs.updateTo(this.tmp_timestampsEnabled);
-		this.controlList.add(this.timestampsEnabledPrefs);
+		this.buttonList.add(this.timestampsEnabledPrefs);
 		
 		this.saveLocalLogEnabledPrefs = new PrefsToggleButton(saveLocalLogEnabledButton, col1x - bW, row7y, bW, bH);
 		this.saveLocalLogEnabledPrefs.updateTo(this.tmp_saveLocalLogEnabled);
-		this.controlList.add(this.saveLocalLogEnabledPrefs);
+		this.buttonList.add(this.saveLocalLogEnabledPrefs);
 		
 		bW = 70; // Wider for Delimiter Names
 		
 		this.chanDelimsPrefs = new PrefsButton(chanDelimsButton, col2x - bW, row2y, bW, bH, this.tmp_chanDelims.getTitle(), 0x99b6b765);
-		this.controlList.add(this.chanDelimsPrefs);
+		this.buttonList.add(this.chanDelimsPrefs);
 		
 		this.defaultChannelsPrefs = new GuiTextField(this.mc.fontRenderer, this.width/2 + this.margin, row4y+iMargin+6, effWidth/2 - 2*this.margin, mc.fontRenderer.FONT_HEIGHT);
 		this.defaultChannelsPrefs.setMaxStringLength(150);

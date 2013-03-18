@@ -8,6 +8,8 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
+
 import acs.tabbychat.ChatChannel;
 import acs.tabbychat.TabbyChat;
 import acs.tabbychat.TabbyChatUtils;
@@ -45,7 +47,7 @@ public class GuiChat extends GuiScreen {
     	  this.scrollBar.drawScrollBar();
       } else if (!Minecraft.getMinecraft().isSingleplayer()) {
     	  TabbyChat.instance.updateButtonLocations();
-    	  this.controlList.add(TabbyChat.instance.channels.get(0).tab);
+    	  this.buttonList.add(TabbyChat.instance.channels.get(0).tab);
       }
       
       this.sentHistoryCursor = this.mc.ingameGUI.getChatGUI().getSentMessages().size();
@@ -336,14 +338,24 @@ public class GuiChat extends GuiScreen {
       String sends = ((Integer)this.getCurrentSends()).toString();
       int sendsX = mc.currentScreen.width - mc.fontRenderer.getStringWidth(sends) - 2;
       mc.fontRenderer.drawStringWithShadow(sends, sendsX, this.height - tBoxHeight, 7368816);
-      super.drawScreen(par1, par2, par3);
-      
+      //super.drawScreen(par1, par2, par3);
+        
       /*** modded here ***/
       if (!Minecraft.getMinecraft().isSingleplayer())
     	  this.drawChatTabs();
       if (TabbyChat.instance.enabled()) {
     	  this.scrollBar.drawScrollBar();
       }
+      float scaleSetting = mc.ingameGUI.getChatGUI().getScaleSetting();
+      GL11.glPushMatrix();
+      float scaleOffset = (float)(mc.currentScreen.height - 28) * (1.0F - scaleSetting);
+      GL11.glTranslatef(0.0F, scaleOffset, 0.0F);
+      GL11.glScalef(scaleSetting, scaleSetting, 1.0F);
+      for(int var4 = 0; var4 < this.buttonList.size(); ++var4) {
+          GuiButton var5 = (GuiButton)this.buttonList.get(var4);
+          var5.drawButton(this.mc, par1, par2);
+       }
+      GL11.glPopMatrix();
    }
 
    public void func_73894_a(String[] par1ArrayOfStr) {
@@ -414,10 +426,10 @@ public class GuiChat extends GuiScreen {
 	
 	public void drawChatTabs() {
 		TabbyChat tc = TabbyChat.instance;
-		this.controlList.clear();
+		this.buttonList.clear();
 		tc.updateButtonLocations();
 		for (ChatChannel _chan : tc.channels) {
-			this.controlList.add(_chan.tab);
+			this.buttonList.add(_chan.tab);
 		}		
 	}
 

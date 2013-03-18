@@ -28,6 +28,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.src.GuiButton;
 import net.minecraft.src.GuiChat;
 import net.minecraft.src.ChatLine;
+import net.minecraft.src.MathHelper;
 import net.minecraft.src.StringUtils;
 import net.minecraft.src.SoundManager;
 import net.minecraft.src.Gui;
@@ -64,6 +65,7 @@ public class TabbyChat {
 			this.channels.get(0).active = true;
 			
 			String ver = TabbyChat.getNewestVersion();
+			ArrayList firstmsg = new ArrayList<ChatLine>();
 			if (!ver.equals(version)) {
 				ver = "\u00A77TabbyChat: An update is available!  (Current version is "+version+", newest is "+ver+")";
 				String ver2 = "\u00A77Visit the TabbyChat forum thread at minecraftforum.net to download.";
@@ -74,8 +76,12 @@ public class TabbyChat {
 				this.addToChannel(0, updateLine2);
 				this.addToChannel(this.channels.size()-1, updateLine);
 				this.addToChannel(this.channels.size()-1, updateLine2);
-				
+				firstmsg.add(updateLine);
+				firstmsg.add(updateLine2);				
+			} else {
+				firstmsg.add(new ChatLine(mc.ingameGUI.getUpdateCounter(), "", 0));
 			}
+			this.lastChat = firstmsg;
 		}
 	}
 	
@@ -438,14 +444,16 @@ public class TabbyChat {
  	}
  	
  	public void updateButtonLocations() {
+ 		int xOff = 0;
+ 		int yOff = 0; 		
  		boolean screenPresent = (mc.currentScreen != null);
- 		int clines = (mc.ingameGUI.getChatGUI().GetChatHeight() < 20) ? mc.ingameGUI.getChatGUI().GetChatHeight() : 20;
- 		int vert = screenPresent ? mc.currentScreen.height - ((clines - 1) * 9 + 8) - 55 : 0;
- 		int horiz = 3;
+ 		
+ 		int maxlines = mc.ingameGUI.getChatGUI().getHeightSetting() / 9;
+ 		int clines = (mc.ingameGUI.getChatGUI().GetChatHeight() < maxlines) ? mc.ingameGUI.getChatGUI().GetChatHeight() : maxlines;
+ 		int vert = screenPresent ? mc.currentScreen.height - (clines * 9) - 42 + yOff: 0;
+ 		int horiz = 5;
  		int n = this.channels.size();
  		
- 		int xOff = 0;
- 		int yOff = 0;
  		try {
  			if (TabbyChatUtils.is(mc.ingameGUI.getChatGUI(), "GuiNewChatWrapper")) {
  				Class aHudCls = Class.forName("advancedhud.ahuditem.DefaultHudItems");
@@ -456,17 +464,18 @@ public class TabbyChat {
  				xOff = aHudCls.getField("posX").getInt(aHudObj) - 3;
  				yOff = aHudCls.getField("posY").getInt(aHudObj) - dVert;
  				horiz += xOff;
- 				vert += yOff;
+ 				vert -= yOff;
  				if (mc.ingameGUI.getChatGUI().getChatOpen() && screenPresent)
  					((GuiChat)mc.currentScreen).scrollBar.setOffset(xOff, yOff);
  			}
  		} catch (Throwable e) {}
  		for (int i = 0; i < n; i++) {
- 			if (i > 0)
+ 			if (i > 0) {
  				horiz = this.channels.get(i-1).getButtonEnd() + 1;
+ 			}
  			if (horiz + this.channels.get(i).tab.width() > 327) {
  				vert = vert - this.channels.get(i).tab.height() - 1;
- 				horiz = 3;
+ 				horiz = 5;
  			}
  			this.channels.get(i).setButtonLoc(horiz, vert);
  			if (this.channels.get(i).tab == null) {
