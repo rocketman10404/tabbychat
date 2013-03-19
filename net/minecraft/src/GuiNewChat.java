@@ -22,21 +22,17 @@ public class GuiNewChat extends Gui {
 
    public void drawChat(int par1) {
       if(this.mc.gameSettings.chatVisibility != 2) {
-         //byte var2 = 10;
     	 int var2 = this.func_96127_i();
          boolean var3 = false;
          int var4 = 0;
          int _y = 0;
-         //int var5 = this.chatLines.size();
          int var5 = this.field_96134_d.size();
          float var6 = this.mc.gameSettings.chatOpacity * 0.9F + 0.1F;
          if(var5 > 0) {
             if(this.getChatOpen()) {
-               //var2 = 20;
                var3 = true;
             }
 
-            //int var7;
             float var7 = this.func_96131_h();
             int var8 = MathHelper.ceiling_float_int((float)this.func_96126_f() / var7);
             GL11.glPushMatrix();
@@ -44,7 +40,6 @@ public class GuiNewChat extends Gui {
             GL11.glScalef(var7, var7, 1.0F);
             
             int var9;
-            //int var12;
             int var11;
             int var14;
             
@@ -76,7 +71,7 @@ public class GuiNewChat extends Gui {
                         byte var15 = 3;
                         int var16 = -var9 * 9;
                         /**** modded here ****/
-                        _y = var16 - 1;
+                        _y = var16 - 9;
                         int xOf = 0;
                         if (TabbyChat.instance.enabled() && TabbyChat.instance.globalPrefs.timestampsEnabled) {
                         	xOf = mc.fontRenderer.getStringWidth(TabbyChat.instance.globalPrefs.timestampStyle.maxTime);
@@ -109,9 +104,10 @@ public class GuiNewChat extends Gui {
                   drawRect(2, -var20, 1, -var20 - var13, 13421772 + (var14 << 24));
                }
             }
+            
+            GL11.glPopMatrix();
          }
          
-         GL11.glPopMatrix();
          /**** modded here ****/
          if (TabbyChat.instance.enabled() && !this.getChatOpen()) {
              TabbyChat.instance.pollForUnread(this, _y, par1);
@@ -141,7 +137,6 @@ public class GuiNewChat extends Gui {
          this.deleteChatLine(par2);
       }
 
-      //Iterator var7 = this.mc.fontRenderer.listFormattedStringToWidth(par1Str, 320).iterator();
       Iterator var7 = this.mc.fontRenderer.listFormattedStringToWidth(par1Str, MathHelper.floor_float((float)this.func_96126_f() / this.func_96131_h())).iterator();
       
       /**** modded here ****/
@@ -221,7 +216,6 @@ public class GuiNewChat extends Gui {
 
    public void scroll(int par1) {
       this.field_73768_d += par1;
-      //int var2 = this.chatLines.size();
       int var2 = this.field_96134_d.size();
       if(this.field_73768_d > var2 - this.func_96127_i()) {
          this.field_73768_d = var2 - this.func_96127_i();
@@ -335,19 +329,16 @@ public class GuiNewChat extends Gui {
    }
    
    public int GetChatHeight() {
-	   //return this.chatLines.size();
 	   return this.field_96134_d.size();
    }
    
    public void addChatLines(List _add) {
-	   //this.chatLines.addAll(_add);
 	   this.field_96134_d.addAll(_add);
 	   this.field_73768_d = 0;
    }
    
    public void clearChatLines() {
 	   this.resetScroll();
-	   //this.chatLines.clear();
 	   this.field_96134_d.clear();
    }
    

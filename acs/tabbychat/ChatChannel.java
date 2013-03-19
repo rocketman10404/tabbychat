@@ -85,8 +85,15 @@ public class ChatChannel {
 	}
 
 	public void unreadNotify(Gui _gui, int _y, int _opacity) {
+		float scaleSetting = TabbyChat.instance.mc.ingameGUI.getChatGUI().getScaleSetting();
+		GL11.glPushMatrix();
+		GL11.glTranslatef(0.0F, 20.0F, 0.0F);
+		GL11.glScalef(scaleSetting, scaleSetting, 1.0F);
+		
 		TabbyChat.instance.mc.ingameGUI.getChatGUI().drawRect(this.tab.xPosition, -this.tab.height() + _y, this.tab.xPosition + this.tab.width(), _y, 0x720000 + (_opacity/2 << 24));
 		GL11.glEnable(GL11.GL_BLEND);
-		TabbyChat.instance.mc.ingameGUI.getChatGUI().drawCenteredString(TabbyChat.instance.mc.fontRenderer, this.getDisplayTitle(), this.tab.xPosition + this.tab.width()/2, -(this.tab.height()+8)/2 + _y, 16711680 + (_opacity << 24));	
+		TabbyChat.instance.mc.ingameGUI.getChatGUI().drawCenteredString(TabbyChat.instance.mc.fontRenderer, this.getDisplayTitle(), this.tab.xPosition + this.tab.width()/2, -(this.tab.height()+8)/2 + _y, 16711680 + (_opacity << 24));
+		
+		GL11.glPopMatrix();	
 	}
 }

@@ -82,6 +82,7 @@ public class TabbyChat {
 				firstmsg.add(new ChatLine(mc.ingameGUI.getUpdateCounter(), "", 0));
 			}
 			this.lastChat = firstmsg;
+			mc.ingameGUI.getChatGUI().addChatLines(firstmsg);
 		}
 	}
 	
@@ -369,7 +370,7 @@ public class TabbyChat {
 			if (filter.ding) this.ding(); 
 		}
 		
-		Iterator splitChat = mc.fontRenderer.listFormattedStringToWidth(filteredChat.toString(), 320).iterator();
+		Iterator splitChat = mc.fontRenderer.listFormattedStringToWidth(filteredChat.toString(), MathHelper.floor_float((float)mc.ingameGUI.getChatGUI().func_96126_f() / mc.ingameGUI.getChatGUI().func_96131_h())).iterator();
 		while (splitChat.hasNext()) {
 			filteredChatLine.add(new ChatLine(theChat.get(0).getUpdatedCounter(), (String)splitChat.next(), theChat.get(0).getChatLineID()));
 		}

@@ -338,7 +338,6 @@ public class GuiChat extends GuiScreen {
       String sends = ((Integer)this.getCurrentSends()).toString();
       int sendsX = mc.currentScreen.width - mc.fontRenderer.getStringWidth(sends) - 2;
       mc.fontRenderer.drawStringWithShadow(sends, sendsX, this.height - tBoxHeight, 7368816);
-      //super.drawScreen(par1, par2, par3);
         
       /*** modded here ***/
       if (!Minecraft.getMinecraft().isSingleplayer())

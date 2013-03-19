@@ -38,12 +38,30 @@ public class ChatButton extends net.minecraft.src.GuiButton {
 		this.channel = null;
 	}
 	
+	public boolean mousePressed(Minecraft mc, int par2, int par3) {
+
+        float scaleSetting = mc.ingameGUI.getChatGUI().getScaleSetting();
+        int adjY = (int)((float)(mc.currentScreen.height - this.yPosition - 28) * (1.0F - scaleSetting)) + this.yPosition;
+        int adjX = (int)((float)(this.xPosition - 5) * scaleSetting) + 5;
+        int adjW = (int)((float)this.width * scaleSetting);
+        int adjH = (int)((float)this.height * scaleSetting);
+		
+		return this.enabled && this.drawButton && par2 >= adjX && par3 >= adjY && par2 < adjX + adjW && par3 < adjY + adjH;
+	}
+	
 	public void drawButton(Minecraft mc, int cursorX, int cursorY) {
 	      if(this.drawButton) {
 	          FontRenderer fr = mc.fontRenderer;
 	          float _mult = mc.gameSettings.chatOpacity * 0.9F + 0.1F;
 	          int _opacity = (int)((float)255 * _mult);
-	          boolean hovered = cursorX >= this.xPosition && cursorY >= this.yPosition && cursorX < this.xPosition + this.width && cursorY < this.yPosition + this.height;
+	          
+	          float scaleSetting = mc.ingameGUI.getChatGUI().getScaleSetting();
+	          int adjY = (int)((float)(mc.currentScreen.height - this.yPosition - 28) * (1.0F - scaleSetting)) + this.yPosition;
+	          int adjX = (int)((float)(this.xPosition - 5) * scaleSetting) + 5;
+	          int adjW = (int)((float)this.width * scaleSetting);
+	          int adjH = (int)((float)this.height * scaleSetting);
+	          
+	          boolean hovered = cursorX >= adjX && cursorY >= adjY && cursorX < adjX + adjW && cursorY < adjY + adjH;
 
 	          int var7 = 0xa0a0a0;
 	          int var8 = 0;
@@ -59,14 +77,9 @@ public class ChatButton extends net.minecraft.src.GuiButton {
 	        	  var7 = 0xff0000;
 	        	  var8 = 0x720000;
 	          }
-	          float scaleSetting = mc.ingameGUI.getChatGUI().getScaleSetting();
-	          //GL11.glPushMatrix();
-	          //GL11.glScalef(scaleSetting, scaleSetting, 1.0F);
 	          drawRect(this.xPosition, this.yPosition, this.xPosition + this.width, this.yPosition + this.height, var8 + (_opacity / 2 << 24));
 	          GL11.glEnable(GL11.GL_BLEND);
 	          this.drawCenteredString(fr, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height-8) / 2, var7 + (_opacity << 24));
-	          //GL11.glDisable(GL11.GL_BLEND);
-	          //GL11.glPopMatrix();
 	       }		
 	}
 }
