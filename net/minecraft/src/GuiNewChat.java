@@ -127,7 +127,7 @@ public class GuiNewChat extends Gui {
    
    public void printChatMessageWithOptionalDeletion(String par1Str, int par2) {
 	   this.func_96129_a(par1Str, par2, this.mc.ingameGUI.getUpdateCounter(), false);
-	   this.mc.func_98033_al().func_98233_a("[CHAT] " + par1Str);
+	   this.mc.getLogAgent().logInfo("[CHAT] " + par1Str);
    }
 
    public void func_96129_a(String par1Str, int par2, int par3, boolean par4) {
@@ -287,15 +287,15 @@ public class GuiNewChat extends Gui {
    }
    
    public int func_96126_f() {
-	   return func_96128_a(this.mc.gameSettings.field_96692_F);
+	   return func_96128_a(this.mc.gameSettings.chatWidth);
    }
 
    public int func_96133_g() {
-	   return func_96130_b(this.getChatOpen()?this.mc.gameSettings.field_96694_H:this.mc.gameSettings.field_96693_G);
+	   return func_96130_b(this.getChatOpen()?this.mc.gameSettings.chatHeightFocused:this.mc.gameSettings.chatHeightUnfocused);
    }
 
    public float func_96131_h() {
-	   return this.mc.gameSettings.field_96691_E;
+	   return this.mc.gameSettings.chatScale;
    }
 
    public static final int func_96128_a(float par0) {
@@ -317,7 +317,7 @@ public class GuiNewChat extends Gui {
    /**** modded below ****/
    
    public int getHeightSetting() {
-	   return func_96130_b(this.mc.gameSettings.field_96694_H);
+	   return func_96130_b(this.mc.gameSettings.chatHeightFocused);
    }
    
    public int getWidthSetting() {
