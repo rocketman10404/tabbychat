@@ -1,10 +1,10 @@
 package acs.tabbychat;
 
 public enum ChannelDelimEnum {
-	ANGLES("Angles", "<", ">"),
-	BRACES("Braces", "{", "}"),
-	BRACKETS("Brackets", "[", "]"),
-	PARENTHESIS("Parenthesis", "(", ")");
+	ANGLES("<Angles>", "<", ">"),
+	BRACES("{Braces}", "{", "}"),
+	BRACKETS("[Brackets]", "[", "]"),
+	PARENTHESIS("(Parenthesis)", "(", ")");
 	
 	private String title;
 	private char open;
@@ -17,6 +17,10 @@ public enum ChannelDelimEnum {
 	}
 	
 	public String getTitle() {
+		return this.title;
+	}
+	
+	public String toString() {
 		return this.title;
 	}
 	

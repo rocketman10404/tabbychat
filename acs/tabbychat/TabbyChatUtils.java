@@ -38,7 +38,7 @@ public class TabbyChatUtils {
         String[] toSplit = toSend.split(" ");
         String cmdPrefix = "";
         int start = 0;
-        if (toSplit[0].startsWith("/")) {
+        if (toSplit.length > 0 && toSplit[0].startsWith("/")) {
         	if (toSplit[0].startsWith("/msg")) {
         		cmdPrefix = toSplit[0] + " " + toSplit[1] + " ";
         		start = 2;

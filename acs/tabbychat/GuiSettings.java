@@ -114,7 +114,7 @@ public class GuiSettings extends net.minecraft.src.GuiScreen {
 		tc.serverPrefs.chanDelimColor = this.tmp_chanDelimColor;
 		tc.serverPrefs.chanDelimFormat = this.tmp_chanDelimFormat;
 		tc.globalPrefs.timestampStyle = this.tmp_timeStamp;
-		tc.globalPrefs.timeStamp.applyPattern(this.tmp_timeStamp.toString());
+		tc.globalPrefs.timeStamp.applyPattern(this.tmp_timeStamp.toCode());
 		tc.loadPatterns();
 		tc.updateDefaults();
 	}
@@ -225,7 +225,7 @@ public class GuiSettings extends net.minecraft.src.GuiScreen {
 			break;
 		case timeStampButton:
 			this.tmp_timeStamp = this.tmp_timeStamp.nextFormat();
-			this.timeFormat.applyPattern(this.tmp_timeStamp.toString());
+			this.timeFormat.applyPattern(this.tmp_timeStamp.toCode());
 			this.timeStampPrefs.displayString = this.timeFormat.format(tc.cal.getTime());
 			break;
 		}

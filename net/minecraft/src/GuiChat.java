@@ -392,6 +392,10 @@ public class GuiChat extends GuiScreen {
 			this.mc.displayGuiScreen(tc.prefsWindow);
 			return;
 		}
+		if (Keyboard.isKeyDown(Keyboard.KEY_RSHIFT) && tc.channels.get(0) == _button.channel) {
+			this.mc.displayGuiScreen(tc.generalSettings);
+			return;
+		}
 		if (!tc.globalPrefs.TCenabled) return;
 		int n = tc.channels.size();
 		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {						

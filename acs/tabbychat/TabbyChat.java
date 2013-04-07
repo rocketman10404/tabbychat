@@ -50,6 +50,10 @@ public class TabbyChat {
 	public ServerSettings serverPrefs = new ServerSettings();
 	public GuiSettings prefsWindow;
 	public GuiChatFilters filtersWindow;
+	public TCSettingsGeneral generalSettings;
+	public TCSettingsServer serverSettings;
+	public TCSettingsFilters filterSettings;
+	public TCSettingsAdvanced advancedSettings;
 	public static final TabbyChat instance = new TabbyChat();
 	
 	private TabbyChat() {
@@ -57,6 +61,10 @@ public class TabbyChat {
 		
 		this.prefsWindow = new GuiSettings(this);
 		this.filtersWindow = new GuiChatFilters(this);
+		this.generalSettings = new TCSettingsGeneral(this);
+		this.serverSettings = new TCSettingsServer(this);
+		this.filterSettings = new TCSettingsFilters(this);
+		this.advancedSettings = new TCSettingsAdvanced(this);
 		this.globalPrefs.loadSettings();
 		if (!this.enabled())
 			this.disable();
@@ -169,6 +177,7 @@ public class TabbyChat {
 		}
 		this.serverPrefs.updateForServer();
 		this.serverPrefs.loadSettings();
+		this.filterSettings.loadSettingsFile();
 		this.loadPatterns();
 		this.updateDefaults();
 		this.updateFilters();

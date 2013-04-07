@@ -5,8 +5,7 @@ public enum TimeStampEnum {
 	MILITARY("[HHmm]",0, "[2359]"),
 	MILITARYWITHCOLON("[HH:mm]",0, "[23:59]"),
 	STANDARD("[hh:mm]",0, "[12:00]"),
-	STANDARDWITHMARKER("[hh:mma]",0, "[12:00PM]"),
-	THEEND("",1, "");
+	STANDARDWITHMARKER("[hh:mma]",0, "[12:00PM]");
 	
 	private String code;
 	private int type;
@@ -23,6 +22,10 @@ public enum TimeStampEnum {
 	
 
 	public String toString() {
+		return this.maxTime;
+	}
+	
+	public String toCode() {
 		return this.code;
 	}
 
@@ -36,7 +39,7 @@ public enum TimeStampEnum {
 			if (i<theList.length && theList[i].type == format)
 				return theList[i];
 			else
-				return TimeStampEnum.THEEND.nextFormat();
+				return TimeStampEnum.MILITARY;
 		}
 	}
 	
@@ -50,7 +53,7 @@ public enum TimeStampEnum {
 			if (i>=0 && theList[i].type == format)
 				return theList[i];
 			else
-				return TimeStampEnum.THEEND.prevFormat();
+				return TimeStampEnum.STANDARDWITHMARKER;
 		}
 	}
 }

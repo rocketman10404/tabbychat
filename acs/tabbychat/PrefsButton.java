@@ -10,6 +10,7 @@ import net.minecraft.src.GuiButton;
 public class PrefsButton extends net.minecraft.src.GuiButton {
 	protected int bgcolor = 0xDD000000;
 	protected boolean hasControlCodes = false;
+	protected String type;
 	
 	public PrefsButton() {
 		super(9999, 0, 0, 1, 1, "");

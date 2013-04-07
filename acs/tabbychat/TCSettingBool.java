@@ -4,99 +4,92 @@ import org.lwjgl.opengl.GL11;
 import net.minecraft.client.Minecraft;
 import net.minecraft.src.FontRenderer;
 
-public class TCSettingBool extends net.minecraft.src.Gui {
-	protected int buttonOnColor = 0x66a5e7e4;
+public class TCSettingBool extends TCSetting {
+	protected int buttonOnColor = 0xbba5e7e4;
 	protected int buttonOffColor = 0x99000000;
-	protected int buttonWidth;
-	protected int buttonHeight;
-	protected int buttonX;
-	protected int buttonY;
-	protected int labelX;
-	protected int id;
-	protected String buttonOnTitle;
-	protected String buttonOffTitle;
-	protected String description;
 	protected Boolean value;
 	protected Boolean tempValue;
-	private Boolean enabled;
 	private static Minecraft mc;
 	
 	
-	public TCSettingBool(Boolean theSetting, String theLabel, int theID) {
-		this(theSetting, theLabel, "On", "Off", theID);
+	public TCSettingBool(String theLabel, int theID) {
+		this((Boolean)false, theLabel, theID);
 	}
 	
-	public TCSettingBool(Boolean theSetting, String theLabel, String onTitle, String offTitle, int theID) {
+	public TCSettingBool(Boolean theSetting, String theLabel, int theID) {
+		super(theID, 0, 0, "");
+		this.type = "bool";
 		mc = Minecraft.getMinecraft();
 		this.value = theSetting;
-		this.tempValue = this.value;
+		this.tempValue = new Boolean(this.value.booleanValue());
 		this.description = theLabel;
-		this.buttonOnTitle = onTitle;
-		this.buttonOffTitle = offTitle;
-		this.buttonX = 0;
-		this.buttonY = 0;
 		this.labelX = 0;
-		this.buttonWidth = Math.max(mc.fontRenderer.getStringWidth(this.buttonOnTitle), mc.fontRenderer.getStringWidth(this.buttonOffTitle)) + 4;
-		this.buttonHeight = mc.fontRenderer.FONT_HEIGHT + 4;
-		this.id = theID;
+		this.width = 9;
+		this.height = 9;
 	}
 	
-	protected void setValue(Boolean updateVal) {
-		this.value = updateVal;
-		this.tempValue = this.value;
+	public void setValue(Boolean theVal) {
+		this.value = theVal;
 	}
 	
-	public void enable() {
-		this.enabled = true;
+	public void setTempValue(Boolean theVal) {
+		this.tempValue = theVal;
 	}
 	
-	public void disable() {
-		this.enabled = false;
+	public Boolean getValue() {
+		return this.value.booleanValue();
 	}
 	
-	public void setButtonLoc(int bx, int by) {
-		this.buttonX = bx;
-		this.buttonY = by;
+	public Boolean getTempValue() {
+		return this.tempValue.booleanValue();
 	}
 	
 	public void save() {
-		this.value = this.tempValue;
+		this.value = Boolean.valueOf(this.tempValue.booleanValue());
 	}
 	
 	public void reset() {
-		this.tempValue = this.value;
+		this.tempValue = Boolean.valueOf(this.value.booleanValue());
 	}
-	
-	public void toggle() {
-		this.tempValue = !this.tempValue;
-	}
-	
-	private Boolean hovered(int cursorX, int cursorY) {
-		return cursorX >= this.buttonX && cursorY >= this.buttonY && cursorX < this.buttonX + this.buttonWidth && cursorY < this.buttonY + this.buttonHeight;
-	}
-	
-	public void mouseClicked(int par1, int par2, int par3) {
-		if (this.hovered(par1, par2))
-			this.toggle();
-	}
-	
-	public void actionPerformed() { }
-	
-	public void drawButton(int cursorX, int cursorY) {
-		int bgcolor = (this.tempValue) ? this.buttonOnColor : this.buttonOffColor;
-		String dispString = (this.tempValue) ? this.buttonOnTitle : this.buttonOffTitle;
 		
-		drawRect(this.buttonX, this.buttonY, this.buttonX + this.buttonWidth, this.buttonY + this.buttonHeight, bgcolor);
+	public void toggle() {
+		this.tempValue = Boolean.valueOf(!this.tempValue.booleanValue());
+	}
 
-		int fgcolor = 0xa0a0a0;
-		if(!this.enabled) {
-			fgcolor = -0x5f5f60;
-		} else if(this.hovered(cursorX, cursorY)) {
-			fgcolor = 0xffffa0;
-		}
-
-		this.drawCenteredString(mc.fontRenderer, this.description, this.labelX + mc.fontRenderer.getStringWidth(this.description)/2, this.buttonY + (this.buttonHeight - 8) / 2,  0xffffff);
-		this.drawCenteredString(mc.fontRenderer, dispString, this.buttonX + this.buttonWidth / 2, this.buttonY + (this.buttonHeight - 8) / 2, fgcolor);
+	public void actionPerformed() {
+		this.toggle();
+	}
 	
+	public void drawButton(Minecraft par1, int cursorX, int cursorY) {
+		int centerX = this.xPosition + this.width / 2;
+		int centerY = this.yPosition + this.height / 2;
+		int tmpWidth = 9;
+		int tmpHeight = 9;
+		int tmpX = centerX - 4;
+		int tmpY = centerY - 4;
+		int fgcolor = 0x99a0a0a0;
+		if(!this.enabled) {
+			fgcolor = -0x995f5f60;
+		} else if(this.hovered(cursorX, cursorY)) {
+			fgcolor = 0x99ffffa0;
+		}
+		
+		int labelColor = (this.enabled) ? 0xffffff : 0x666666;
+		
+		drawRect(tmpX+1, tmpY, tmpX+tmpWidth-1, tmpY+1, fgcolor);
+		drawRect(tmpX+1, tmpY+tmpHeight-1, tmpX+tmpWidth-1, tmpY+tmpHeight, fgcolor);
+		drawRect(tmpX, tmpY+1, tmpX+1, tmpY+tmpHeight-1, fgcolor);
+		drawRect(tmpX+tmpWidth-1, tmpY+1, tmpX+tmpWidth, tmpY+tmpHeight-1, fgcolor);
+		drawRect(tmpX+1, tmpY+1, tmpX+tmpWidth-1, tmpY+tmpHeight-1, 0xff000000);
+		if (this.tempValue) {
+			drawRect(centerX-2, centerY, centerX-1, centerY+1, this.buttonOnColor);
+			drawRect(centerX-1, centerY+1, centerX, centerY+2, this.buttonOnColor);
+			drawRect(centerX, centerY+2, centerX+1, centerY+3, this.buttonOnColor);
+			drawRect(centerX+1, centerY+2, centerX+2, centerY, this.buttonOnColor);
+			drawRect(centerX+2, centerY, centerX+3, centerY-2, this.buttonOnColor);
+			drawRect(centerX+3, centerY-2, centerX+4, centerY-4, this.buttonOnColor);
+		}
+		
+		this.drawCenteredString(mc.fontRenderer, this.description, this.labelX + mc.fontRenderer.getStringWidth(this.description)/2, this.yPosition + (this.height - 6) / 2,  labelColor);
 	}
 }
