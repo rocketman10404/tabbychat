@@ -66,6 +66,8 @@ public class TabbyChat {
 		this.filterSettings = new TCSettingsFilters(this);
 		this.advancedSettings = new TCSettingsAdvanced(this);
 		this.globalPrefs.loadSettings();
+		this.generalSettings.loadSettingsFile();
+		this.advancedSettings.loadSettingsFile();
 		if (!this.enabled())
 			this.disable();
 		else {
@@ -177,6 +179,7 @@ public class TabbyChat {
 		}
 		this.serverPrefs.updateForServer();
 		this.serverPrefs.loadSettings();
+		this.serverSettings.loadSettingsFile();
 		this.filterSettings.loadSettingsFile();
 		this.loadPatterns();
 		this.updateDefaults();
@@ -378,7 +381,12 @@ public class TabbyChat {
 			}
 			if (filter.ding) this.ding(); 
 		}
-		
+/* More to do before implementing this changeover		
+		for (int i = 0; i < this.filterSettings.numFilters; i++) {
+			if (!this.filterSettings.applyFilterToDirtyChat(i, filteredChat.toString())) continue;
+			filteredChat = new StringBuilder(this.filterSettings.getLastMatchPretty());
+		}
+*/		
 		Iterator splitChat = mc.fontRenderer.listFormattedStringToWidth(filteredChat.toString(), MathHelper.floor_float((float)mc.ingameGUI.getChatGUI().func_96126_f() / mc.ingameGUI.getChatGUI().func_96131_h())).iterator();
 		while (splitChat.hasNext()) {
 			filteredChatLine.add(new ChatLine(theChat.get(0).getUpdatedCounter(), (String)splitChat.next(), theChat.get(0).getChatLineID()));

@@ -67,7 +67,7 @@ public class TCSetting extends GuiButton {
 	}
 		
 	public void mouseClicked(int par1, int par2, int par3) { }
-		
+			
 	public void actionPerformed() { }
 		
 	public void drawButton(Minecraft mc, int cursorX, int cursorY) { }

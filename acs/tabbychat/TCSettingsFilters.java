@@ -9,6 +9,8 @@ import java.io.OutputStream;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.src.GuiButton;
@@ -17,6 +19,7 @@ import net.minecraft.src.ServerData;
 public class TCSettingsFilters extends TCSettingsGUI {
 	protected int curFilterId = 0;
 	protected int numFilters = 0;
+	private static String lastMatch = "";
 
 	private static final int inverseMatchID = 9301;
 	private static final int caseSenseID = 9302;
@@ -305,17 +308,15 @@ public class TCSettingsFilters extends TCSettingsGUI {
 			ip = ip.replaceAll(":", "(") + ")";
 		}
 		
-		System.out.println("Attempting to load settings from "+ip);
-		
-		File settingsDir = new File(GlobalSettings.tabbyChatDir, ip);
+		File settingsDir = new File(tabbyChatDir, ip);
+		this.settingsFile = new File(settingsDir, "filters.cfg");
 	
-		if (!settingsDir.exists())
-			settingsDir.mkdirs();
-		settingsFile = new File(settingsDir, "filters.cfg");
+		if (!this.settingsFile.exists())
+			return;		
 		Properties settingsTable = new Properties();
 		
 		try {
-			FileInputStream fInStream = new FileInputStream(settingsFile);
+			FileInputStream fInStream = new FileInputStream(this.settingsFile);
 			settingsTable.load(fInStream);
 			fInStream.close();
 		} catch (Exception e) {
@@ -327,21 +328,37 @@ public class TCSettingsFilters extends TCSettingsGUI {
 			sId = Integer.toString(i);
 			if (!settingsTable.containsKey(sId+".filterName"))
 				break;
-			this.filterMap.put(sId + ".filterName", settingsTable.getProperty(sId + ".filterName"));
-			this.filterMap.put(sId + ".inverseMatch", Boolean.parseBoolean(settingsTable.getProperty(sId + ".inverseMatch")));
-			this.filterMap.put(sId + ".caseSensitive", Boolean.parseBoolean(settingsTable.getProperty(sId + ".caseSensitive")));
-			this.filterMap.put(sId + ".highlightBool", Boolean.parseBoolean(settingsTable.getProperty(sId + ".highlightBool")));
-			this.filterMap.put(sId + ".highlightColor", ColorCodeEnum.valueOf(settingsTable.getProperty(sId + ".highlightColor")));
-			this.filterMap.put(sId + ".highlightFormat", FormatCodeEnum.valueOf(settingsTable.getProperty(sId + ".highlightFormat")));
-			this.filterMap.put(sId + ".audioNotificationBool", Boolean.parseBoolean(settingsTable.getProperty(sId + ".audioNotificationBool")));
-			this.filterMap.put(sId + ".audioNotificationSound", NotificationSoundEnum.valueOf(settingsTable.getProperty(sId + ".audioNotificationSound")));
-			this.filterMap.put(sId + ".sendToTabBool", Boolean.parseBoolean(settingsTable.getProperty(sId + ".sendToTabBool")));
-			this.filterMap.put(sId + ".sendToTabName", settingsTable.getProperty(sId + ".sendToTabName"));
-			this.filterMap.put(sId + ".sendToAllTabs", Boolean.parseBoolean(settingsTable.getProperty(sId + ".sendToAllTabs")));
-			this.filterMap.put(sId + ".removeMatches", Boolean.parseBoolean(settingsTable.getProperty(sId + ".removeMatches")));
-			this.filterMap.put(sId + ".expressionString", settingsTable.getProperty(sId + ".expressionString"));
-		}
-		
+			try {
+				this.filterMap.put(sId + ".filterName", settingsTable.getProperty(sId + ".filterName"));
+				this.filterMap.put(sId + ".inverseMatch", Boolean.parseBoolean(settingsTable.getProperty(sId + ".inverseMatch")));
+				this.filterMap.put(sId + ".caseSensitive", Boolean.parseBoolean(settingsTable.getProperty(sId + ".caseSensitive")));
+				this.filterMap.put(sId + ".highlightBool", Boolean.parseBoolean(settingsTable.getProperty(sId + ".highlightBool")));
+				this.filterMap.put(sId + ".highlightColor", ColorCodeEnum.valueOf(settingsTable.getProperty(sId + ".highlightColor")));
+				this.filterMap.put(sId + ".highlightFormat", FormatCodeEnum.valueOf(settingsTable.getProperty(sId + ".highlightFormat")));
+				this.filterMap.put(sId + ".audioNotificationBool", Boolean.parseBoolean(settingsTable.getProperty(sId + ".audioNotificationBool")));
+				this.filterMap.put(sId + ".audioNotificationSound", NotificationSoundEnum.valueOf(settingsTable.getProperty(sId + ".audioNotificationSound")));
+				this.filterMap.put(sId + ".sendToTabBool", Boolean.parseBoolean(settingsTable.getProperty(sId + ".sendToTabBool")));
+				this.filterMap.put(sId + ".sendToTabName", settingsTable.getProperty(sId + ".sendToTabName"));
+				this.filterMap.put(sId + ".sendToAllTabs", Boolean.parseBoolean(settingsTable.getProperty(sId + ".sendToAllTabs")));
+				this.filterMap.put(sId + ".removeMatches", Boolean.parseBoolean(settingsTable.getProperty(sId + ".removeMatches")));
+				this.filterMap.put(sId + ".expressionString", settingsTable.getProperty(sId + ".expressionString"));
+			} catch (Exception e) {
+				TabbyChat.printErr("Invalid property found in filter settings file for filter #"+sId);
+				this.filterMap.remove(sId + ".filterName");
+				this.filterMap.remove(sId + ".inverseMatch");
+				this.filterMap.remove(sId + ".caseSensitive");
+				this.filterMap.remove(sId + ".highlightBool");
+				this.filterMap.remove(sId + ".highlightColor");
+				this.filterMap.remove(sId + ".highlightFormat");
+				this.filterMap.remove(sId + ".audioNotificationBool");
+				this.filterMap.remove(sId + ".audioNotificationSound");
+				this.filterMap.remove(sId + ".sendToTabBool");
+				this.filterMap.remove(sId + ".sendToTabName");
+				this.filterMap.remove(sId + ".sendToAllTabs");
+				this.filterMap.remove(sId + ".removeMatches");
+				this.filterMap.remove(sId + ".expressionString");
+			}
+		}		
 		this.resetTempVars();
 	}
 	
@@ -354,7 +371,7 @@ public class TCSettingsFilters extends TCSettingsGUI {
 			ip = ip.replaceAll(":", "(") + ")";
 		}
 		
-		File settingsDir = new File(GlobalSettings.tabbyChatDir, ip);
+		File settingsDir = new File(tabbyChatDir, ip);
 	
 		if (!settingsDir.exists())
 			settingsDir.mkdirs();
@@ -474,4 +491,101 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		this.displayFilter(0);
 		this.validateButtonStates();
 	}
+	
+	protected boolean applyFilterToDirtyChat(int filterNum, String input) {
+		
+// Pull data for the requested filter number
+		String fNum = Integer.toString(filterNum);
+		Boolean caseSensitive = (Boolean)this.filterMap.get(fNum + ".caseSensitive");
+		Boolean inverseMatch = (Boolean)this.filterMap.get(fNum + ".inverseMatch");
+		Boolean highlightBool = (Boolean)this.filterMap.get(fNum + ".highlightBool");
+		ColorCodeEnum highlightColor = ColorCodeEnum.valueOf((String)this.filterMap.get(fNum + ".highlightColor"));
+		FormatCodeEnum highlightFormat = FormatCodeEnum.valueOf((String)this.filterMap.get(fNum + ".highlightFormat"));
+		String expressionString = (String)this.filterMap.get(fNum + ".expressionString");
+		Pattern filter;
+		if (caseSensitive)
+			filter = Pattern.compile(expressionString);
+		else
+			filter = Pattern.compile(expressionString, Pattern.CASE_INSENSITIVE);
+		
+// Count number of color/formatting codes originally present in input		
+		int countCodes = input.replaceAll("[^\u00A7]", "").length(); 
+// Initialize arrays and variables to track location of original color/formatting codes
+		String[] removedCodes = new String[countCodes];
+		int[] codeIndices = new int[countCodes];
+		Pattern pullCodes = Pattern.compile("(?i)\\u00A7[0-9A-FK-OR]");
+		int _start = 0;
+		int _end = 0;
+		int i = 0;
+		
+// Remove color/formatting codes from input, store codes and locations for later re-insertion		
+		StringBuilder result = new StringBuilder(input);
+		Matcher matchCodes = pullCodes.matcher(result.toString());
+		while(matchCodes.find()) {
+			_start = matchCodes.start();
+			_end = matchCodes.end();
+			codeIndices[i] = _start;
+			removedCodes[i] = result.substring(_start, _end);
+			result.replace(_start, _end, "");		
+			matchCodes = pullCodes.matcher(result.toString());
+			i++;
+		}
+
+// Apply this filter expression to the clean input
+		Matcher matchFilter = filter.matcher(result.toString());
+		boolean matched = false;
+		while(matchFilter.find()) {
+			matched = true;
+			if (highlightBool) {
+				_start = matchFilter.start();
+				_end = matchFilter.end();
+				int m;
+				for (m = 0; m < codeIndices.length; m++) {
+					if (codeIndices[m] >= _start)
+						break;
+				}
+				String suffix = "\u00A7r";
+
+				if (codeIndices.length > 0 || m > 0) {
+					if (m < codeIndices.length && codeIndices[m] <= _start)
+						suffix = removedCodes[m];
+					else if (m > 0)
+						suffix = removedCodes[m-1];
+				}
+				result.insert(_end, suffix);
+				result.insert(_start, highlightColor.toCode()+highlightFormat.toCode());				
+				for (int j = 0; j < codeIndices.length; j++) {
+					if (codeIndices[j] > _start)
+						codeIndices[j] = codeIndices[j] + highlightColor.toCode().length() + highlightFormat.toCode().length();
+					if (codeIndices[j] > _end)
+						codeIndices[j] = codeIndices[j] + suffix.length();
+				}
+			}
+		}
+		
+// If highlighting, re-insert color/format codes to return highlighted result.  Otherwise, just return the original input.		
+		if (highlightBool) { 
+			for (int k = codeIndices.length-1; k >= 0; k--) {
+				result.insert(codeIndices[k], removedCodes[k]);
+			}
+			lastMatch = result.toString();
+		} else
+			lastMatch = input;
+		if (!matched && inverseMatch)
+			return true;
+		else if (matched && !inverseMatch)
+			return true;
+		else if (matched && inverseMatch)
+			return false;
+		else if (!matched && !inverseMatch)
+			return false;
+		return false;
+	}
+
+	protected String getLastMatchPretty() {
+		String tmp = new String(lastMatch);
+		lastMatch = "";
+		return tmp;
+	}
+
 }

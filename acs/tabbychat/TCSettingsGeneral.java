@@ -1,5 +1,14 @@
 package acs.tabbychat;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.Properties;
+import java.util.Set;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.src.ServerData;
+
 public class TCSettingsGeneral extends TCSettingsGUI {
 
 	private static final int tabbyChatEnableID = 9101;
@@ -9,12 +18,12 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 	private static final int groupSpamID = 9105;
 	private static final int unreadFlashingID = 9106;
 	
-	protected TCSettingBool tabbyChatEnable = new TCSettingBool("TabbyChat Enabled", tabbyChatEnableID);
-	protected TCSettingBool saveChatLog = new TCSettingBool("Log chat to file", saveChatLogID);
-	protected TCSettingBool timeStampEnable = new TCSettingBool("Timestamp chat", timeStampEnableID);
+	protected TCSettingBool tabbyChatEnable = new TCSettingBool(true, "TabbyChat Enabled", tabbyChatEnableID);
+	protected TCSettingBool saveChatLog = new TCSettingBool(false, "Log chat to file", saveChatLogID);
+	protected TCSettingBool timeStampEnable = new TCSettingBool(false, "Timestamp chat", timeStampEnableID);
 	protected TCSettingEnum timeStampStyle = new TCSettingEnum(TimeStampEnum.MILITARY, "\u00A7oTimestamp Style\u00A7r", timeStampStyleID);
-	protected TCSettingBool groupSpam = new TCSettingBool("Consolidate spammed chat", groupSpamID);
-	protected TCSettingBool unreadFlashing = new TCSettingBool("Unread notification flashing", unreadFlashingID);
+	protected TCSettingBool groupSpam = new TCSettingBool(true, "Consolidate spammed chat", groupSpamID);
+	protected TCSettingBool unreadFlashing = new TCSettingBool(true, "Unread notification flashing", unreadFlashingID);
 	
 	public TCSettingsGeneral() {
 		super();
@@ -69,6 +78,84 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 		this.unreadFlashing.labelX = col1x + 19;
 		this.unreadFlashing.buttonOnColor = buttonColor;
 		this.buttonList.add(this.unreadFlashing);
+		
+		this.validateButtonStates();
 	}
 	
+	public void validateButtonStates() {
+		this.timeStampStyle.enabled = this.timeStampEnable.getTempValue();
+	}
+	
+	protected void loadSettingsFile() { 
+		this.settingsFile = new File(tabbyChatDir, "general.cfg");
+	
+		if (!this.settingsFile.exists())
+			return;		
+		Properties settingsTable = new Properties();
+		
+		try {
+			FileInputStream fInStream = new FileInputStream(this.settingsFile);
+			settingsTable.load(fInStream);
+			fInStream.close();
+		} catch (Exception e) {
+			TabbyChat.printErr("Unable to read from general settings file : '" + e.getLocalizedMessage() + "' : " + e.toString());
+		}
+		
+		try {
+			this.tabbyChatEnable.setValue(Boolean.parseBoolean((String)settingsTable.get("tabbyChatEnable")));
+			this.saveChatLog.setValue(Boolean.parseBoolean((String)settingsTable.get("saveChatLog")));
+			this.timeStampEnable.setValue(Boolean.parseBoolean((String)settingsTable.get("timeStampEnable")));
+			this.timeStampStyle.setValue(TimeStampEnum.valueOf((String)settingsTable.get("timeStampStyle")));
+			this.groupSpam.setValue(Boolean.parseBoolean((String)settingsTable.get("groupSpam")));
+			this.unreadFlashing.setValue(Boolean.parseBoolean((String)settingsTable.get("unreadFlashing")));
+		} catch (Exception e) {
+			TabbyChat.printErr("Invalid property found in general settings file.");
+			this.tabbyChatEnable.setValue(true);
+			this.saveChatLog.setValue(false);
+			this.timeStampEnable.setValue(false);
+			this.timeStampStyle.setValue(TimeStampEnum.MILITARY);
+			this.groupSpam.setValue(true);
+			this.unreadFlashing.setValue(true);
+		}
+		this.resetTempVars();
+	}
+	
+	protected void saveSettingsFile() { 
+		if (!tabbyChatDir.exists())
+			tabbyChatDir.mkdirs();
+
+		Properties settingsTable = new Properties();
+		settingsTable.put("tabbyChatEnable", this.tabbyChatEnable.getValue().toString());
+		settingsTable.put("saveChatLog", this.saveChatLog.getValue().toString());
+		settingsTable.put("timeStampEnable", this.timeStampEnable.getValue().toString());
+		settingsTable.put("timeStampStyle", this.timeStampStyle.getValue().name());
+		settingsTable.put("groupSpam", this.groupSpam.getValue().toString());
+		settingsTable.put("unreadFlashing", this.unreadFlashing.getValue().toString());
+		
+		try {
+			FileOutputStream fOutStream = new FileOutputStream(this.settingsFile);
+			settingsTable.store(fOutStream, "General settings");
+			fOutStream.close();
+		} catch (Exception e) {
+			TabbyChat.printErr("Unable to write to general settings file : '" + e.getLocalizedMessage() + "' : " + e.toString());
+		}
+	}
+	
+	protected void storeTempVars() {
+		this.tabbyChatEnable.save();
+		this.saveChatLog.save();
+		this.timeStampEnable.save();
+		this.timeStampStyle.save();
+		this.groupSpam.save();
+		this.unreadFlashing.save();
+	}
+	
+	protected void resetTempVars() {
+		this.tabbyChatEnable.reset();
+		this.saveChatLog.reset();
+		this.timeStampEnable.reset();
+		this.timeStampStyle.reset();
+		this.groupSpam.reset();
+		this.unreadFlashing.reset();
+	}
 }

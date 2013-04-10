@@ -10,6 +10,7 @@ import org.lwjgl.opengl.GL11;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 public class TCSettingsGUI extends net.minecraft.src.GuiScreen {
@@ -71,7 +72,7 @@ public class TCSettingsGUI extends net.minecraft.src.GuiScreen {
 		for (int i = 0; i < this.buttonList.size(); i++) {
 			if (TCSetting.class.isInstance(this.buttonList.get(i))) {
 				TCSetting tmp = (TCSetting)this.buttonList.get(i);
-				if (tmp.type == "textbox" || tmp.type == "enum") {
+				if (tmp.type == "textbox" || tmp.type == "enum" || tmp.type == "slider") {
 					tmp.mouseClicked(par1, par2, par3);
 				}
 			}
@@ -112,15 +113,18 @@ public class TCSettingsGUI extends net.minecraft.src.GuiScreen {
 				}
 			}
 		}
+		this.validateButtonStates();
 	}
+	
+	public void validateButtonStates() { }
 	
 	protected void loadSettingsFile() { }
 	
 	protected void saveSettingsFile() { }
 	
-	protected void storeTempVars() { }
+	protected void storeTempVars() {}
 	
-	protected void resetTempVars() { }
+	protected void resetTempVars() {}
 	
 	protected int rowY(int rowNum) {
 		return (this.height - this.displayHeight)/2 + (rowNum - 1) * (this.line_height + this.margin);

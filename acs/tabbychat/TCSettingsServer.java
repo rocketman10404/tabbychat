@@ -1,5 +1,13 @@
 package acs.tabbychat;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.Properties;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.src.ServerData;
+
 public class TCSettingsServer extends TCSettingsGUI {
 
 	private static final int autoChannelSearchID = 9201;
@@ -11,11 +19,11 @@ public class TCSettingsServer extends TCSettingsGUI {
 	private static final int defaultChansID = 9207;
 	private static final int ignoredChansID = 9208;
 	
-	protected TCSettingBool autoChannelSearch = new TCSettingBool("Auto-search for new channels", autoChannelSearchID);
-	protected TCSettingEnum delimiterChars = new TCSettingEnum(ChannelDelimEnum.ANGLES, "Chat-channel delimiters", chatChannelDelimsID);
-	protected TCSettingBool delimColorBool = new TCSettingBool("\u00A7oColored delimiters\u00A7r", delimColorBoolID);
+	protected TCSettingBool autoChannelSearch = new TCSettingBool(true, "Auto-search for new channels", autoChannelSearchID);
+	protected TCSettingEnum delimiterChars = new TCSettingEnum(ChannelDelimEnum.BRACKETS, "Chat-channel delimiters", chatChannelDelimsID);
+	protected TCSettingBool delimColorBool = new TCSettingBool(false,"\u00A7oColored delimiters\u00A7r", delimColorBoolID);
 	protected TCSettingEnum delimColorCode = new TCSettingEnum(ColorCodeEnum.DEFAULT, "", delimColorEnumID);
-	protected TCSettingBool delimFormatBool = new TCSettingBool("\u00A7oFormatted delimiters\u00A7r", delimFormatBoolID);
+	protected TCSettingBool delimFormatBool = new TCSettingBool(false,"\u00A7oFormatted delimiters\u00A7r", delimFormatBoolID);
 	protected TCSettingEnum delimFormatCode = new TCSettingEnum(FormatCodeEnum.DEFAULT, "", delimFormatEnumID);
 	protected TCSettingTextBox defaultChannels = new TCSettingTextBox("Default channels", defaultChansID);
 	protected TCSettingTextBox ignoredChannels = new TCSettingTextBox("Ignored channels", ignoredChansID);	
@@ -84,5 +92,114 @@ public class TCSettingsServer extends TCSettingsGUI {
 		this.ignoredChannels.setCharLimit(300);
 		this.buttonList.add(this.ignoredChannels);
 		
+		this.validateButtonStates();
+	}
+
+	public void validateButtonStates() {
+		this.delimColorCode.enabled = this.delimColorBool.getTempValue();
+		this.delimFormatCode.enabled = this.delimFormatBool.getTempValue();
+	}
+
+	protected void storeTempVars() {
+		this.autoChannelSearch.save();
+		this.delimiterChars.save();
+		this.delimColorBool.save();
+		this.delimColorCode.save();
+		this.delimFormatBool.save();
+		this.delimFormatCode.save();
+		this.defaultChannels.save();
+		this.ignoredChannels.save();
+	}
+	
+	protected void resetTempVars() {
+		this.autoChannelSearch.reset();
+		this.delimiterChars.reset();
+		this.delimColorBool.reset();
+		this.delimColorCode.reset();
+		this.delimFormatBool.reset();
+		this.delimFormatCode.reset();
+		this.defaultChannels.reset();
+		this.ignoredChannels.reset();
+	}
+
+	protected void loadSettingsFile() {
+		ServerData server = Minecraft.getMinecraft().getServerData();
+		String sname = server.serverName;
+		String ip = server.serverIP;
+	
+		if (ip.contains(":")) {
+			ip = ip.replaceAll(":", "(") + ")";
+		}
+		
+		File settingsDir = new File(tabbyChatDir, ip);
+		this.settingsFile = new File(settingsDir, "settings.cfg");
+	
+		if (!this.settingsFile.exists())
+			return;		
+		Properties settingsTable = new Properties();
+		
+		try {
+			FileInputStream fInStream = new FileInputStream(this.settingsFile);
+			settingsTable.load(fInStream);
+			fInStream.close();
+		} catch (Exception e) {
+			TabbyChat.printErr("Unable to read from server settings file : '" + e.getLocalizedMessage() + "' : " + e.toString());
+		}
+		
+		try {
+			this.autoChannelSearch.setValue(Boolean.parseBoolean((String)settingsTable.getProperty("autoChannelSearch")));
+			this.delimiterChars.setValue(ChannelDelimEnum.valueOf((String)settingsTable.getProperty("delimiterChars")));
+			this.delimColorBool.setValue(Boolean.parseBoolean((String)settingsTable.getProperty("delimColorBool")));
+			this.delimColorCode.setValue(ColorCodeEnum.valueOf((String)settingsTable.getProperty("delimColorCode")));
+			this.delimFormatBool.setValue(Boolean.parseBoolean((String)settingsTable.getProperty("delimFormatBool")));
+			this.delimFormatCode.setValue(FormatCodeEnum.valueOf((String)settingsTable.getProperty("delimFormatCode")));
+			this.defaultChannels.setValue((String)settingsTable.getProperty("defaultChannels"));
+			this.ignoredChannels.setValue((String)settingsTable.getProperty("ignoredChannels"));
+		} catch (Exception e) {
+			TabbyChat.printErr("Invalid property found in general settings file.");
+			this.autoChannelSearch.setValue(true);
+			this.delimiterChars.setValue(ChannelDelimEnum.BRACKETS);
+			this.delimColorBool.setValue(false);
+			this.delimColorCode.setValue(ColorCodeEnum.DEFAULT);
+			this.delimFormatBool.setValue(false);
+			this.delimFormatCode.setValue(FormatCodeEnum.DEFAULT);
+			this.defaultChannels.setValue("");
+			this.ignoredChannels.setValue("");
+		}
+		this.resetTempVars();
+	}
+	
+	protected void saveSettingsFile() {
+		ServerData server = Minecraft.getMinecraft().getServerData();
+		String sname = server.serverName;
+		String ip = server.serverIP;
+	
+		if (ip.contains(":")) {
+			ip = ip.replaceAll(":", "(") + ")";
+		}
+		
+		File settingsDir = new File(tabbyChatDir, ip);
+	
+		if (!settingsDir.exists())
+			settingsDir.mkdirs();
+		settingsFile = new File(settingsDir, "settings.cfg");
+		Properties settingsTable = new Properties();
+		
+		settingsTable.put("autoChannelSearch", this.autoChannelSearch.getValue().toString());
+		settingsTable.put("delimiterChars", this.delimiterChars.getValue().name());
+		settingsTable.put("delimColorBool", this.delimColorBool.getValue().toString());
+		settingsTable.put("delimColorCode", this.delimColorCode.getValue().name());
+		settingsTable.put("delimFormatBool", this.delimFormatBool.getValue().toString());
+		settingsTable.put("delimFormatCode", this.delimFormatCode.getValue().name());
+		settingsTable.put("defaultChannels", this.defaultChannels.getValue());
+		settingsTable.put("ignoredChannels", this.ignoredChannels.getValue());
+		
+		try {
+			FileOutputStream fOutStream = new FileOutputStream(settingsFile);
+			settingsTable.store(fOutStream, "Custom filters");
+			fOutStream.close();
+		} catch (Exception e) {
+			TabbyChat.printErr("Unable to write to filter settings file : '" + e.getLocalizedMessage() + "' : " + e.toString());
+		}
 	}
 }
