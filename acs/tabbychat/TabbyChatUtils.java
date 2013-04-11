@@ -1,6 +1,11 @@
 package acs.tabbychat;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.ArrayList;
 import net.minecraft.client.Minecraft;
@@ -8,6 +13,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.src.Gui;
 
 public class TabbyChatUtils {
+	
+	private static Calendar logDay = Calendar.getInstance();
+	private static File logFile;
+	private static SimpleDateFormat logNameFormat = new SimpleDateFormat("'TabbyChatLog_'MM-dd-yyyy'.txt'");
 	
 	private TabbyChatUtils() {}
 	
@@ -59,5 +68,32 @@ public class TabbyChatUtils {
        	if (sendPart.length() > 0 || cmdPrefix.length() > 0) {
        		mc.thePlayer.sendChatMessage(cmdPrefix + sendPart.toString().trim());
        	}
+	}
+	
+	public static void logChat(String theChat) {
+		Calendar tmpcal = Calendar.getInstance();
+		if (tmpcal.get(Calendar.DAY_OF_YEAR) != logDay.get(Calendar.DAY_OF_YEAR)) {
+			logDay = tmpcal;
+			logFile = new File(Minecraft.getMinecraftDir(), new StringBuilder().append("TabbyChatLogs").append(File.separatorChar).append(logNameFormat.format(logDay.getTime())).toString());
+		}
+		
+		if (!logFile.exists()) {
+			try {
+				logFile.createNewFile();
+			} catch (Exception e) {
+				TabbyChat.printErr("Cannot create log file : '" + e.getLocalizedMessage() + "' : " + e.toString());
+				return;
+			}
+		}
+		
+		try {
+			FileOutputStream logStream = new FileOutputStream(logFile, true);
+			PrintStream logPrint = new PrintStream(logStream);
+			logPrint.println(theChat);
+			logPrint.close();
+		} catch (Exception e) {
+			TabbyChat.printErr("Cannot write to log file : '" + e.getLocalizedMessage() + "' : " + e.toString());
+			return;
+		}
 	}
 }

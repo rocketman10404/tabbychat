@@ -99,12 +99,12 @@ public class TCSettingsGUI extends net.minecraft.src.GuiScreen {
 			this.storeTempVars();
 			this.saveSettingsFile();
 			mc.displayGuiScreen((GuiScreen)null);
-			if (tc.globalPrefs.TCenabled)
+			if (tc.generalSettings.tabbyChatEnable.getValue())
 				tc.resetDisplayedChat();
 		} else if (button.id == cancelButton) {
 			this.resetTempVars();
 			mc.displayGuiScreen((GuiScreen)null);
-			if (tc.globalPrefs.TCenabled)
+			if (tc.generalSettings.tabbyChatEnable.getValue())
 				tc.resetDisplayedChat();
 		} else {
 			for (int i = 0; i < ScreenList.size(); i++) {

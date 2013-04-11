@@ -12,7 +12,7 @@ import net.minecraft.src.GuiButton;
 
 public class ChatChannel {
 	private static int nextID = 3600;
-	protected String title;
+	public String title;
 	public ChatButton tab;
 	public ArrayList<ChatLine> chatLog;
 	protected int chanID = nextID + 1;
@@ -79,7 +79,7 @@ public class ChatChannel {
 	}
 	
 	public void trimLog() {
-		if (TabbyChat.instance != null && this.chatLog.size() >= TabbyChat.instance.globalPrefs.retainedChats + 5) {
+		if (TabbyChat.instance != null && this.chatLog.size() >= Integer.parseInt(TabbyChat.instance.advancedSettings.chatScrollHistory.getValue()) + 5) {
 			this.chatLog.subList(this.chatLog.size()-11, this.chatLog.size()-1).clear();
 		}
 	}

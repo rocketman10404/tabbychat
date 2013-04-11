@@ -6,12 +6,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.util.Hashtable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.src.GuiButton;
 import net.minecraft.src.ServerData;
@@ -53,8 +57,8 @@ public class TCSettingsFilters extends TCSettingsGUI {
 	protected TCSettingBool removeMatches = new TCSettingBool(false, "Hide matches from chat", removeMatchesID);
 	protected TCSettingTextBox expressionString = new TCSettingTextBox("Expression", expressionID);
 	
-	public Hashtable filterMap = new Hashtable();
-	protected Hashtable tempFilterMap = new Hashtable();
+	public HashMap filterMap = new HashMap();
+	protected HashMap tempFilterMap = new HashMap();
 	
 	public TCSettingsFilters() {
 		super();
@@ -65,6 +69,31 @@ public class TCSettingsFilters extends TCSettingsGUI {
 	protected TCSettingsFilters(TabbyChat _tc) {
 		this();
 		tc = _tc;
+	}
+	
+	protected boolean removeMatches(int ind) {
+		return (Boolean)this.filterMap.get(Integer.toString(ind) + ".removeMatches");
+	}
+	
+	protected boolean audioNotificationBool(int ind) {
+		return (Boolean)this.filterMap.get(Integer.toString(ind) + ".audioNotificationBool");
+	}
+	
+	protected boolean sendToAllTabs(int ind) {
+		return (Boolean)this.filterMap.get(Integer.toString(ind) + ".sendToAllTabs");
+	}
+	
+	protected boolean sendToTabBool(int ind) {
+		return (Boolean)this.filterMap.get(Integer.toString(ind) + ".sendToTabBool");
+	}
+	
+	protected String sendToTabName(int ind) {
+		return (String)this.filterMap.get(Integer.toString(ind) + ".sendToTabName");
+	}
+	
+	protected void audioNotification(int ind) {
+		NotificationSoundEnum ding = (NotificationSoundEnum)this.filterMap.get(Integer.toString(ind) + ".audioNotificationSound");
+		mc.sndManager.playSoundFX(ding.file(), 1.0F, 1.0F);
 	}
 	
 	private int addNewFilter() {
@@ -183,8 +212,8 @@ public class TCSettingsFilters extends TCSettingsGUI {
 	}
 	
 	public void actionPerformed(GuiButton button) {
-		super.actionPerformed(button);
 		this.storeTempFilter(this.curFilterId);
+		super.actionPerformed(button);
 		switch (button.id) {
 		case addNewID:
 			this.curFilterId = this.addNewFilter();
@@ -499,24 +528,23 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		Boolean caseSensitive = (Boolean)this.filterMap.get(fNum + ".caseSensitive");
 		Boolean inverseMatch = (Boolean)this.filterMap.get(fNum + ".inverseMatch");
 		Boolean highlightBool = (Boolean)this.filterMap.get(fNum + ".highlightBool");
-		ColorCodeEnum highlightColor = ColorCodeEnum.valueOf((String)this.filterMap.get(fNum + ".highlightColor"));
-		FormatCodeEnum highlightFormat = FormatCodeEnum.valueOf((String)this.filterMap.get(fNum + ".highlightFormat"));
+		ColorCodeEnum highlightColor = (ColorCodeEnum)this.filterMap.get(fNum + ".highlightColor");
+		FormatCodeEnum highlightFormat = (FormatCodeEnum)this.filterMap.get(fNum + ".highlightFormat");
 		String expressionString = (String)this.filterMap.get(fNum + ".expressionString");
+		if (expressionString.equals(""))
+			return false;
 		Pattern filter;
 		if (caseSensitive)
 			filter = Pattern.compile(expressionString);
 		else
 			filter = Pattern.compile(expressionString, Pattern.CASE_INSENSITIVE);
-		
-// Count number of color/formatting codes originally present in input		
-		int countCodes = input.replaceAll("[^\u00A7]", "").length(); 
-// Initialize arrays and variables to track location of original color/formatting codes
-		String[] removedCodes = new String[countCodes];
-		int[] codeIndices = new int[countCodes];
-		Pattern pullCodes = Pattern.compile("(?i)\\u00A7[0-9A-FK-OR]");
+
+		Pattern pullCodes = Pattern.compile("(?i)(\\u00A7[0-9A-FK-OR])+");
 		int _start = 0;
 		int _end = 0;
-		int i = 0;
+		
+		TreeMap<Integer, String>chatCodes = new TreeMap<Integer, String>();
+		HashMap<Integer, String>hlCodes = new HashMap<Integer, String>();
 		
 // Remove color/formatting codes from input, store codes and locations for later re-insertion		
 		StringBuilder result = new StringBuilder(input);
@@ -524,51 +552,43 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		while(matchCodes.find()) {
 			_start = matchCodes.start();
 			_end = matchCodes.end();
-			codeIndices[i] = _start;
-			removedCodes[i] = result.substring(_start, _end);
+			chatCodes.put(_start, result.substring(_start, _end));
 			result.replace(_start, _end, "");		
 			matchCodes = pullCodes.matcher(result.toString());
-			i++;
 		}
 
 // Apply this filter expression to the clean input
 		Matcher matchFilter = filter.matcher(result.toString());
 		boolean matched = false;
+		String prefix = highlightColor.toCode()+ highlightFormat.toCode();
+		String suffix = "\u00A7r";
+
 		while(matchFilter.find()) {
 			matched = true;
 			if (highlightBool) {
 				_start = matchFilter.start();
 				_end = matchFilter.end();
-				int m;
-				for (m = 0; m < codeIndices.length; m++) {
-					if (codeIndices[m] >= _start)
-						break;
-				}
-				String suffix = "\u00A7r";
-
-				if (codeIndices.length > 0 || m > 0) {
-					if (m < codeIndices.length && codeIndices[m] <= _start)
-						suffix = removedCodes[m];
-					else if (m > 0)
-						suffix = removedCodes[m-1];
-				}
-				result.insert(_end, suffix);
-				result.insert(_start, highlightColor.toCode()+highlightFormat.toCode());				
-				for (int j = 0; j < codeIndices.length; j++) {
-					if (codeIndices[j] > _start)
-						codeIndices[j] = codeIndices[j] + highlightColor.toCode().length() + highlightFormat.toCode().length();
-					if (codeIndices[j] > _end)
-						codeIndices[j] = codeIndices[j] + suffix.length();
-				}
+				Entry<Integer, String> newSuffix = chatCodes.lowerEntry(_end);
+				hlCodes.put(_start, prefix);
+				if (newSuffix == null)
+					hlCodes.put(_end, suffix);
+				else
+					hlCodes.put(_end, (String)newSuffix.getValue());
+			} else {
+				break;
 			}
 		}
 		
 // If highlighting, re-insert color/format codes to return highlighted result.  Otherwise, just return the original input.		
-		if (highlightBool) { 
-			for (int k = codeIndices.length-1; k >= 0; k--) {
-				result.insert(codeIndices[k], removedCodes[k]);
+		if (highlightBool) {
+			chatCodes.putAll(hlCodes);
+			Entry<Integer, String> ptr = chatCodes.pollLastEntry();
+			while (ptr != null) {
+				result.insert(ptr.getKey(), ptr.getValue());
+				ptr = chatCodes.pollLastEntry();
 			}
 			lastMatch = result.toString();
+			System.out.println("Result of filter highlighting: '" + lastMatch + "'");
 		} else
 			lastMatch = input;
 		if (!matched && inverseMatch)

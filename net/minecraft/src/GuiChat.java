@@ -47,7 +47,7 @@ public class GuiChat extends GuiScreen {
     	  this.scrollBar.drawScrollBar();
       } else if (!Minecraft.getMinecraft().isSingleplayer()) {
     	  TabbyChat.instance.updateButtonLocations();
-    	  this.buttonList.add(TabbyChat.instance.channels.get(0).tab);
+    	  this.buttonList.add(TabbyChat.instance.channelMap.get("*").tab);
       }
       
       this.sentHistoryCursor = this.mc.ingameGUI.getChatGUI().getSentMessages().size();
@@ -386,25 +386,25 @@ public class GuiChat extends GuiScreen {
 	protected void actionPerformed(GuiButton par1GuiButton) {
 		TabbyChat tc = TabbyChat.instance;
 		ChatButton _button = (ChatButton)par1GuiButton;
-		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) && tc.channels.get(0) == _button.channel) {
+		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) && tc.channelMap.get("*") == _button.channel) {
 			tc.prefsWindow.prepareTempVars();
 			tc.filtersWindow.prepareTempFilters();
 			this.mc.displayGuiScreen(tc.prefsWindow);
 			return;
 		}
-		if (Keyboard.isKeyDown(Keyboard.KEY_RSHIFT) && tc.channels.get(0) == _button.channel) {
+		if (Keyboard.isKeyDown(Keyboard.KEY_RSHIFT) && tc.channelMap.get("*") == _button.channel) {
 			this.mc.displayGuiScreen(tc.generalSettings);
 			return;
 		}
-		if (!tc.globalPrefs.TCenabled) return;
-		int n = tc.channels.size();
+		if (!tc.generalSettings.tabbyChatEnable.getValue()) return;
+//		int n = tc.channelMap.size();
 		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {						
-			int a = tc.serverPrefs.numFilters();
-			for (int z = 0; z < a; z++) {
-				if (tc.serverPrefs.filterMatchesChannel(z, (_button.channel.getID())))
-						tc.serverPrefs.filterSentToTab(z, false);
-			}
-			tc.channels.remove(_button.channel);
+//			int a = tc.serverPrefs.numFilters();
+//			for (int z = 0; z < a; z++) {
+//				if (tc.serverPrefs.filterMatchesChannel(z, (_button.channel.getID())))
+//						tc.serverPrefs.filterSentToTab(z, false);
+//			}
+			tc.channelMap.remove(_button.channel.title);
 		} else if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
 			if (!_button.channel.active) {
 				mc.ingameGUI.getChatGUI().mergeChatLines(_button.channel.chatLog);
@@ -414,9 +414,13 @@ public class GuiChat extends GuiScreen {
 			if (!_button.channel.active)
 				tc.resetDisplayedChat();
 		} else {
-			for (int i=0; i<n; i++) {
-				if (!_button.equals(tc.channels.get(i).tab))
-					tc.channels.get(i).active = false;
+			//for (int i=0; i<n; i++) {
+				//if (!_button.equals(tc.channels.get(i).tab))
+					//tc.channels.get(i).active = false;
+			//}
+			for (ChatChannel chan : tc.channelMap.values()) {
+				if (!_button.equals(chan.tab))
+					chan.active = false;
 			}
 			if (!_button.channel.active) {
 				this.scrollBar.scrollBarMouseWheel();
@@ -431,7 +435,7 @@ public class GuiChat extends GuiScreen {
 		TabbyChat tc = TabbyChat.instance;
 		this.buttonList.clear();
 		tc.updateButtonLocations();
-		for (ChatChannel _chan : tc.channels) {
+		for (ChatChannel _chan : tc.channelMap.values()) {
 			this.buttonList.add(_chan.tab);
 		}		
 	}

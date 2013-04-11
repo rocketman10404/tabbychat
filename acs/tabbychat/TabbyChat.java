@@ -11,7 +11,10 @@ package acs.tabbychat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.io.BufferedReader;
 import java.io.File;
@@ -41,10 +44,10 @@ public class TabbyChat {
 	private Pattern chatChannelPatternDirty = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
 	private Pattern chatPMfromMePattern = Pattern.compile("^\\[(?:me)[ ]\\-\\>[ ]([A-Za-z0-9_]{1,16})\\]");
 	private Pattern chatPMtoMePattern = Pattern.compile("^\\[([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\]");
-	protected static String version = "1.4.5";
+	protected static String version = "1.5.00";
 	protected Calendar cal = Calendar.getInstance();
 	public List<ChatLine> lastChat;
-	public List<ChatChannel> channels = new ArrayList<ChatChannel>(20);
+	public LinkedHashMap<String, ChatChannel> channelMap = new LinkedHashMap();
 	public int nextID = 3600;
 	public GlobalSettings globalPrefs = new GlobalSettings();
 	public ServerSettings serverPrefs = new ServerSettings();
@@ -72,7 +75,7 @@ public class TabbyChat {
 			this.disable();
 		else {
 			this.enable();
-			this.channels.get(0).active = true;
+			this.channelMap.get("*").active = true;
 			
 			String ver = TabbyChat.getNewestVersion();
 			ArrayList firstmsg = new ArrayList<ChatLine>();
@@ -81,11 +84,11 @@ public class TabbyChat {
 				String ver2 = "\u00A77Visit the TabbyChat forum thread at minecraftforum.net to download.";
 				ChatLine updateLine = new ChatLine(mc.ingameGUI.getUpdateCounter(), ver, 0);
 				ChatLine updateLine2 = new ChatLine(mc.ingameGUI.getUpdateCounter(), ver2, 0);
-				this.channels.add(new ChatChannel("TabbyChat"));
-				this.addToChannel(0, updateLine);
-				this.addToChannel(0, updateLine2);
-				this.addToChannel(this.channels.size()-1, updateLine);
-				this.addToChannel(this.channels.size()-1, updateLine2);
+				this.channelMap.put("TabbyChat", new ChatChannel("TabbyChat"));
+				this.addToChannel("*", updateLine);
+				this.addToChannel("*", updateLine2);
+				this.addToChannel("TabbyChat", updateLine);
+				this.addToChannel("TabbyChat", updateLine2);
 				firstmsg.add(updateLine);
 				firstmsg.add(updateLine2);				
 			} else {
@@ -95,59 +98,49 @@ public class TabbyChat {
 			mc.ingameGUI.getChatGUI().addChatLines(firstmsg);
 		}
 	}
-	
-	private int addToChannel(int index, ChatLine thisChat) {
+
+	private int addToChannel(String name, ChatLine thisChat) {
 		int ret = 0;
 		ChatLine newChat = this.withTimeStamp(thisChat);
-		this.channels.get(index).chatLog.add(0, newChat);
-		this.channels.get(index).trimLog();
-		if (this.channels.get(index).active || this.channels.get(0).active)
+		ChatChannel theChan = this.channelMap.get(name);
+		theChan.chatLog.add(0, newChat);
+		theChan.trimLog();
+		if (theChan.active || this.channelMap.get("*").active)
 			ret = 1;
-		return ret;
+		return ret;		
 	}
 
-	private int addToChannel(int index, List<ChatLine> thisChat) {
-		int ret = 0;
-		for (ChatLine cl : thisChat) {
-			ret += this.addToChannel(index, cl);
-		}
-		return ret;
-	}
-	
 	private int addToChannel(String _name, List<ChatLine> thisChat) {
-		for (String ichan : this.serverPrefs.ignoredChans) {
+		for (String ichan : Pattern.compile("[ ]?,[ ]?").split(this.serverSettings.ignoredChannels.getValue())) {
 			if (ichan.length() > 0 && _name.equals(ichan)) {
 				return 0;
 			}
-		}	
-		
-		for (int i = 0; i < this.channels.size(); i++) {
-			if (_name.equals(this.channels.get(i).title)) {
-				return this.addToChannel(i, thisChat);
-			}
 		}
-		
-		if (this.channels.size() >= 20) return 0; // Too many tabs
 
-		if (this.globalPrefs.autoSearchEnabled) {
-			this.channels.add(new ChatChannel(_name));
-			return this.addToChannel(this.channels.size()-1, thisChat);
+		if (this.channelMap.containsKey(_name)) {
+			int ret = 0;
+			for (ChatLine cl : thisChat) {
+				ret += this.addToChannel(_name, cl);
+			}
+			return ret;
+		}
+					
+		if (this.channelMap.size() >= 20) return 0; // Too many tabs
+
+		if (this.serverSettings.autoChannelSearch.getValue()) {
+			this.channelMap.put(_name, new ChatChannel(_name));
+			int ret = 0;
+			for (ChatLine cl : thisChat) {
+				ret += this.addToChannel(_name, cl);
+			}
+			return ret;
 		}
 		return 0;
 	}
-	
-	private int getChanIndexByID(int _id) {
-		for (int i = 1; i < this.channels.size(); i++) {
-			if (_id == this.channels.get(i).chanID) {
-				return i;
-			}
-		}
-		return -1;
-	}
-	
+
 	private ChatLine withTimeStamp(ChatLine _orig) {
 		ChatLine stamped = _orig;
-		if (this.globalPrefs.timestampsEnabled) {
+		if (this.generalSettings.timeStampEnable.getValue()) {
 			this.cal = Calendar.getInstance();
 			stamped = new ChatLine(_orig.getUpdatedCounter(), this.globalPrefs.timeStamp.format(this.cal.getTime())+_orig.getChatLineString(), _orig.getChatLineID());
 		}
@@ -156,7 +149,7 @@ public class TabbyChat {
 	
 	private String withTimeStamp(String _orig) {
 		String stamped = _orig;
-		if (this.globalPrefs.timestampsEnabled) {
+		if (this.generalSettings.timeStampEnable.getValue()) {
 			this.cal = Calendar.getInstance();
 			stamped = this.globalPrefs.timeStamp.format(this.cal.getTime()) + _orig;
 		}
@@ -168,14 +161,14 @@ public class TabbyChat {
 	}
 	
 	protected void disable() {	
-		this.channels.clear();
-		this.channels.add(new ChatChannel("*"));
+		this.channelMap.clear();
+		this.channelMap.put("*", new ChatChannel("*"));
 	}
 	
 	protected void enable() {
-		if (this.getChanId("*") < 0) {
-			this.channels.add(0, new ChatChannel("*"));
-			this.channels.get(0).active = true;
+		if (!this.channelMap.containsKey("*")) {
+			this.channelMap.put("*", new ChatChannel("*"));
+			this.channelMap.get("*").active = true;
 		}
 		this.serverPrefs.updateForServer();
 		this.serverPrefs.loadSettings();
@@ -186,11 +179,20 @@ public class TabbyChat {
 		this.updateFilters();
 	}
 
-	protected void loadPatterns() {	
-		String frmt = this.serverPrefs.chanDelimColor.getCode() + this.serverPrefs.chanDelimFormat.getCode();
+	protected void loadPatterns() {
+		ChannelDelimEnum delims = (ChannelDelimEnum)this.serverSettings.delimiterChars.getValue();
+		
+		String colCode = "";
+		String fmtCode = "";
+		if (this.serverSettings.delimColorBool.getValue())
+			colCode = ((ColorCodeEnum)this.serverSettings.delimColorCode.getValue()).toCode();
+		if (this.serverSettings.delimFormatBool.getValue())
+			fmtCode = ((FormatCodeEnum)this.serverSettings.delimFormatCode.getValue()).toCode();
+		
+		String frmt = colCode + fmtCode;
 
-		if (this.serverPrefs.chanDelimColor.toString().equals("White")) {
-			frmt = "(" + this.serverPrefs.chanDelimColor.getCode() + ")?" + this.serverPrefs.chanDelimFormat.getCode();
+		if (((ColorCodeEnum)this.serverSettings.delimColorCode.getValue()).toString().equals("White")) {
+			frmt = "(" + colCode + ")?" + fmtCode;
 		} else if (frmt.length() > 7)
 			frmt = "[" + frmt + "]{2}";
 		if (frmt.length() > 0)
@@ -198,55 +200,35 @@ public class TabbyChat {
 		if (frmt.length() == 0)
 			frmt = "(?i:\u00A7[0-9A-FK-OR])*";
 		
-		this.chatChannelPatternDirty = Pattern.compile("^"+frmt+"\\"+this.serverPrefs.chanDelims.open()+"([A-Za-z0-9_\u00A7]+)\\"+this.serverPrefs.chanDelims.close());
-		this.chatChannelPatternClean = Pattern.compile("^"+"\\"+this.serverPrefs.chanDelims.open()+"([A-Za-z0-9_]{1,"+Integer.toString(this.globalPrefs.maxChannelNameLength)+"})\\"+this.serverPrefs.chanDelims.close());
-		this.chatPMtoMePattern = Pattern.compile("^"+"\\"+this.serverPrefs.chanDelims.open()+"([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\"+this.serverPrefs.chanDelims.close());
-		this.chatPMfromMePattern = Pattern.compile("^"+"\\"+this.serverPrefs.chanDelims.open()+"(?:me)[ ]\\-\\>[ ]([A-Za-z0-9_]{1,16})\\"+this.serverPrefs.chanDelims.close());
+		
+		this.chatChannelPatternDirty = Pattern.compile("^"+frmt+"\\"+delims.open()+"([A-Za-z0-9_\u00A7]+)\\"+delims.close());
+		this.chatChannelPatternClean = Pattern.compile("^"+"\\"+delims.open()+"([A-Za-z0-9_]{1,"+this.advancedSettings.maxLengthChannelName.getValue()+"})\\"+delims.close());
+		this.chatPMtoMePattern = Pattern.compile("^"+"\\"+delims.open()+"([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\"+delims.close());
+		this.chatPMfromMePattern = Pattern.compile("^"+"\\"+delims.open()+"(?:me)[ ]\\-\\>[ ]([A-Za-z0-9_]{1,16})\\"+delims.close());
 	}
-	
+
 	protected void updateFilters() {
-		if (!this.globalPrefs.TCenabled) return;
-		ArrayList<Integer> track = new ArrayList<Integer>(this.serverPrefs.customFilters.size());
-		boolean keeper = false;
-		// Search through all current channels/tabs that have associated filter
-		// attempt to identify their associated filter and remove any that no longer have one
-		for (int i = this.channels.size()-1; i >= 0; i--) {
-			if (!this.channels.get(i).hasFilter) continue; 
-			keeper = false;
-			for (CustomChatFilter cf : this.serverPrefs.customFilters) {
-				if (cf.chanID == this.channels.get(i).chanID && cf.sendToTab) {
-					track.add(new Integer(cf.chanID));
-					keeper = true;
-				}
+		if (!this.generalSettings.tabbyChatEnable.getValue()) return;
+		if (this.filterSettings.numFilters == 0) return;
+		for (int i=0; i<this.filterSettings.numFilters; i++) {
+			if (this.filterSettings.sendToTabBool(i) && !this.channelMap.containsKey(this.filterSettings.sendToTabName(i))) {
+				String newName = this.filterSettings.sendToTabName(i);
+				this.channelMap.put(newName, new ChatChannel(newName));
 			}
-			
-			if (!keeper) {
-				// Associated filter no longer exists for this channel, remove it
-				removeTab(i);
-			}
-		}
-		// Now, all remaining channels have existing associated updated filters
-		// Still need to search through all OTHER filters for any needing new tabs		
-		for (CustomChatFilter cf : this.serverPrefs.customFilters) {
-			if (cf.sendToTab && !track.contains(new Integer(cf.chanID))) {
-				this.channels.add(new ChatChannel(cf.name));
-				this.channels.get(this.channels.size()-1).hasFilter = true;
-				cf.chanID = this.channels.get(this.channels.size()-1).chanID;
-			} else if (!cf.sendToTab) cf.chanID = 0;
 		}
 	}
 
 	protected void updateDefaults() {
-		if (!this.globalPrefs.TCenabled) return;
-		List<String> dList = new ArrayList(Arrays.asList(this.serverPrefs.defaultChans));
+		if (!this.generalSettings.tabbyChatEnable.getValue()) return;
+		List<String> dList = new ArrayList(Arrays.asList(Pattern.compile("[ ]?,[ ]?").split(this.serverSettings.defaultChannels.getValue())));
 		int ind;
-		for (ChatChannel chan : this.channels) {
+		for (ChatChannel chan : this.channelMap.values()) {
 			ind = dList.indexOf(chan.title);
 			if (ind >= 0) dList.remove(ind);
 		}
 		
 		for (String defChan : dList) {
-			if (defChan.length() > 0) this.channels.add(new ChatChannel(defChan));
+			if (defChan.length() > 0) this.channelMap.put(defChan, new ChatChannel(defChan));
 		}
 	}
 	
@@ -255,7 +237,7 @@ public class TabbyChat {
 			return;
 		
 		if (mc.getServerData().serverIP != this.serverPrefs.ip) {
-			this.channels.clear();
+			this.channelMap.clear();
 			if (this.enabled())
 				this.enable();
 			else
@@ -263,55 +245,37 @@ public class TabbyChat {
 		}
 		return;
 	}
-	
-	public void copyTab(int toIndex, int fromIndex) {
-		this.channels.set(toIndex, this.channels.get(fromIndex));
+
+	public void copyTab(String toName, String fromName) {
+		this.channelMap.put(toName, this.channelMap.get(fromName));
 	}
-	
-	public void displayChatLines(Minecraft mc, int index) {
-		mc.ingameGUI.getChatGUI().addChatLines(this.channels.get(index).chatLog);
+
+	public void displayChatLines(Minecraft mc, String cName) {
+		mc.ingameGUI.getChatGUI().addChatLines(this.channelMap.get(cName).chatLog);
 	}
 	
 	public boolean enabled() {
 		if (mc.isSingleplayer()) {
 			return false;
 		} else
-			return this.globalPrefs.TCenabled;
+			return this.generalSettings.tabbyChatEnable.getValue();
 	}
 	
-	public List<Integer> getActive() {
-		int n = this.channels.size();
-		List<Integer> actives = new ArrayList<Integer>(n);
-		for (int i=0; i<n; i++) {
-			if (this.channels.get(i).active)
-				actives.add(new Integer(i));
+	public List<String> getActive() {
+		int n = this.channelMap.size();
+		List<String> actives = new ArrayList<String>(n);
+
+		for (ChatChannel chan : this.channelMap.values()) {
+			if (chan.active)
+				actives.add(new String(chan.title));
 		}
 		return actives;
 	}
-	
-	public int getChanId(String _name) {
-		int n = this.channels.size();
-		for (int i=0; i<n; i++) {
-			if (_name.equals(this.channels.get(i).title)) {
-				return this.channels.get(i).chanID;
-			}
-		}
-		return -1;
-	}
-	
-	public int getChanInd(String _name) {
-		for (int i=0; i<this.channels.size(); i++) {
-			if (_name.equals(this.channels.get(i).title)) {
-				return i;
-			}
-		}
-		return -1;
-	}
-	
-	public ChatLine getChatLine(int _chan, int _line) {
-		return this.channels.get(_chan).chatLog.get(_line);
-	}
 
+	public ChatLine getChatLine(String _chan, int _line) {
+		return this.channelMap.get(_chan).chatLog.get(_line);
+	}
+	
 	public static String getNewestVersion() {
 		try {
 			URLConnection conn = new URL("http://dl.dropbox.com/u/8347166/tabbychat_ver.txt").openConnection();
@@ -324,11 +288,7 @@ public class TabbyChat {
 		}
 		return TabbyChat.version;
 	}	
-	
-	public boolean matchChannelWithButton(int index, GuiButton btnObj) {
-		return (this.channels.get(index).chanID == btnObj.id);
-	}
-	
+
 	public void pollForUnread(Gui _gui, int _y, int _tick) {
 		int _opacity = 0;
 		if (this.lastChat == null || this.lastChat.size() == 0) return;
@@ -347,10 +307,10 @@ public class TabbyChat {
 			_opacity = (int)((float)_opacity * var6);
 			if (_opacity <= 3) return;
 			this.updateButtonLocations();
-			int n = this.channels.size();
-			for (int i = 1; i < n; i++) {
-				if (this.channels.get(i).unread)
-					this.channels.get(i).unreadNotify(_gui, _y, _opacity);
+
+			for (ChatChannel chan : this.channelMap.values()) {
+				if (chan.unread)
+					chan.unreadNotify(_gui, _y, _opacity);
 			}
 		}
 	}
@@ -361,103 +321,118 @@ public class TabbyChat {
 	
 	public int processChat(List<ChatLine> theChat) {
 		ArrayList<ChatLine> filteredChatLine = new ArrayList<ChatLine>(theChat.size());
-		ArrayList<Integer> goesHere = new ArrayList<Integer>();
-		goesHere.add(0);
+		List<String> toTabs = new ArrayList<String>();
+		toTabs.add("*");
 
 		int _ind;
 		int ret = 0;
+		boolean skip = false;
 		
 		int n = theChat.size();
 		StringBuilder filteredChat = new StringBuilder(theChat.get(0).getChatLineString().length() * n);
 		for (int z=0; z<n; z++)
 			filteredChat.append(theChat.get(z).getChatLineString());
-		
-		for (CustomChatFilter filter : this.serverPrefs.customFilters) {
-			if (!filter.applyFilterToDirtyChat(filteredChat.toString())) continue;
-			filteredChat = new StringBuilder(filter.getLastMatchPretty());
-			if (filter.sendToTab) {
-				_ind = this.getChanIndexByID(filter.chanID);
-				if (_ind > 0) goesHere.add(new Integer(_ind));
-			}
-			if (filter.ding) this.ding(); 
-		}
-/* More to do before implementing this changeover		
+	
 		for (int i = 0; i < this.filterSettings.numFilters; i++) {
 			if (!this.filterSettings.applyFilterToDirtyChat(i, filteredChat.toString())) continue;
+			if (this.filterSettings.removeMatches(i)) {
+				skip = true;
+				break;
+			}
 			filteredChat = new StringBuilder(this.filterSettings.getLastMatchPretty());
-		}
-*/		
+			if (this.filterSettings.sendToTabBool(i)) {
+				if (this.filterSettings.sendToAllTabs(i)) {
+					toTabs.clear();
+					for (ChatChannel chan : this.channelMap.values())
+						toTabs.add(chan.title);
+					skip = true;
+					continue;
+				} else {
+					String destTab = this.filterSettings.sendToTabName(i);
+					if (!this.channelMap.containsKey(destTab)) {
+						this.channelMap.put(destTab, new ChatChannel(destTab));
+					}
+					if (!toTabs.contains(destTab))
+						toTabs.add(destTab);
+				}
+			}
+			if (this.filterSettings.audioNotificationBool(i))
+				this.filterSettings.audioNotification(i);
+		} 
+		
 		Iterator splitChat = mc.fontRenderer.listFormattedStringToWidth(filteredChat.toString(), MathHelper.floor_float((float)mc.ingameGUI.getChatGUI().func_96126_f() / mc.ingameGUI.getChatGUI().func_96131_h())).iterator();
 		while (splitChat.hasNext()) {
 			filteredChatLine.add(new ChatLine(theChat.get(0).getUpdatedCounter(), (String)splitChat.next(), theChat.get(0).getChatLineID()));
 		}
 		
-		for (Integer c : goesHere) {
-			this.addToChannel(c.intValue(), filteredChatLine);
+		for (String c : toTabs) {
+			this.addToChannel(c, filteredChatLine);
 		}
-		
-		for (Integer _act : this.getActive()) {
-			if (goesHere.contains(_act))
-				ret += 1;
+
+		for (String _act : this.getActive()) {
+			if (toTabs.contains(_act))
+				ret++;
 		}
 		
 		String coloredChat = "";
 		for (ChatLine cl : theChat)
 			coloredChat = coloredChat + cl.getChatLineString();
-		
 		String cleanedChat = StringUtils.stripControlCodes(coloredChat);
-		if (this.globalPrefs.saveLocalLogEnabled) this.globalPrefs.logChat(this.withTimeStamp(cleanedChat));
+		if (this.generalSettings.saveChatLog.getValue()) TabbyChatUtils.logChat(this.withTimeStamp(cleanedChat));
 		
-		Matcher findChannelClean = this.chatChannelPatternClean.matcher(cleanedChat);
-		Matcher findChannelDirty = this.chatChannelPatternDirty.matcher(coloredChat);
-		String cName;
-		if (findChannelClean.find() && findChannelDirty.find()) {
-			cName = cleanedChat.substring(findChannelClean.start(1), findChannelClean.end(1));
-			ret += this.addToChannel(cName, filteredChatLine);
-			goesHere.add(new Integer(this.getChanInd(cName)));
-		} else {
-			Matcher findPMtoMe = this.chatPMtoMePattern.matcher(cleanedChat);
-			if (findPMtoMe.find()) {
-				cName = cleanedChat.substring(findPMtoMe.start(1), findPMtoMe.end(1));
+		if (!skip) {
+			Matcher findChannelClean = this.chatChannelPatternClean.matcher(cleanedChat);
+			Matcher findChannelDirty = this.chatChannelPatternDirty.matcher(coloredChat);
+			String cName;
+			if (findChannelClean.find() && findChannelDirty.find()) {
+				cName = cleanedChat.substring(findChannelClean.start(1), findChannelClean.end(1));
 				ret += this.addToChannel(cName, filteredChatLine);
-				goesHere.add(new Integer(this.getChanInd(cName)));
+				toTabs.add(cName);
 			} else {
-				Matcher findPMfromMe = this.chatPMfromMePattern.matcher(cleanedChat);
-				if (findPMfromMe.find()) {
-					cName = cleanedChat.substring(findPMfromMe.start(1), findPMfromMe.end(1));
+				Matcher findPMtoMe = this.chatPMtoMePattern.matcher(cleanedChat);
+				if (findPMtoMe.find()) {
+					cName = cleanedChat.substring(findPMtoMe.start(1), findPMtoMe.end(1));
 					ret += this.addToChannel(cName, filteredChatLine);
-					goesHere.add(new Integer(this.getChanInd(cName)));
+					toTabs.add(cName);
+				} else {
+					Matcher findPMfromMe = this.chatPMfromMePattern.matcher(cleanedChat);
+					if (findPMfromMe.find()) {
+						cName = cleanedChat.substring(findPMfromMe.start(1), findPMfromMe.end(1));
+						ret += this.addToChannel(cName, filteredChatLine);
+						toTabs.add(cName);
+					}
 				}
 			}
 		}
 		
 		if (ret == 0) {
-			for (Integer read : goesHere) {
-				if (read.intValue() > 0)
-					this.channels.get(read.intValue()).unread = true;
+			for (String c : toTabs) {
+				if (c != "*")
+					this.channelMap.get(c).unread = true;
 			}
 		}
 		this.lastChat = filteredChatLine;
-		if (this.globalPrefs.timestampsEnabled) {
+				
+		if (this.generalSettings.timeStampEnable.getValue()) {
 			for (int i=0; i<this.lastChat.size(); i++) {
 				this.lastChat.set(i, this.withTimeStamp(this.lastChat.get(i)));
 			}
 		}
 		return ret;
 	}
-
- 	public void removeTab(int index) {
- 		this.channels.remove(index);
+	
+	public void removeTab(String _name) {
+		this.channelMap.remove(_name);
 	}
 
  	public void resetDisplayedChat() {
  		mc.ingameGUI.getChatGUI().clearChatLines();
- 		List<Integer> actives = this.getActive();
+ 		List<String> actives = this.getActive();
  		if (actives.size() < 1) return;
- 		mc.ingameGUI.getChatGUI().addChatLines(this.channels.get(actives.get(0).intValue()).chatLog);
+ 		mc.ingameGUI.getChatGUI().addChatLines(this.channelMap.get(actives.get(0)).chatLog);
  		int n = actives.size();
  		for (int i = 1; i < n; i++) {
- 			mc.ingameGUI.getChatGUI().mergeChatLines(this.channels.get(actives.get(i).intValue()).chatLog);
+ 			mc.ingameGUI.getChatGUI().mergeChatLines(this.channelMap.get(actives.get(i)).chatLog);
  		}
  	}
  	
@@ -470,7 +445,7 @@ public class TabbyChat {
  		int clines = (mc.ingameGUI.getChatGUI().GetChatHeight() < maxlines) ? mc.ingameGUI.getChatGUI().GetChatHeight() : maxlines;
  		int vert = screenPresent ? mc.currentScreen.height - (clines * 9) - 42 + yOff: 0;
  		int horiz = 5;
- 		int n = this.channels.size();
+ 		int n = this.channelMap.size();
  		
  		try {
  			if (TabbyChatUtils.is(mc.ingameGUI.getChatGUI(), "GuiNewChatWrapper")) {
@@ -487,28 +462,23 @@ public class TabbyChat {
  					((GuiChat)mc.currentScreen).scrollBar.setOffset(xOff, yOff);
  			}
  		} catch (Throwable e) {}
- 		for (int i = 0; i < n; i++) {
- 			if (i > 0) {
- 				horiz = this.channels.get(i-1).getButtonEnd() + 1;
- 			}
- 			if (horiz + this.channels.get(i).tab.width() > 327) {
- 				vert = vert - this.channels.get(i).tab.height() - 1;
+ 		
+ 		int i = 0;
+ 		for (ChatChannel chan : this.channelMap.values()) {
+ 			if (horiz + chan.tab.width() > 327) {
+ 				vert = vert - chan.tab.height();
  				horiz = 5;
  			}
- 			this.channels.get(i).setButtonLoc(horiz, vert);
- 			if (this.channels.get(i).tab == null) {
- 				this.channels.get(i).setButtonObj(new ChatButton(this.channels.get(i).getID(),
- 						horiz,
- 						vert,
- 						this.channels.get(i).tab.width(),
- 						this.channels.get(i).tab.height(),
- 						this.channels.get(i).getDisplayTitle()));
+ 			chan.setButtonLoc(horiz, vert);
+ 			if (chan.tab == null) {
+ 				chan.setButtonObj(new ChatButton(chan.getID(), horiz, vert, chan.tab.width(), chan.tab.height(), chan.getDisplayTitle()));
  			} else {
- 				this.channels.get(i).tab.id = this.channels.get(i).getID();
- 				this.channels.get(i).tab.xPosition = horiz;
- 				this.channels.get(i).tab.yPosition = vert;
- 				this.channels.get(i).tab.displayString = this.channels.get(i).getDisplayTitle();
- 			}
+ 				chan.tab.id = chan.getID();
+ 				chan.tab.xPosition = horiz;
+ 				chan.tab.yPosition = vert;
+ 				chan.tab.displayString = chan.getDisplayTitle();
+ 			}			
+ 			horiz = chan.getButtonEnd() + 1;
  		}
  	}
 }

@@ -44,7 +44,7 @@ public class TCSettingTextBox extends TCSetting {
 	}
 	
 	public String getTempValue() {
-		return this.textBox.getText();
+		return this.textBox.getText().trim();
 	}
 	
 	public void setCharLimit(int newLimit) {
@@ -52,7 +52,7 @@ public class TCSettingTextBox extends TCSetting {
 	}
 	
 	public void save() {
-		this.value = this.textBox.getText();
+		this.value = this.textBox.getText().trim();
 	}
 	
 	public void reset() {

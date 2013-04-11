@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL11;
 import acs.tabbychat.TabbyChat;
 import acs.tabbychat.ChatChannel;
+import acs.tabbychat.TimeStampEnum;
 
 public class GuiNewChat extends Gui {
    private final Minecraft mc;
@@ -73,8 +74,8 @@ public class GuiNewChat extends Gui {
                         /**** modded here ****/
                         _y = var16 - 9;
                         int xOf = 0;
-                        if (TabbyChat.instance.enabled() && TabbyChat.instance.globalPrefs.timestampsEnabled) {
-                        	xOf = mc.fontRenderer.getStringWidth(TabbyChat.instance.globalPrefs.timestampStyle.maxTime);
+                        if (TabbyChat.instance.enabled() && TabbyChat.instance.generalSettings.timeStampEnable.getValue()) {
+                        	xOf = mc.fontRenderer.getStringWidth(((TimeStampEnum)TabbyChat.instance.generalSettings.timeStampStyle.getValue()).maxTime);
                         }
                         
                         drawRect(var15, var16 - 9, var15 + var8 + 4 + xOf, var16, var14 / 2 << 24);
@@ -178,7 +179,7 @@ public class GuiNewChat extends Gui {
     	  }
       }
       multiLineChat = null;
-      int maxChats = tc.enabled() ? tc.globalPrefs.retainedChats : 100;
+      int maxChats = tc.enabled() ? Integer.parseInt(tc.advancedSettings.chatScrollHistory.getValue()) : 100;
       if (this.field_96134_d.size() >= maxChats + 5) {
     	  this.field_96134_d.subList(this.field_96134_d.size()-11, this.field_96134_d.size()-1).clear();
       }

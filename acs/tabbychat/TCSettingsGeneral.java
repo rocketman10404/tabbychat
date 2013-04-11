@@ -18,10 +18,10 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 	private static final int groupSpamID = 9105;
 	private static final int unreadFlashingID = 9106;
 	
-	protected TCSettingBool tabbyChatEnable = new TCSettingBool(true, "TabbyChat Enabled", tabbyChatEnableID);
+	public TCSettingBool tabbyChatEnable = new TCSettingBool(true, "TabbyChat Enabled", tabbyChatEnableID);
 	protected TCSettingBool saveChatLog = new TCSettingBool(false, "Log chat to file", saveChatLogID);
-	protected TCSettingBool timeStampEnable = new TCSettingBool(false, "Timestamp chat", timeStampEnableID);
-	protected TCSettingEnum timeStampStyle = new TCSettingEnum(TimeStampEnum.MILITARY, "\u00A7oTimestamp Style\u00A7r", timeStampStyleID);
+	public TCSettingBool timeStampEnable = new TCSettingBool(false, "Timestamp chat", timeStampEnableID);
+	public TCSettingEnum timeStampStyle = new TCSettingEnum(TimeStampEnum.MILITARY, "\u00A7oTimestamp Style\u00A7r", timeStampStyleID);
 	protected TCSettingBool groupSpam = new TCSettingBool(true, "Consolidate spammed chat", groupSpamID);
 	protected TCSettingBool unreadFlashing = new TCSettingBool(true, "Unread notification flashing", unreadFlashingID);
 	

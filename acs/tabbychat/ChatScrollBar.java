@@ -50,8 +50,8 @@ public class ChatScrollBar {
 		int maxlines = mc.ingameGUI.getChatGUI().getHeightSetting() / 9;
 		int clines = (mc.ingameGUI.getChatGUI().GetChatHeight() < maxlines) ? mc.ingameGUI.getChatGUI().GetChatHeight() : maxlines;
 		int oX = 0;
-		if (TabbyChat.instance.globalPrefs.timestampsEnabled)
-			oX = MathHelper.floor_float((float)mc.fontRenderer.getStringWidth(TabbyChat.instance.globalPrefs.timestampStyle.maxTime) * mc.ingameGUI.getChatGUI().getScaleSetting());
+		if (TabbyChat.instance.generalSettings.timeStampEnable.getValue())
+			oX = MathHelper.floor_float((float)mc.fontRenderer.getStringWidth(((TimeStampEnum)TabbyChat.instance.generalSettings.timeStampStyle.getValue()).maxTime) * mc.ingameGUI.getChatGUI().getScaleSetting());
 		barHeight = MathHelper.floor_float((float)8 * mc.ingameGUI.getChatGUI().getScaleSetting());
 		barWidth = MathHelper.floor_float((float)5 * mc.ingameGUI.getChatGUI().getScaleSetting());
 

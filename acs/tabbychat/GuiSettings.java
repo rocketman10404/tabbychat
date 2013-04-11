@@ -128,7 +128,7 @@ public class GuiSettings extends net.minecraft.src.GuiScreen {
 					this.tmp_chanDelimColor = this.tmp_chanDelimColor.prevColor();
 				this.chanDelimStylePrefs.title(delimButtonText());
 			} else if (par1 >= this.timeStampPrefs.xPosition && par1 < this.timeStampPrefs.xPosition + this.timeStampPrefs.width() && par2 >= this.timeStampPrefs.yPosition && par2 < this.timeStampPrefs.yPosition + this.timeStampPrefs.height()) {
-				this.tmp_timeStamp = this.tmp_timeStamp.prevFormat();
+				//this.tmp_timeStamp = this.tmp_timeStamp.prevFormat();
 				this.timeFormat.applyPattern(this.tmp_timeStamp.toString());
 				this.timeStampPrefs.displayString = this.timeFormat.format(tc.cal.getTime());
 			}
@@ -224,7 +224,7 @@ public class GuiSettings extends net.minecraft.src.GuiScreen {
 			this.chanDelimStylePrefs.title(delimButtonText());
 			break;
 		case timeStampButton:
-			this.tmp_timeStamp = this.tmp_timeStamp.nextFormat();
+			//this.tmp_timeStamp = this.tmp_timeStamp.nextFormat();
 			this.timeFormat.applyPattern(this.tmp_timeStamp.toCode());
 			this.timeStampPrefs.displayString = this.timeFormat.format(tc.cal.getTime());
 			break;
