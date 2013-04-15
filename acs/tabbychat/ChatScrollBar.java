@@ -55,7 +55,7 @@ public class ChatScrollBar {
 		barHeight = MathHelper.floor_float((float)8 * mc.ingameGUI.getChatGUI().getScaleSetting());
 		barWidth = MathHelper.floor_float((float)5 * mc.ingameGUI.getChatGUI().getScaleSetting());
 
-		this.barX = 4 + this.offsetX + oX + mc.ingameGUI.getChatGUI().getWidthSetting();
+		this.barX = 4 + this.offsetX + oX + (int)(mc.ingameGUI.getChatGUI().getWidthSetting() * mc.ingameGUI.getChatGUI().getScaleSetting());
 				
 		this.barMaxY = mc.currentScreen.height - 34 + this.offsetY;
 		this.barMinY = this.barMaxY + 2 - MathHelper.floor_float((float)((clines - 1) * 9) * mc.ingameGUI.getChatGUI().getScaleSetting());		

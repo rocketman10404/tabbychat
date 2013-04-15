@@ -19,6 +19,8 @@ public class ChatChannel {
 	public boolean unread = false;
 	public boolean active = false;
 	protected boolean hasFilter = false;
+	protected boolean hasSpam = false;
+	protected int spamCount = 1;
 	
 	public ChatChannel() {
 		this.chanID = nextID;

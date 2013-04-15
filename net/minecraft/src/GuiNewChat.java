@@ -3,6 +3,8 @@ package net.minecraft.src;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
+
 import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL11;
 import acs.tabbychat.TabbyChat;
@@ -16,104 +18,133 @@ public class GuiNewChat extends Gui {
    private final List field_96134_d = new ArrayList();
    private int field_73768_d = 0;
    private boolean field_73769_e = false;
+   public int screenWidth;
+   public int screenHeight;
+   public int chatWidth = 320;
+   public int chatHeight = 0;
 
    public GuiNewChat(Minecraft par1Minecraft) {
       this.mc = par1Minecraft;
    }
 
    public void drawChat(int par1) {
-      if(this.mc.gameSettings.chatVisibility != 2) {
-    	 int var2 = this.func_96127_i();
-         boolean var3 = false;
-         int var4 = 0;
-         int _y = 0;
-         int var5 = this.field_96134_d.size();
-         float var6 = this.mc.gameSettings.chatOpacity * 0.9F + 0.1F;
-         if(var5 > 0) {
-            if(this.getChatOpen()) {
-               var3 = true;
-            }
+	   if(this.mc.gameSettings.chatVisibility != 2) {
+		   /*** Modded here ***/    	  
+		   ScaledResolution sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
+		   this.screenWidth = sr.getScaledWidth();
+		   this.screenHeight = sr.getScaledHeight();
+		   int var2;
+		   if (TabbyChat.instance.enabled() && TabbyChat.instance.advancedSettings.customChatBoxSize.getValue()) {
+			   float scaleFactor;
+			   if(this.getChatOpen())
+				   scaleFactor = TabbyChat.instance.advancedSettings.chatBoxFocHeight.getValue() / 100.0f;
+			   else
+				   scaleFactor = TabbyChat.instance.advancedSettings.chatBoxUnfocHeight.getValue() / 100.0f;
+			   var2 = (int)Math.floor((float)(this.screenHeight - 51) * scaleFactor / 9.0f);
+		   } else
+			   var2 = this.func_96127_i();
+		   boolean var3 = false;
+		   int var4 = 0;
+		   int _y = 0;
+		   int var5 = this.field_96134_d.size();
+		   float var6 = this.mc.gameSettings.chatOpacity * 0.9F + 0.1F;
+		   if(var5 > 0) {
+			   if(this.getChatOpen()) {
+				   var3 = true;
+			   }
 
-            float var7 = this.func_96131_h();
-            int var8 = MathHelper.ceiling_float_int((float)this.func_96126_f() / var7);
-            GL11.glPushMatrix();
-            GL11.glTranslatef(2.0F, 20.0F, 0.0F);
-            GL11.glScalef(var7, var7, 1.0F);
-            
-            int var9;
-            int var11;
-            int var14;
-            
-            for(var9 = 0; var9 + this.field_73768_d < this.field_96134_d.size() && var9 < var2; ++var9) {
-               ChatLine var10 = (ChatLine)this.field_96134_d.get(var9 + this.field_73768_d);
-               if(var10 != null) {
-                  var11 = par1 - var10.getUpdatedCounter();
-                  if(var11 < 200 || var3) {
-                     double var12 = (double)var11 / 200.0D;
-                     var12 = 1.0D - var12;
-                     var12 *= 10.0D;
-                     if(var12 < 0.0D) {
-                        var12 = 0.0D;
-                     }
+			   float var7 = this.func_96131_h();
+			   int xOf = 0;
+			   if (TabbyChat.instance.enabled() && TabbyChat.instance.generalSettings.timeStampEnable.getValue()) {
+				   xOf = mc.fontRenderer.getStringWidth(((TimeStampEnum)TabbyChat.instance.generalSettings.timeStampStyle.getValue()).maxTime);
+			   }
+			   /*** Modded here ***/
+			   int var8;
+			   if (TabbyChat.instance.enabled() && TabbyChat.instance.advancedSettings.customChatBoxSize.getValue()) {
+				   int curWidth = this.screenWidth - 14 - xOf;
+				   float screenWidthScale = TabbyChat.instance.advancedSettings.chatBoxWidth.getValue() / 100.0f;
+				   var8 = MathHelper.ceiling_float_int(screenWidthScale * curWidth / var7);
+			   } else
+				   var8 = MathHelper.ceiling_float_int((float)this.func_96126_f() / var7);
+			   this.chatWidth = var8;
+			   GL11.glPushMatrix();
+			   GL11.glTranslatef(2.0F, 20.0F, 0.0F);
+			   GL11.glScalef(var7, var7, 1.0F);
 
-                     if(var12 > 1.0D) {
-                        var12 = 1.0D;
-                     }
+			   int var9;
+			   int var11;
+			   int var14;
+			   for(var9 = 0; var9 + this.field_73768_d < this.field_96134_d.size() && var9 < var2; ++var9) {
+				   this.chatHeight = var9 * 9;
+				   ChatLine var10 = (ChatLine)this.field_96134_d.get(var9 + this.field_73768_d);
+				   if(var10 != null) {
+					   int fadeTicks;
+					   if (TabbyChat.instance.enabled())
+						   fadeTicks = TabbyChat.instance.advancedSettings.chatFadeTicks.getValue().intValue();
+					   else
+						   fadeTicks = 200;
+					   var11 = par1 - var10.getUpdatedCounter();
+					   if(var11 < fadeTicks || var3) {
+						   double var12 = (double)var11 / (double)fadeTicks;
+						   var12 = 1.0D - var12;
+						   var12 *= 10.0D;
+						   if(var12 < 0.0D) {
+							   var12 = 0.0D;
+						   }
 
-                     var12 *= var12;
-                     var14 = (int)(255.0D * var12);
-                     if(var3) {
-                        var14 = 255;
-                     }
+						   if(var12 > 1.0D) {
+							   var12 = 1.0D;
+						   }
 
-                     var14 = (int)((float)var14 * var6);
-                     ++var4;
-                     if(var14 > 3) {
-                        byte var15 = 3;
-                        int var16 = -var9 * 9;
-                        /**** modded here ****/
-                        _y = var16 - 9;
-                        int xOf = 0;
-                        if (TabbyChat.instance.enabled() && TabbyChat.instance.generalSettings.timeStampEnable.getValue()) {
-                        	xOf = mc.fontRenderer.getStringWidth(((TimeStampEnum)TabbyChat.instance.generalSettings.timeStampStyle.getValue()).maxTime);
-                        }
-                        
-                        drawRect(var15, var16 - 9, var15 + var8 + 4 + xOf, var16, var14 / 2 << 24);
-                        GL11.glEnable(GL11.GL_BLEND);
-                        String var17 = var10.getChatLineString();
-                        if(!this.mc.gameSettings.chatColours) {
-                           var17 = StringUtils.stripControlCodes(var17);
-                        }
+						   var12 *= var12;
+						   var14 = (int)(255.0D * var12);
+						   if(var3) {
+							   var14 = 255;
+						   }
 
-                        this.mc.fontRenderer.drawStringWithShadow(var17, var15, var16 - 8, 16777215 + (var14 << 24));
-                     }
-                  }
-               }
-            }
+						   var14 = (int)((float)var14 * var6);
+						   ++var4;
+						   if(var14 > 3) {
+							   byte var15 = 3;
+							   int var16 = -var9 * 9;
+							   /**** modded here ****/
+							   _y = var16 - 9;
+							   drawRect(var15, var16 - 9, var15 + var8 + 4 + xOf, var16, var14 / 2 << 24);
+							   GL11.glEnable(GL11.GL_BLEND);
+							   String var17 = var10.getChatLineString();
+							   if(!this.mc.gameSettings.chatColours) {
+								   var17 = StringUtils.stripControlCodes(var17);
+							   }
 
-            if(var3) {
-               var9 = this.mc.fontRenderer.FONT_HEIGHT;
-               GL11.glTranslatef(-3.0F, 0.0F, 0.0F);
-               int var18 = var5 * var9 + var5;
-               var11 = var4 * var9 + var4;
-               int var20 = this.field_73768_d * var11 / var5;
-               int var13 = var11 * var11 / var18;
-               if(var18 != var11) {
-                  var14 = var20 > 0?170:96;
-                  int var19 = this.field_73769_e?13382451:3355562;
-                  drawRect(0, -var20, 2, -var20 - var13, var19 + (var14 << 24));
-                  drawRect(2, -var20, 1, -var20 - var13, 13421772 + (var14 << 24));
-               }
-            }
-            
-            GL11.glPopMatrix();
-         }
-         
-         /**** modded here ****/
-         if (TabbyChat.instance.enabled() && !this.getChatOpen()) {
-             TabbyChat.instance.pollForUnread(this, _y, par1);
-         }
-      }
+							   this.mc.fontRenderer.drawStringWithShadow(var17, var15, var16 - 8, 16777215 + (var14 << 24));
+						   }
+					   }
+				   }
+			   }
+
+			   if(var3) {
+				   var9 = this.mc.fontRenderer.FONT_HEIGHT;
+				   GL11.glTranslatef(-3.0F, 0.0F, 0.0F);
+				   int var18 = var5 * var9 + var5;
+				   var11 = var4 * var9 + var4;
+				   int var20 = this.field_73768_d * var11 / var5;
+				   int var13 = var11 * var11 / var18;
+				   if(var18 != var11) {
+					   var14 = var20 > 0?170:96;
+					   int var19 = this.field_73769_e?13382451:3355562;
+					   drawRect(0, -var20, 2, -var20 - var13, var19 + (var14 << 24));
+					   drawRect(2, -var20, 1, -var20 - var13, 13421772 + (var14 << 24));
+				   }
+			   }
+
+			   GL11.glPopMatrix();
+		   }
+
+		   /**** modded here ****/
+		   if (TabbyChat.instance.enabled() && !this.getChatOpen() && TabbyChat.instance.generalSettings.unreadFlashing.getValue()) {
+			   TabbyChat.instance.pollForUnread(this, _y, par1);
+		   }
+	   }
    }
 
    public void clearChatMessages() {
@@ -137,9 +168,15 @@ public class GuiNewChat extends Gui {
       if(par2 != 0) {
          this.deleteChatLine(par2);
       }
-
-      Iterator var7 = this.mc.fontRenderer.listFormattedStringToWidth(par1Str, MathHelper.floor_float((float)this.func_96126_f() / this.func_96131_h())).iterator();
-      
+   
+      int maxWidth;
+      if (TabbyChat.instance.advancedSettings.customChatBoxSize.getValue()) {
+    	  maxWidth = this.chatWidth;
+      } else {
+    	  maxWidth = MathHelper.floor_float((float)this.func_96126_f() / this.func_96131_h());
+      }
+      Iterator var7 = this.mc.fontRenderer.listFormattedStringToWidth(par1Str, maxWidth).iterator();
+   
       /**** modded here ****/
       TabbyChat tc = TabbyChat.instance;
       tc.checkServer();
@@ -158,17 +195,17 @@ public class GuiNewChat extends Gui {
          multiLineChat.add(new ChatLine(this.mc.ingameGUI.getUpdateCounter(), var8, par2));
          var6 = false;
       }
-      
+ 
       /**** modded here ****/
       int n;
       if (tc.enabled()) {
     	  int ret = tc.processChat(multiLineChat);
-    	  if (ret > 0) {
-    		  n = tc.lastChat.size();
-    		  for (int c=0; c<n; c++) {
-    			  this.field_96134_d.add(0, tc.lastChat.get(c));
-    		  }
-    	  }
+    	  //if (ret > 0) {
+    		//  n = tc.lastChat.size();
+    		//  for (int c=0; c<n; c++) {
+    		//	  this.field_96134_d.add(0, tc.lastChat.get(c));
+    		//  }
+    	 // }
       } else {
     	  n = multiLineChat.size();
     	  for (int d=0; d<n; d++) {
@@ -216,16 +253,29 @@ public class GuiNewChat extends Gui {
    }
 
    public void scroll(int par1) {
-      this.field_73768_d += par1;
-      int var2 = this.field_96134_d.size();
-      if(this.field_73768_d > var2 - this.func_96127_i()) {
-         this.field_73768_d = var2 - this.func_96127_i();
-      }
+	   /*** Modded ***/
+	   int var3;
+	   if (TabbyChat.instance.enabled()
+			   && TabbyChat.instance.advancedSettings.customChatBoxSize.getValue()) {
+		   float scaleFactor;
+		   if (this.getChatOpen())
+			   scaleFactor = TabbyChat.instance.advancedSettings.chatBoxFocHeight.getValue() / 100.0f;
+		   else
+			   scaleFactor = TabbyChat.instance.advancedSettings.chatBoxUnfocHeight.getValue() / 100.0f;
+		   var3 = (int) Math.floor((float) (this.screenHeight - 51) * scaleFactor / 9.0f);
+	   } else
+		   var3 = this.func_96127_i();
 
-      if(this.field_73768_d <= 0) {
-         this.field_73768_d = 0;
-         this.field_73769_e = false;
-      }
+	   this.field_73768_d += par1;
+	   int var2 = this.field_96134_d.size();
+	   if (this.field_73768_d > var2 - var3) {
+		   this.field_73768_d = var2 - var3;
+	   }
+
+	   if (this.field_73768_d <= 0) {
+		   this.field_73768_d = 0;
+		   this.field_73769_e = false;
+	   }
    }
 
    public ChatClickData func_73766_a(int par1, int par2) {
@@ -318,11 +368,17 @@ public class GuiNewChat extends Gui {
    /**** modded below ****/
    
    public int getHeightSetting() {
-	   return func_96130_b(this.mc.gameSettings.chatHeightFocused);
+	   //return func_96130_b(this.mc.gameSettings.chatHeightFocused);
+ 	  if (TabbyChat.instance.enabled() && TabbyChat.instance.advancedSettings.customChatBoxSize.getValue()) {
+		  float scaleFactor = TabbyChat.instance.advancedSettings.chatBoxFocHeight.getValue() / 100.0f;
+		  return (int)Math.floor((float)(this.screenHeight - 51) * scaleFactor);
+	  } else
+		  return func_96130_b(this.mc.gameSettings.chatHeightFocused);
    }
    
    public int getWidthSetting() {
-	   return this.func_96126_f();
+	   //return this.func_96126_f();
+	   return this.chatWidth;
    }
 
    public float getScaleSetting() {
@@ -335,6 +391,17 @@ public class GuiNewChat extends Gui {
    
    public void addChatLines(List _add) {
 	   this.field_96134_d.addAll(_add);
+	   this.field_73768_d = 0;
+   }
+   
+   public void addChatLines(int _pos, List _add) {
+	   this.field_96134_d.addAll(_pos, _add);
+	   this.field_73768_d = 0;
+   }
+   
+   public void setChatLines(int _pos, List _add) {
+	   for (int i=0; i < _add.size(); i++)
+		   this.field_96134_d.set(_pos+i, _add.get(i));
 	   this.field_73768_d = 0;
    }
    

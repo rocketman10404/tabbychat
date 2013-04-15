@@ -387,23 +387,11 @@ public class GuiChat extends GuiScreen {
 		TabbyChat tc = TabbyChat.instance;
 		ChatButton _button = (ChatButton)par1GuiButton;
 		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) && tc.channelMap.get("*") == _button.channel) {
-			tc.prefsWindow.prepareTempVars();
-			tc.filtersWindow.prepareTempFilters();
-			this.mc.displayGuiScreen(tc.prefsWindow);
-			return;
-		}
-		if (Keyboard.isKeyDown(Keyboard.KEY_RSHIFT) && tc.channelMap.get("*") == _button.channel) {
 			this.mc.displayGuiScreen(tc.generalSettings);
 			return;
 		}
 		if (!tc.generalSettings.tabbyChatEnable.getValue()) return;
-//		int n = tc.channelMap.size();
 		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {						
-//			int a = tc.serverPrefs.numFilters();
-//			for (int z = 0; z < a; z++) {
-//				if (tc.serverPrefs.filterMatchesChannel(z, (_button.channel.getID())))
-//						tc.serverPrefs.filterSentToTab(z, false);
-//			}
 			tc.channelMap.remove(_button.channel.title);
 		} else if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
 			if (!_button.channel.active) {
@@ -414,10 +402,6 @@ public class GuiChat extends GuiScreen {
 			if (!_button.channel.active)
 				tc.resetDisplayedChat();
 		} else {
-			//for (int i=0; i<n; i++) {
-				//if (!_button.equals(tc.channels.get(i).tab))
-					//tc.channels.get(i).active = false;
-			//}
 			for (ChatChannel chan : tc.channelMap.values()) {
 				if (!_button.equals(chan.tab))
 					chan.active = false;

@@ -14,14 +14,16 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 	private static final int chatBoxFocHeightID = 9405;
 	private static final int chatBoxUnfocHeightID = 9406;
 	private static final int customChatBoxSizeID = 9407;
+	private static final int chatFadeTicksID = 9408;
 	
 	public TCSettingTextBox chatScrollHistory = new TCSettingTextBox("100", "Chat history to retain (lines)", chatScrollHistoryID);
 	protected TCSettingTextBox maxLengthChannelName = new TCSettingTextBox("10", "Channel name max. length", maxLengthChannelNameID);
 	protected TCSettingTextBox multiChatDelay = new TCSettingTextBox("100", "Multi-chat send delay (ms)", multiChatDelayID);
-	protected TCSettingBool customChatBoxSize = new TCSettingBool(false, "Custom Chatbox size (screen %)", customChatBoxSizeID);
-	protected TCSettingSlider chatBoxWidth = new TCSettingSlider(50.0f, "Width", chatBoxWidthID);
-	protected TCSettingSlider chatBoxFocHeight = new TCSettingSlider(50.0f, "Focused Height", chatBoxFocHeightID);
-	protected TCSettingSlider chatBoxUnfocHeight = new TCSettingSlider(20.0f, "Unfocused Height", chatBoxUnfocHeightID);
+	public TCSettingBool customChatBoxSize = new TCSettingBool(false, "Custom Chatbox size (screen %)", customChatBoxSizeID);
+	public TCSettingSlider chatBoxWidth = new TCSettingSlider(50.0f, "Width", chatBoxWidthID);
+	public TCSettingSlider chatBoxFocHeight = new TCSettingSlider(50.0f, "Focused Height", chatBoxFocHeightID);
+	public TCSettingSlider chatBoxUnfocHeight = new TCSettingSlider(20.0f, "Unfocused Height", chatBoxUnfocHeightID);
+	public TCSettingSlider chatFadeTicks = new TCSettingSlider(200.0f, "Chat fade time (ticks)", chatFadeTicksID);
 	
 	public TCSettingsAdvanced() {
 		super();
@@ -100,6 +102,13 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		this.chatBoxUnfocHeight.setRange(20.0f, 100.0f);
 		this.buttonList.add(this.chatBoxUnfocHeight);
 		
+		this.chatFadeTicks.labelX = col1x;
+		this.chatFadeTicks.setButtonLoc(col1x + 5 + mc.fontRenderer.getStringWidth(this.chatFadeTicks.description), this.rowY(8));
+		this.chatFadeTicks.buttonOnColor = buttonColor;
+		this.chatFadeTicks.setRange(10.0f, 2000.0f);
+		this.chatFadeTicks.units = "";
+		this.buttonList.add(this.chatFadeTicks);
+		
 		this.validateButtonStates();
 	}
 	
@@ -123,6 +132,7 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		this.chatBoxWidth.save();
 		this.chatBoxFocHeight.save();
 		this.chatBoxUnfocHeight.save();
+		this.chatFadeTicks.save();
 	}
 	
 	protected void resetTempVars() {
@@ -133,6 +143,7 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		this.chatBoxWidth.reset();
 		this.chatBoxFocHeight.reset();
 		this.chatBoxUnfocHeight.reset();
+		this.chatFadeTicks.reset();
 	}
 	
 	protected void loadSettingsFile() {
@@ -158,6 +169,7 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 			this.chatBoxWidth.setValue(Float.parseFloat((String)settingsTable.getProperty("chatBoxWidth")));
 			this.chatBoxFocHeight.setValue(Float.parseFloat((String)settingsTable.getProperty("chatBoxFocHeight")));
 			this.chatBoxUnfocHeight.setValue(Float.parseFloat((String)settingsTable.getProperty("chatBoxUnfocHeight")));
+			this.chatFadeTicks.setValue(Float.parseFloat((String)settingsTable.getProperty("chatFadeTicks")));
 		} catch (Exception e) {
 			TabbyChat.printErr("Invalid property found in advanced settings file.");
 			this.chatScrollHistory.setValue("100");
@@ -167,6 +179,7 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 			this.chatBoxWidth.setValue(50.0f);
 			this.chatBoxFocHeight.setValue(50.0f);
 			this.chatBoxUnfocHeight.setValue(20.0f);
+			this.chatFadeTicks.setValue(200.0f);
 		}
 		this.resetTempVars();
 	}
@@ -183,6 +196,7 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		settingsTable.put("chatBoxWidth", this.chatBoxWidth.getValue().toString());
 		settingsTable.put("chatBoxFocHeight", this.chatBoxFocHeight.getValue().toString());
 		settingsTable.put("chatBoxUnfocHeight", this.chatBoxUnfocHeight.getValue().toString());
+		settingsTable.put("chatFadeTicks", this.chatFadeTicks.getValue().toString());
 		
 		try {
 			FileOutputStream fOutStream = new FileOutputStream(this.settingsFile);

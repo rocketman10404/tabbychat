@@ -3,6 +3,7 @@ package acs.tabbychat;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.Properties;
 import java.util.Set;
 
@@ -11,6 +12,8 @@ import net.minecraft.src.ServerData;
 
 public class TCSettingsGeneral extends TCSettingsGUI {
 
+	protected SimpleDateFormat timeStamp = new SimpleDateFormat();
+	
 	private static final int tabbyChatEnableID = 9101;
 	private static final int saveChatLogID = 9102;
 	private static final int timeStampEnableID = 9103;
@@ -23,7 +26,7 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 	public TCSettingBool timeStampEnable = new TCSettingBool(false, "Timestamp chat", timeStampEnableID);
 	public TCSettingEnum timeStampStyle = new TCSettingEnum(TimeStampEnum.MILITARY, "\u00A7oTimestamp Style\u00A7r", timeStampStyleID);
 	protected TCSettingBool groupSpam = new TCSettingBool(true, "Consolidate spammed chat", groupSpamID);
-	protected TCSettingBool unreadFlashing = new TCSettingBool(true, "Unread notification flashing", unreadFlashingID);
+	public TCSettingBool unreadFlashing = new TCSettingBool(true, "Unread notification flashing", unreadFlashingID);
 	
 	public TCSettingsGeneral() {
 		super();
@@ -117,6 +120,7 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 			this.groupSpam.setValue(true);
 			this.unreadFlashing.setValue(true);
 		}
+		this.timeStamp.applyPattern(((TimeStampEnum)this.timeStampStyle.getValue()).toCode());
 		this.resetTempVars();
 	}
 	
@@ -148,6 +152,7 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 		this.timeStampStyle.save();
 		this.groupSpam.save();
 		this.unreadFlashing.save();
+		this.timeStamp.applyPattern(((TimeStampEnum)this.timeStampStyle.getValue()).toCode());
 	}
 	
 	protected void resetTempVars() {

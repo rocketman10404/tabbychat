@@ -12,7 +12,7 @@ import net.minecraft.client.Minecraft;
 
 import net.minecraft.src.Gui;
 
-public class TabbyChatUtils {
+public class TabbyChatUtils extends Thread {
 	
 	private static Calendar logDay = Calendar.getInstance();
 	private static File logFile;
@@ -42,32 +42,8 @@ public class TabbyChatUtils {
 	}
 
 	public static void writeLargeChat(String toSend) {
-		Minecraft mc = Minecraft.getMinecraft();
-        mc.ingameGUI.getChatGUI().addToSentMessages(toSend);
-        String[] toSplit = toSend.split(" ");
-        String cmdPrefix = "";
-        int start = 0;
-        if (toSplit.length > 0 && toSplit[0].startsWith("/")) {
-        	if (toSplit[0].startsWith("/msg")) {
-        		cmdPrefix = toSplit[0] + " " + toSplit[1] + " ";
-        		start = 2;
-        	} else if (!toSplit[0].trim().equals("/")) { 
-        		cmdPrefix = toSplit[0] + " ";
-        		start = 1;
-        	}
-        }
-        int suffix = cmdPrefix.length();
-        StringBuilder sendPart = new StringBuilder(119);
-       	for (int word = start; word < toSplit.length; word++) {
-       		if (sendPart.length() + toSplit[word].length() + suffix > 100) {
-       			mc.thePlayer.sendChatMessage(cmdPrefix + sendPart.toString().trim());
-       			sendPart = new StringBuilder(119);
-       		}
-       		sendPart.append(toSplit[word] + " ");
-       	}
-       	if (sendPart.length() > 0 || cmdPrefix.length() > 0) {
-       		mc.thePlayer.sendChatMessage(cmdPrefix + sendPart.toString().trim());
-       	}
+		BackgroundChatThread sendProc = new BackgroundChatThread(toSend);
+		sendProc.start();
 	}
 	
 	public static void logChat(String theChat) {

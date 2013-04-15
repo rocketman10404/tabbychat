@@ -96,13 +96,16 @@ public class TCSettingsGUI extends net.minecraft.src.GuiScreen {
 		if (TCSetting.class.isInstance(button) && ((TCSetting)button).type != "textbox") {
 			((TCSetting)button).actionPerformed();
 		} else if (button.id == saveButton) {
-			this.storeTempVars();
-			this.saveSettingsFile();
+			for (TCSettingsGUI screen : ScreenList) {
+				screen.storeTempVars();
+				screen.saveSettingsFile();
+			}
 			mc.displayGuiScreen((GuiScreen)null);
 			if (tc.generalSettings.tabbyChatEnable.getValue())
 				tc.resetDisplayedChat();
 		} else if (button.id == cancelButton) {
-			this.resetTempVars();
+			for (TCSettingsGUI screen : ScreenList)
+				screen.resetTempVars();
 			mc.displayGuiScreen((GuiScreen)null);
 			if (tc.generalSettings.tabbyChatEnable.getValue())
 				tc.resetDisplayedChat();

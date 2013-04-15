@@ -588,7 +588,6 @@ public class TCSettingsFilters extends TCSettingsGUI {
 				ptr = chatCodes.pollLastEntry();
 			}
 			lastMatch = result.toString();
-			System.out.println("Result of filter highlighting: '" + lastMatch + "'");
 		} else
 			lastMatch = input;
 		if (!matched && inverseMatch)
