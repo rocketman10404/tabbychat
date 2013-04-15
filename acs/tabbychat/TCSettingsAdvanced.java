@@ -125,9 +125,9 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 	}
 		
 	protected void storeTempVars() {
-		this.chatScrollHistory.save();
-		this.maxLengthChannelName.save();
-		this.multiChatDelay.save();
+		this.chatScrollHistory.setValue(TabbyChatUtils.parseInteger(this.chatScrollHistory.getTempValue(), 1, 999, 100).toString());
+		this.maxLengthChannelName.setValue(TabbyChatUtils.parseInteger(this.maxLengthChannelName.getTempValue(), 1, 99, 10).toString());
+		this.multiChatDelay.setValue(TabbyChatUtils.parseInteger(this.multiChatDelay.getTempValue(), 1, 9999, 100));
 		this.customChatBoxSize.save();
 		this.chatBoxWidth.save();
 		this.chatBoxFocHeight.save();
@@ -166,28 +166,15 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 			TabbyChat.printErr("Unable to read from advanced settings file : '" + e.getLocalizedMessage() + "' : " + e.toString());
 		}
 		
-		try {
-			this.chatScrollHistory.setValue((String)settingsTable.getProperty("chatScrollHistory"));
-			this.maxLengthChannelName.setValue((String)settingsTable.getProperty("maxLengthChannelName"));
-			this.multiChatDelay.setValue((String)settingsTable.getProperty("multiChatDelay"));
-			this.customChatBoxSize.setValue(Boolean.parseBoolean((String)settingsTable.getProperty("customChatBoxSize")));
-			this.chatBoxWidth.setValue(Float.parseFloat((String)settingsTable.getProperty("chatBoxWidth")));
-			this.chatBoxFocHeight.setValue(Float.parseFloat((String)settingsTable.getProperty("chatBoxFocHeight")));
-			this.chatBoxUnfocHeight.setValue(Float.parseFloat((String)settingsTable.getProperty("chatBoxUnfocHeight")));
-			this.chatFadeTicks.setValue(Float.parseFloat((String)settingsTable.getProperty("chatFadeTicks")));
-			loaded = true;
-		} catch (Exception e) {
-			TabbyChat.printErr("Invalid property found in advanced settings file.");
-			this.chatScrollHistory.setValue("100");
-			this.maxLengthChannelName.setValue("10");
-			this.multiChatDelay.setValue("100");
-			this.customChatBoxSize.setValue(false);
-			this.chatBoxWidth.setValue(50.0f);
-			this.chatBoxFocHeight.setValue(50.0f);
-			this.chatBoxUnfocHeight.setValue(20.0f);
-			this.chatFadeTicks.setValue(200.0f);
-			loaded = false;
-		}
+		this.chatScrollHistory.setValue((String)settingsTable.getProperty("chatScrollHistory"));
+		this.maxLengthChannelName.setValue((String)settingsTable.getProperty("maxLengthChannelName"));
+		this.multiChatDelay.setValue((String)settingsTable.getProperty("multiChatDelay"));
+		this.customChatBoxSize.setValue(Boolean.parseBoolean((String)settingsTable.getProperty("customChatBoxSize")));
+		this.chatBoxWidth.setValue(TabbyChatUtils.parseFloat((String)settingsTable.getProperty("chatBoxWidth"), 20.0f, 100.0f, 50.0f));
+		this.chatBoxFocHeight.setValue(TabbyChatUtils.parseFloat((String)settingsTable.getProperty("chatBoxFocHeight"), 20.0f, 100.0f, 50.0f));
+		this.chatBoxUnfocHeight.setValue(TabbyChatUtils.parseFloat((String)settingsTable.getProperty("chatBoxUnfocHeight"), 20.0f, 100.0f, 20.0f));
+		this.chatFadeTicks.setValue(TabbyChatUtils.parseFloat((String)settingsTable.getProperty("chatFadeTicks"), 10.0f, 2000.0f, 200.0f));
+		loaded = true;
 		this.resetTempVars();
 		return loaded;
 	}

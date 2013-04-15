@@ -200,12 +200,6 @@ public class GuiNewChat extends Gui {
       int n;
       if (tc.enabled()) {
     	  int ret = tc.processChat(multiLineChat);
-    	  //if (ret > 0) {
-    		//  n = tc.lastChat.size();
-    		//  for (int c=0; c<n; c++) {
-    		//	  this.field_96134_d.add(0, tc.lastChat.get(c));
-    		//  }
-    	 // }
       } else {
     	  n = multiLineChat.size();
     	  for (int d=0; d<n; d++) {
@@ -368,7 +362,6 @@ public class GuiNewChat extends Gui {
    /**** modded below ****/
    
    public int getHeightSetting() {
-	   //return func_96130_b(this.mc.gameSettings.chatHeightFocused);
  	  if (TabbyChat.instance.enabled() && TabbyChat.instance.advancedSettings.customChatBoxSize.getValue()) {
 		  float scaleFactor = TabbyChat.instance.advancedSettings.chatBoxFocHeight.getValue() / 100.0f;
 		  return (int)Math.floor((float)(this.screenHeight - 51) * scaleFactor);
@@ -377,7 +370,6 @@ public class GuiNewChat extends Gui {
    }
    
    public int getWidthSetting() {
-	   //return this.func_96126_f();
 	   return this.chatWidth;
    }
 

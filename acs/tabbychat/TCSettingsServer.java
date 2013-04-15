@@ -160,26 +160,15 @@ public class TCSettingsServer extends TCSettingsGUI {
 			loaded = false;
 		}
 		
-		try {
-			this.autoChannelSearch.setValue(Boolean.parseBoolean((String)settingsTable.getProperty("autoChannelSearch")));
-			this.delimiterChars.setValue(ChannelDelimEnum.valueOf((String)settingsTable.getProperty("delimiterChars")));
-			this.delimColorBool.setValue(Boolean.parseBoolean((String)settingsTable.getProperty("delimColorBool")));
-			this.delimColorCode.setValue(ColorCodeEnum.valueOf((String)settingsTable.getProperty("delimColorCode")));
-			this.delimFormatBool.setValue(Boolean.parseBoolean((String)settingsTable.getProperty("delimFormatBool")));
-			this.delimFormatCode.setValue(FormatCodeEnum.valueOf((String)settingsTable.getProperty("delimFormatCode")));
-			this.defaultChannels.setValue((String)settingsTable.getProperty("defaultChannels"));
-			this.ignoredChannels.setValue((String)settingsTable.getProperty("ignoredChannels"));
-		} catch (Exception e) {
-			TabbyChat.printErr("Invalid property found in general settings file.");
-			this.autoChannelSearch.setValue(true);
-			this.delimiterChars.setValue(ChannelDelimEnum.BRACKETS);
-			this.delimColorBool.setValue(false);
-			this.delimColorCode.setValue(ColorCodeEnum.DEFAULT);
-			this.delimFormatBool.setValue(false);
-			this.delimFormatCode.setValue(FormatCodeEnum.DEFAULT);
-			this.defaultChannels.setValue("");
-			this.ignoredChannels.setValue("");
-		}
+		this.autoChannelSearch.setValue(Boolean.parseBoolean((String)settingsTable.getProperty("autoChannelSearch")));
+		this.delimiterChars.setValue(TabbyChatUtils.parseDelimiters((String)settingsTable.getProperty("delimiterChars")));
+		this.delimColorBool.setValue(Boolean.parseBoolean((String)settingsTable.getProperty("delimColorBool")));
+		this.delimColorCode.setValue(TabbyChatUtils.parseColor((String)settingsTable.getProperty("delimColorCode")));
+		this.delimFormatBool.setValue(Boolean.parseBoolean((String)settingsTable.getProperty("delimFormatBool")));
+		this.delimFormatCode.setValue(TabbyChatUtils.parseFormat((String)settingsTable.getProperty("delimFormatCode")));
+		this.defaultChannels.setValue((String)settingsTable.getProperty("defaultChannels"));
+		this.ignoredChannels.setValue((String)settingsTable.getProperty("ignoredChannels"));
+
 		this.resetTempVars();
 		return loaded;
 	}

@@ -72,4 +72,68 @@ public class TabbyChatUtils extends Thread {
 			return;
 		}
 	}
+
+	public static Integer parseInteger(String _input, int min, int max, int fallback) {
+		Integer result;
+		try {
+			result = Integer.parseInt(_input);
+			result = Math.max(min, result);
+			result = Math.min(max, result);
+		} catch (NumberFormatException e) {
+			result = fallback;
+		}
+		return result;
+	}
+	
+	public static Float parseFloat(String _input, float min, float max, float fallback) {
+		Float result;
+		try {
+			result = Float.parseFloat(_input);
+			result = Math.max(min,  result);
+			result = Math.min(max, result);
+		} catch (NumberFormatException e) {
+			result = fallback;
+		}
+		return result;
+	}
+
+	public static ChannelDelimEnum parseDelimiters(String _input) {
+		try {
+			return ChannelDelimEnum.valueOf(_input);
+		} catch (IllegalArgumentException e) {
+			return ChannelDelimEnum.BRACKETS;
+		}
+	}
+	
+	public static ColorCodeEnum parseColor(String _input) {
+		try {
+			return ColorCodeEnum.valueOf(_input);
+		} catch (IllegalArgumentException e) {
+			return ColorCodeEnum.YELLOW;
+		}
+	}
+	
+	public static FormatCodeEnum parseFormat(String _input) {
+		try {
+			return FormatCodeEnum.valueOf(_input);
+		} catch (IllegalArgumentException e) {
+			return FormatCodeEnum.BOLD;
+		}
+	}
+	
+	public static NotificationSoundEnum parseSound(String _input) {
+		try {
+			return NotificationSoundEnum.valueOf(_input);
+		} catch (IllegalArgumentException e) {
+			return NotificationSoundEnum.ORB;
+		}
+	}
+	
+	public static TimeStampEnum parseTimestamp(String _input) {
+		try {
+			return TimeStampEnum.valueOf(_input);
+		} catch (IllegalArgumentException e) {
+			return TimeStampEnum.MILITARY;
+		}
+	}
 }

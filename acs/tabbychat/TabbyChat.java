@@ -225,15 +225,13 @@ public class TabbyChat {
 			this.channelMap.put("*", new ChatChannel("*"));
 			this.channelMap.get("*").active = true;
 		}
-		//this.serverPrefs.updateForServer();
-		//this.serverPrefs.loadSettings();
 		boolean serverLoaded1 = this.serverSettings.loadSettingsFile();
 		boolean serverLoaded2 = this.filterSettings.loadSettingsFile();
 		if (!serverLoaded1 && !serverLoaded2) {
 			this.serverPrefs.updateForServer();
 			this.serverPrefs.loadSettings();
 			this.serverSettings.importSettings();
-			
+			this.filterSettings.importSettings();
 		}
 		this.loadPatterns();
 		this.updateDefaults();

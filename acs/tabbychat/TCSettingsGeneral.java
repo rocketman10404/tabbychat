@@ -111,24 +111,14 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 			TabbyChat.printErr("Unable to read from general settings file : '" + e.getLocalizedMessage() + "' : " + e.toString());
 		}
 		
-		try {
-			this.tabbyChatEnable.setValue(Boolean.parseBoolean((String)settingsTable.get("tabbyChatEnable")));
-			this.saveChatLog.setValue(Boolean.parseBoolean((String)settingsTable.get("saveChatLog")));
-			this.timeStampEnable.setValue(Boolean.parseBoolean((String)settingsTable.get("timeStampEnable")));
-			this.timeStampStyle.setValue(TimeStampEnum.valueOf((String)settingsTable.get("timeStampStyle")));
-			this.groupSpam.setValue(Boolean.parseBoolean((String)settingsTable.get("groupSpam")));
-			this.unreadFlashing.setValue(Boolean.parseBoolean((String)settingsTable.get("unreadFlashing")));
-			loaded = true;
-		} catch (Exception e) {
-			TabbyChat.printErr("Invalid property found in general settings file.");
-			this.tabbyChatEnable.setValue(true);
-			this.saveChatLog.setValue(false);
-			this.timeStampEnable.setValue(false);
-			this.timeStampStyle.setValue(TimeStampEnum.MILITARY);
-			this.groupSpam.setValue(true);
-			this.unreadFlashing.setValue(true);
-			loaded = false;
-		}
+		this.tabbyChatEnable.setValue(Boolean.parseBoolean((String)settingsTable.get("tabbyChatEnable")));
+		this.saveChatLog.setValue(Boolean.parseBoolean((String)settingsTable.get("saveChatLog")));
+		this.timeStampEnable.setValue(Boolean.parseBoolean((String)settingsTable.get("timeStampEnable")));
+		this.timeStampStyle.setValue(TabbyChatUtils.parseTimestamp((String)settingsTable.get("timeStampStyle")));
+		this.groupSpam.setValue(Boolean.parseBoolean((String)settingsTable.get("groupSpam")));
+		this.unreadFlashing.setValue(Boolean.parseBoolean((String)settingsTable.get("unreadFlashing")));
+		loaded = true;
+			
 		this.timeStamp.applyPattern(((TimeStampEnum)this.timeStampStyle.getValue()).toCode());
 		this.resetTempVars();
 		return loaded;

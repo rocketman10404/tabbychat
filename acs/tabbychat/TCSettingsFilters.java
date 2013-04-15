@@ -325,18 +325,57 @@ public class TCSettingsFilters extends TCSettingsGUI {
 			this.filterMap.put(sId + ".sendToAllTabs", this.tempFilterMap.get(sId + ".sendToAllTabs"));
 			this.filterMap.put(sId + ".removeMatches", this.tempFilterMap.get(sId + ".removeMatches"));
 			this.filterMap.put(sId + ".expressionString", this.tempFilterMap.get(sId + ".expressionString"));
+			if ((Boolean)this.tempFilterMap.get(sId + ".caseSensitive"))
+				this.filterMap.put(sId + ".expressionPattern", Pattern.compile((String)this.tempFilterMap.get(sId + ".expressionString"), Pattern.CASE_INSENSITIVE));
+			else
+				this.filterMap.put(sId + ".expressionPattern", Pattern.compile((String)this.tempFilterMap.get(sId + ".expressionString")));
 		}
 	}
 	
-	protected boolean loadSettingsFile() { 
-		ServerData server = Minecraft.getMinecraft().getServerData();
+	protected void importSettings() {
+		int fId = 0;
+		String sId;
+		for (CustomChatFilter oldfilter : tc.serverPrefs.customFilters) {
+			sId = Integer.toString(fId);
+			this.filterMap.put(sId + ".filterName", oldfilter.name);
+			this.filterMap.put(sId + ".inverseMatch", oldfilter.invert);
+			this.filterMap.put(sId + ".caseSensitive", oldfilter.caseSensitive);
+			this.filterMap.put(sId + ".highlightBool", oldfilter.highlight);
+			if (oldfilter.highlight) {
+				try {
+					this.filterMap.put(sId + ".highlightColor", ColorCodeEnum.valueOf(oldfilter.highlightColor.name()));
+					this.filterMap.put(sId + ".highlightFormat", FormatCodeEnum.valueOf(oldfilter.highlightFormat.name()));
+				} catch (Exception e) {
+					this.filterMap.put(sId + ".highlightcolor", ColorCodeEnum.YELLOW);
+					this.filterMap.put(sId + ".highlightFormat", FormatCodeEnum.BOLD);
+				}
+			} else {
+				this.filterMap.put(sId + ".highlightcolor", ColorCodeEnum.YELLOW);
+				this.filterMap.put(sId + ".highlightFormat", FormatCodeEnum.BOLD);
+			}
+			this.filterMap.put(sId + ".audioNotificationBool", oldfilter.ding);
+			this.filterMap.put(sId + ".audioNotificationSound", NotificationSoundEnum.ORB);
+			this.filterMap.put(sId + ".sendToTabBool", oldfilter.sendToTab);
+			if (oldfilter.sendToTab)
+				this.filterMap.put(sId + ".sendToTabName", oldfilter.name);
+			else
+				this.filterMap.put(sId + ".sendToTabName", "");
+			this.filterMap.put(sId + ".sendToAllTabs", false);
+			this.filterMap.put(sId + ".removeMatches", false);
+			this.filterMap.put(sId + ".expressionString", oldfilter.filter.toString()); 
+			this.filterMap.put(sId + ".expressionPattern", oldfilter.filter);
+			fId++;
+		}
+	}
+	
+	protected boolean loadSettingsFile() {
 		boolean loaded = false;
+		ServerData server = Minecraft.getMinecraft().getServerData();
 		if (server == null)
 			return loaded;
-		
 		String sname = server.serverName;
 		String ip = server.serverIP;
-		
+	
 		if (ip.contains(":")) {
 			ip = ip.replaceAll(":", "(") + ")";
 		}
@@ -361,38 +400,26 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		String sId;
 		for (int i = 0; i < settingsTable.size(); i++) {
 			sId = Integer.toString(i);
-			if (!settingsTable.containsKey(sId+".filterName"))
+			if (!loaded || !settingsTable.containsKey(sId+".filterName"))
 				break;
-			try {
-				this.filterMap.put(sId + ".filterName", settingsTable.getProperty(sId + ".filterName"));
-				this.filterMap.put(sId + ".inverseMatch", Boolean.parseBoolean(settingsTable.getProperty(sId + ".inverseMatch")));
-				this.filterMap.put(sId + ".caseSensitive", Boolean.parseBoolean(settingsTable.getProperty(sId + ".caseSensitive")));
-				this.filterMap.put(sId + ".highlightBool", Boolean.parseBoolean(settingsTable.getProperty(sId + ".highlightBool")));
-				this.filterMap.put(sId + ".highlightColor", ColorCodeEnum.valueOf(settingsTable.getProperty(sId + ".highlightColor")));
-				this.filterMap.put(sId + ".highlightFormat", FormatCodeEnum.valueOf(settingsTable.getProperty(sId + ".highlightFormat")));
-				this.filterMap.put(sId + ".audioNotificationBool", Boolean.parseBoolean(settingsTable.getProperty(sId + ".audioNotificationBool")));
-				this.filterMap.put(sId + ".audioNotificationSound", NotificationSoundEnum.valueOf(settingsTable.getProperty(sId + ".audioNotificationSound")));
-				this.filterMap.put(sId + ".sendToTabBool", Boolean.parseBoolean(settingsTable.getProperty(sId + ".sendToTabBool")));
-				this.filterMap.put(sId + ".sendToTabName", settingsTable.getProperty(sId + ".sendToTabName"));
-				this.filterMap.put(sId + ".sendToAllTabs", Boolean.parseBoolean(settingsTable.getProperty(sId + ".sendToAllTabs")));
-				this.filterMap.put(sId + ".removeMatches", Boolean.parseBoolean(settingsTable.getProperty(sId + ".removeMatches")));
-				this.filterMap.put(sId + ".expressionString", settingsTable.getProperty(sId + ".expressionString"));
-			} catch (Exception e) {
-				TabbyChat.printErr("Invalid property found in filter settings file for filter #"+sId);
-				this.filterMap.remove(sId + ".filterName");
-				this.filterMap.remove(sId + ".inverseMatch");
-				this.filterMap.remove(sId + ".caseSensitive");
-				this.filterMap.remove(sId + ".highlightBool");
-				this.filterMap.remove(sId + ".highlightColor");
-				this.filterMap.remove(sId + ".highlightFormat");
-				this.filterMap.remove(sId + ".audioNotificationBool");
-				this.filterMap.remove(sId + ".audioNotificationSound");
-				this.filterMap.remove(sId + ".sendToTabBool");
-				this.filterMap.remove(sId + ".sendToTabName");
-				this.filterMap.remove(sId + ".sendToAllTabs");
-				this.filterMap.remove(sId + ".removeMatches");
-				this.filterMap.remove(sId + ".expressionString");
-			}
+
+			this.filterMap.put(sId + ".filterName", settingsTable.getProperty(sId + ".filterName"));
+			this.filterMap.put(sId + ".inverseMatch", Boolean.parseBoolean(settingsTable.getProperty(sId + ".inverseMatch")));
+			this.filterMap.put(sId + ".caseSensitive", Boolean.parseBoolean(settingsTable.getProperty(sId + ".caseSensitive")));
+			this.filterMap.put(sId + ".highlightBool", Boolean.parseBoolean(settingsTable.getProperty(sId + ".highlightBool")));
+			this.filterMap.put(sId + ".highlightColor", ColorCodeEnum.valueOf(settingsTable.getProperty(sId + ".highlightColor")));
+			this.filterMap.put(sId + ".highlightFormat", FormatCodeEnum.valueOf(settingsTable.getProperty(sId + ".highlightFormat")));
+			this.filterMap.put(sId + ".audioNotificationBool", Boolean.parseBoolean(settingsTable.getProperty(sId + ".audioNotificationBool")));
+			this.filterMap.put(sId + ".audioNotificationSound", TabbyChatUtils.parseSound(settingsTable.getProperty(sId + ".audioNotificationSound")));
+			this.filterMap.put(sId + ".sendToTabBool", Boolean.parseBoolean(settingsTable.getProperty(sId + ".sendToTabBool")));
+			this.filterMap.put(sId + ".sendToTabName", settingsTable.getProperty(sId + ".sendToTabName"));
+			this.filterMap.put(sId + ".sendToAllTabs", Boolean.parseBoolean(settingsTable.getProperty(sId + ".sendToAllTabs")));
+			this.filterMap.put(sId + ".removeMatches", Boolean.parseBoolean(settingsTable.getProperty(sId + ".removeMatches")));
+			this.filterMap.put(sId + ".expressionString", settingsTable.getProperty(sId + ".expressionString"));
+			if (Boolean.parseBoolean(settingsTable.getProperty(sId + ".caseSensitive")))
+				this.filterMap.put(sId + ".expressionPattern", Pattern.compile(settingsTable.getProperty(sId + ".expressionString"), Pattern.CASE_INSENSITIVE));
+			else
+				this.filterMap.put(sId + ".expressionPattern", Pattern.compile(settingsTable.getProperty(sId + ".expressionString")));
 		}		
 		this.resetTempVars();
 		return loaded;
@@ -540,11 +567,7 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		String expressionString = (String)this.filterMap.get(fNum + ".expressionString");
 		if (expressionString.equals(""))
 			return false;
-		Pattern filter;
-		if (caseSensitive)
-			filter = Pattern.compile(expressionString);
-		else
-			filter = Pattern.compile(expressionString, Pattern.CASE_INSENSITIVE);
+		Pattern filter = (Pattern)this.filterMap.get(fNum + ".expressionPattern");
 
 		Pattern pullCodes = Pattern.compile("(?i)(\\u00A7[0-9A-FK-OR])+");
 		int _start = 0;
