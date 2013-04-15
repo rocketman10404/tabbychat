@@ -13,14 +13,10 @@ import java.util.Calendar;
 import net.minecraft.client.Minecraft;
 
 public class GlobalSettings {
-	private Calendar logDay = Calendar.getInstance();
-	private File logFile;
-	private SimpleDateFormat logNameFormat = new SimpleDateFormat("'TabbyChatLog_'MM-dd-yyyy'.txt'");
 	private File settingsFile;
 	private File oldSettingsFile;
 	protected static File oldTabbyChatDir = new File(Minecraft.getMinecraftDir(), new StringBuilder().append("mods").append(File.separatorChar).append("tabbychat").toString());
 	protected static File tabbyChatDir = new File(Minecraft.getMinecraftDir(), new StringBuilder().append("config").append(File.separatorChar).append("tabbychat").toString());
-	protected SimpleDateFormat timeStamp = new SimpleDateFormat();
 	public boolean autoSearchEnabled = true;
 	public int maxChannelNameLength = 10;
 	public boolean saveLocalLogEnabled = false;
@@ -29,22 +25,9 @@ public class GlobalSettings {
 	public TimeStampEnum timestampStyle = TimeStampEnum.MILITARYWITHCOLON;
 	public int retainedChats = 100;
 	
-	public GlobalSettings() {
-		File logDir = this.logFile = new File(Minecraft.getMinecraftDir(), new StringBuilder().append("TabbyChatLogs").toString());
-		
-		if (!tabbyChatDir.exists())
-			tabbyChatDir.mkdirs();
-		if (!tabbyChatDir.isDirectory())
-			TabbyChat.printErr("Unable to create TabbyChat Settings folder");
-		
-		if (!logDir.exists())
-			logDir.mkdirs();
-		if (!logDir.isDirectory())
-			TabbyChat.printErr("Unable to create TabbyChat Log folder");
-		
+	public GlobalSettings() {	
 		this.oldSettingsFile = new File(oldTabbyChatDir, "global_v2.cfg");
 		this.settingsFile = new File(tabbyChatDir, "global.cfg");
-		this.logFile = new File(logDir, this.logNameFormat.format(this.logDay.getTime()));
 	}
 	
 	protected void loadSettings() {
@@ -69,11 +52,10 @@ public class GlobalSettings {
 			this.timestampsEnabled = gsObjStream.readBoolean();
 			this.saveLocalLogEnabled = gsObjStream.readBoolean();
 			this.timestampStyle = (TimeStampEnum)gsObjStream.readObject();
-			this.timeStamp.applyPattern(this.timestampStyle.toString());
 			gsObjStream.close();
 			settingsStream.close();
 		} catch (Exception e) {
-			TabbyChat.printErr("An error occurred while loading the global settings : '" + e.getLocalizedMessage() + "' : " + e.toString());
+			//TabbyChat.printErr("An error occurred while loading the global settings : '" + e.getLocalizedMessage() + "' : " + e.toString());
 		}
 	}
 
@@ -91,34 +73,7 @@ public class GlobalSettings {
 			gsObjStream.close();
 			settingsStream.close();
 		} catch (IOException e) {
-			TabbyChat.printErr("Unable to write to global settings file : '" + e.getLocalizedMessage() + "' : " + e.toString());
-		}
-	}
-	
-	public void logChat(String theChat) {
-		Calendar tmpcal = Calendar.getInstance();
-		if (tmpcal.get(Calendar.DAY_OF_YEAR) != this.logDay.get(Calendar.DAY_OF_YEAR)) {
-			this.logDay = tmpcal;
-			this.logFile = new File(Minecraft.getMinecraftDir(), new StringBuilder().append("TabbyChatLogs").append(File.separatorChar).append(this.logNameFormat.format(this.logDay.getTime())).toString());
-		}
-		
-		if (!this.logFile.exists()) {
-			try {
-				this.logFile.createNewFile();
-			} catch (Exception e) {
-				TabbyChat.printErr("Cannot create log file : '" + e.getLocalizedMessage() + "' : " + e.toString());
-				return;
-			}
-		}
-		
-		try {
-			FileOutputStream logStream = new FileOutputStream(this.logFile, true);
-			PrintStream logPrint = new PrintStream(logStream);
-			logPrint.println(theChat);
-			logPrint.close();
-		} catch (Exception e) {
-			TabbyChat.printErr("Cannot write to log file : '" + e.getLocalizedMessage() + "' : " + e.toString());
-			return;
+			//TabbyChat.printErr("Unable to write to global settings file : '" + e.getLocalizedMessage() + "' : " + e.toString());
 		}
 	}
 }

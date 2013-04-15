@@ -121,7 +121,7 @@ public class TCSettingsGUI extends net.minecraft.src.GuiScreen {
 	
 	public void validateButtonStates() { }
 	
-	protected void loadSettingsFile() { }
+	protected boolean loadSettingsFile() { return false; }
 	
 	protected void saveSettingsFile() { }
 	

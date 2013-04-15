@@ -146,11 +146,16 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		this.chatFadeTicks.reset();
 	}
 	
-	protected void loadSettingsFile() {
+	protected void importSettings() {
+		this.chatScrollHistory.setValue(tc.globalPrefs.retainedChats);
+		this.maxLengthChannelName.setValue(tc.globalPrefs.maxChannelNameLength);
+	}
+	
+	protected boolean loadSettingsFile() {
 		this.settingsFile = new File(tabbyChatDir, "advanced.cfg");
-		
+		boolean loaded = false;
 		if (!this.settingsFile.exists())
-			return;		
+			return loaded;		
 		Properties settingsTable = new Properties();
 		
 		try {
@@ -170,6 +175,7 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 			this.chatBoxFocHeight.setValue(Float.parseFloat((String)settingsTable.getProperty("chatBoxFocHeight")));
 			this.chatBoxUnfocHeight.setValue(Float.parseFloat((String)settingsTable.getProperty("chatBoxUnfocHeight")));
 			this.chatFadeTicks.setValue(Float.parseFloat((String)settingsTable.getProperty("chatFadeTicks")));
+			loaded = true;
 		} catch (Exception e) {
 			TabbyChat.printErr("Invalid property found in advanced settings file.");
 			this.chatScrollHistory.setValue("100");
@@ -180,8 +186,10 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 			this.chatBoxFocHeight.setValue(50.0f);
 			this.chatBoxUnfocHeight.setValue(20.0f);
 			this.chatFadeTicks.setValue(200.0f);
+			loaded = false;
 		}
 		this.resetTempVars();
+		return loaded;
 	}
 	
 	protected void saveSettingsFile() {

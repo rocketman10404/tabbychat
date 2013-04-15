@@ -122,11 +122,23 @@ public class TCSettingsServer extends TCSettingsGUI {
 		this.ignoredChannels.reset();
 	}
 
-	protected void loadSettingsFile() {
+	protected void importSettings() {
+		this.autoChannelSearch.setValue(tc.globalPrefs.autoSearchEnabled);
+		this.delimiterChars.setValue(tc.serverPrefs.chanDelims);
+		this.delimColorCode.setValue(ChatColorEnum.valueOf(tc.serverPrefs.chanDelimColor.name()));
+		this.delimFormatCode.setValue(FormatCodeEnum.valueOf(tc.serverPrefs.chanDelimFormat.name()));
+		this.defaultChannels.setValue(TabbyChatUtils.join(tc.serverPrefs.defaultChans, ","));
+		this.ignoredChannels.setValue(TabbyChatUtils.join(tc.serverPrefs.ignoredChans, ","));
+	}
+	
+	protected boolean loadSettingsFile() {
+		boolean loaded = false;
 		ServerData server = Minecraft.getMinecraft().getServerData();
+		if (server == null)
+			return loaded;
 		String sname = server.serverName;
 		String ip = server.serverIP;
-	
+			
 		if (ip.contains(":")) {
 			ip = ip.replaceAll(":", "(") + ")";
 		}
@@ -135,15 +147,17 @@ public class TCSettingsServer extends TCSettingsGUI {
 		this.settingsFile = new File(settingsDir, "settings.cfg");
 	
 		if (!this.settingsFile.exists())
-			return;		
+			return loaded;		
 		Properties settingsTable = new Properties();
 		
 		try {
 			FileInputStream fInStream = new FileInputStream(this.settingsFile);
 			settingsTable.load(fInStream);
 			fInStream.close();
+			loaded = true;
 		} catch (Exception e) {
 			TabbyChat.printErr("Unable to read from server settings file : '" + e.getLocalizedMessage() + "' : " + e.toString());
+			loaded = false;
 		}
 		
 		try {
@@ -167,6 +181,7 @@ public class TCSettingsServer extends TCSettingsGUI {
 			this.ignoredChannels.setValue("");
 		}
 		this.resetTempVars();
+		return loaded;
 	}
 	
 	protected void saveSettingsFile() {

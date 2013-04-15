@@ -20,7 +20,6 @@ import net.minecraft.client.Minecraft;
 public class ServerSettings {
 	private ServerData server;
 	private static File settingsFile;
-	private File oldSettingsFile;
 	protected ChannelDelimEnum chanDelims = ChannelDelimEnum.BRACKETS;
 	protected ChatColorEnum chanDelimColor = ChatColorEnum.DEFAULTCOLOR;
 	protected ChatColorEnum chanDelimFormat = ChatColorEnum.DEFAULTFORMAT;
@@ -37,11 +36,7 @@ public class ServerSettings {
 	protected void loadSettings() {
 		File source;
 		if (this.settingsFile != null && !this.settingsFile.exists()) {
-			if (this.oldSettingsFile != null && !this.oldSettingsFile.exists()) {
-				saveSettings();
-				return;
-			} else
-				source = this.oldSettingsFile;
+			return;
 		} else
 			source = this.settingsFile;
 		
@@ -65,7 +60,7 @@ public class ServerSettings {
 			ssObjStream.close();
 			settingsStream.close();
 		} catch (Exception e) {
-			TabbyChat.printErr("An error occurred while loading the server settings : '" + e.getLocalizedMessage() + "' : " + e.toString());
+			//TabbyChat.printErr("An error occurred while loading the server settings : '" + e.getLocalizedMessage() + "' : " + e.toString());
 		}
 	}
 	
@@ -85,7 +80,7 @@ public class ServerSettings {
 			ssObjStream.close();
 			ssOutStream.close();
 		} catch (IOException e) {
-			TabbyChat.printErr("Unable to write to server settings file : '" + e.getLocalizedMessage() + "' : " + e.toString());
+			//TabbyChat.printErr("Unable to write to server settings file : '" + e.getLocalizedMessage() + "' : " + e.toString());
 		}
 	}
 	
@@ -109,7 +104,6 @@ public class ServerSettings {
 	public void updateForServer() {
 		boolean clear = false;
 		
-		
 		if (Minecraft.getMinecraft().isSingleplayer() || Minecraft.getMinecraft().getServerData() == null) {
 			this.server = null;
 			this.settingsFile = null;
@@ -122,13 +116,7 @@ public class ServerSettings {
 		
 			File settingsDir = new File(GlobalSettings.tabbyChatDir, "servers");
 		
-			if (!settingsDir.exists())
-				settingsDir.mkdirs();
-			if (!settingsDir.isDirectory())
-				TabbyChat.printErr("Unable to create TabbyChat Settings folder");
-		
 			settingsFile = new File(settingsDir, this.ip+".cfg");
-			this.oldSettingsFile = new File(new File(GlobalSettings.oldTabbyChatDir, "servers"), this.ip+".cfg");
 		}
 	}
 }

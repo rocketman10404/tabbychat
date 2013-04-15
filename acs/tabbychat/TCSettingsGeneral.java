@@ -89,11 +89,18 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 		this.timeStampStyle.enabled = this.timeStampEnable.getTempValue();
 	}
 	
-	protected void loadSettingsFile() { 
+	protected void importSettings() {
+		this.tabbyChatEnable.setValue(tc.globalPrefs.TCenabled);
+		this.saveChatLog.setValue(tc.globalPrefs.saveLocalLogEnabled);
+		this.timeStampEnable.setValue(tc.globalPrefs.timestampsEnabled);
+	}
+	
+	protected boolean loadSettingsFile() { 
 		this.settingsFile = new File(tabbyChatDir, "general.cfg");
+		boolean loaded = false;
 	
 		if (!this.settingsFile.exists())
-			return;		
+			return loaded;		
 		Properties settingsTable = new Properties();
 		
 		try {
@@ -111,6 +118,7 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 			this.timeStampStyle.setValue(TimeStampEnum.valueOf((String)settingsTable.get("timeStampStyle")));
 			this.groupSpam.setValue(Boolean.parseBoolean((String)settingsTable.get("groupSpam")));
 			this.unreadFlashing.setValue(Boolean.parseBoolean((String)settingsTable.get("unreadFlashing")));
+			loaded = true;
 		} catch (Exception e) {
 			TabbyChat.printErr("Invalid property found in general settings file.");
 			this.tabbyChatEnable.setValue(true);
@@ -119,9 +127,11 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 			this.timeStampStyle.setValue(TimeStampEnum.MILITARY);
 			this.groupSpam.setValue(true);
 			this.unreadFlashing.setValue(true);
+			loaded = false;
 		}
 		this.timeStamp.applyPattern(((TimeStampEnum)this.timeStampStyle.getValue()).toCode());
 		this.resetTempVars();
+		return loaded;
 	}
 	
 	protected void saveSettingsFile() { 

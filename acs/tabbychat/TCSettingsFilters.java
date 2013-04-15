@@ -328,11 +328,15 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		}
 	}
 	
-	protected void loadSettingsFile() { 
+	protected boolean loadSettingsFile() { 
 		ServerData server = Minecraft.getMinecraft().getServerData();
+		boolean loaded = false;
+		if (server == null)
+			return loaded;
+		
 		String sname = server.serverName;
 		String ip = server.serverIP;
-	
+		
 		if (ip.contains(":")) {
 			ip = ip.replaceAll(":", "(") + ")";
 		}
@@ -341,15 +345,17 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		this.settingsFile = new File(settingsDir, "filters.cfg");
 	
 		if (!this.settingsFile.exists())
-			return;		
+			return loaded;		
 		Properties settingsTable = new Properties();
 		
 		try {
 			FileInputStream fInStream = new FileInputStream(this.settingsFile);
 			settingsTable.load(fInStream);
 			fInStream.close();
+			loaded = true;
 		} catch (Exception e) {
 			TabbyChat.printErr("Unable to read from filter settings file : '" + e.getLocalizedMessage() + "' : " + e.toString());
+			loaded = false;
 		}
 		
 		String sId;
@@ -389,6 +395,7 @@ public class TCSettingsFilters extends TCSettingsGUI {
 			}
 		}		
 		this.resetTempVars();
+		return loaded;
 	}
 	
 	protected void saveSettingsFile() { 

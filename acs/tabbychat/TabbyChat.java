@@ -64,9 +64,13 @@ public class TabbyChat {
 		this.serverSettings = new TCSettingsServer(this);
 		this.filterSettings = new TCSettingsFilters(this);
 		this.advancedSettings = new TCSettingsAdvanced(this);
-		this.globalPrefs.loadSettings();
-		this.generalSettings.loadSettingsFile();
-		this.advancedSettings.loadSettingsFile();
+		boolean globalLoaded1 = this.generalSettings.loadSettingsFile();
+		boolean globalLoaded2 = this.advancedSettings.loadSettingsFile();
+		 if (!globalLoaded1 && !globalLoaded2) {
+			this.globalPrefs.loadSettings();
+			this.generalSettings.importSettings();
+			this.advancedSettings.importSettings();
+		 }
 		if (!this.enabled())
 			this.disable();
 		else {
@@ -221,10 +225,16 @@ public class TabbyChat {
 			this.channelMap.put("*", new ChatChannel("*"));
 			this.channelMap.get("*").active = true;
 		}
-		this.serverPrefs.updateForServer();
-		this.serverPrefs.loadSettings();
-		this.serverSettings.loadSettingsFile();
-		this.filterSettings.loadSettingsFile();
+		//this.serverPrefs.updateForServer();
+		//this.serverPrefs.loadSettings();
+		boolean serverLoaded1 = this.serverSettings.loadSettingsFile();
+		boolean serverLoaded2 = this.filterSettings.loadSettingsFile();
+		if (!serverLoaded1 && !serverLoaded2) {
+			this.serverPrefs.updateForServer();
+			this.serverPrefs.loadSettings();
+			this.serverSettings.importSettings();
+			
+		}
 		this.loadPatterns();
 		this.updateDefaults();
 		this.updateFilters();
