@@ -239,7 +239,7 @@ public class TCSettingsFilters extends TCSettingsGUI {
 	}
 	
 	public void validateButtonStates() {
-		this.highlightBool.enabled = !this.removeMatches.getTempValue();
+		this.highlightBool.enabled = !this.removeMatches.getTempValue() && !this.inverseMatch.getTempValue();
 		this.audioNotificationBool.enabled = this.highlightBool.enabled;
 		this.removeMatches.enabled = !this.sendToTabBool.getTempValue() && !this.highlightBool.getTempValue() && !this.audioNotificationBool.getTempValue();
 		this.sendToTabBool.enabled = !this.removeMatches.getTempValue();
