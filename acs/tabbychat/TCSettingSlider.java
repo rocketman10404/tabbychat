@@ -8,8 +8,8 @@ import net.minecraft.src.GuiTextField;
 
 public class TCSettingSlider extends TCSetting {
 	
-	protected float value;
-	protected float tempValue;
+	protected Float value;
+	protected Float tempValue;
 	protected float minValue;
 	protected float maxValue;
 	protected float sliderValue;
@@ -23,7 +23,7 @@ public class TCSettingSlider extends TCSetting {
 		this(0.0f, theLabel, theID);
 	}
 	
-	public TCSettingSlider(float theSetting, String theLabel, int theID) {
+	public TCSettingSlider(Float theSetting, String theLabel, int theID) {
 		super(theID, 0, 0, "");
 		this.type = "slider";
 		mc = Minecraft.getMinecraft();
@@ -36,7 +36,7 @@ public class TCSettingSlider extends TCSetting {
 		this.sliderValue = (float)(this.tempValue - this.minValue) / (float)(this.maxValue - this.minValue);
 	}
 	
-	public TCSettingSlider(float theSetting, String theLabel, int theID, float minVal, float maxVal) {
+	public TCSettingSlider(Float theSetting, String theLabel, int theID, float minVal, float maxVal) {
 		this(theSetting, theLabel, theID);
 		this.minValue = minVal;
 		this.maxValue = maxVal;
@@ -48,17 +48,17 @@ public class TCSettingSlider extends TCSetting {
 		this.height = tall;
 	}
 		
-	public void setValue(float theVal) {
+	public void setValue(Float theVal) {
 		this.value = theVal;
 	}
 	
-	public void setRange(float theMin, float theMax) {
+	public void setRange(Float theMin, Float theMax) {
 		this.minValue = theMin;
 		this.maxValue = theMax;
 		this.sliderValue = (float)(this.tempValue - this.minValue) / (float)(this.maxValue - this.minValue);
 	}
 	
-	public void setTempValue(float theVal) {
+	public void setTempValue(Float theVal) {
 		this.tempValue = theVal;
 		this.sliderValue = (this.tempValue - this.minValue) / (this.maxValue - this.minValue);
 	}

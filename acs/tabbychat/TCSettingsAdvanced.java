@@ -105,14 +105,7 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		this.chatFadeTicks.units = "";
 		this.buttonList.add(this.chatFadeTicks);
 		
-		this.validateButtonStates();
-		
-		System.out.println("CBW value: "+this.chatBoxWidth.getValue());
-		System.out.println("CBW temp value: "+this.chatBoxWidth.getTempValue());
-		System.out.println("CBW slider value: "+this.chatBoxWidth.sliderValue);
-		System.out.println("CBW max value: "+this.chatBoxWidth.maxValue);
-		System.out.println("CBW min value: "+this.chatBoxWidth.minValue);
-		
+		this.validateButtonStates();		
 	}
 	
 	public void validateButtonStates() {

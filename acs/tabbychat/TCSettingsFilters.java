@@ -24,6 +24,7 @@ import net.minecraft.src.ServerData;
 
 public class TCSettingsFilters extends TCSettingsGUI {
 	protected int curFilterId = 0;
+	protected int numTempFilters = 0;
 	protected int numFilters = 0;
 	private static String lastMatch = "";
 
@@ -99,8 +100,8 @@ public class TCSettingsFilters extends TCSettingsGUI {
 	}
 	
 	private int addNewFilter() {
-		int nextId = this.numFilters;
-		this.numFilters++;
+		int nextId = this.numTempFilters;
+		this.numTempFilters++;
 		String sId = Integer.toString(nextId);		
 		this.tempFilterMap.put(sId + ".filterName", "New"+sId);
 		this.tempFilterMap.put(sId + ".inverseMatch", false);
@@ -122,9 +123,9 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		String here;
 		String next;
 		
-		if (this.curFilterId < 0 || this.curFilterId > this.numFilters)
+		if (this.curFilterId < 0 || this.curFilterId > this.numTempFilters)
 			return 0;
-		for (int i = this.curFilterId; i < this.numFilters - 1; i++) {
+		for (int i = this.curFilterId; i < this.numTempFilters - 1; i++) {
 			here = Integer.toString(i);
 			next = Integer.toString(i+1);
 			this.tempFilterMap.put(here + ".filterName", this.tempFilterMap.get(next + ".filterName"));
@@ -141,7 +142,7 @@ public class TCSettingsFilters extends TCSettingsGUI {
 			this.tempFilterMap.put(here + ".removeMatches", this.tempFilterMap.get(next + ".removeMatches"));
 			this.tempFilterMap.put(here + ".expressionString", this.tempFilterMap.get(next + ".expressionString"));
 		}
-		here = Integer.toString(this.numFilters - 1);
+		here = Integer.toString(this.numTempFilters - 1);
 		this.tempFilterMap.remove(here + ".filterName");
 		this.tempFilterMap.remove(here + ".inverseMatch");
 		this.tempFilterMap.remove(here + ".caseSensitive");
@@ -155,12 +156,12 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		this.tempFilterMap.remove(here + ".sendToAllTabs");
 		this.tempFilterMap.remove(here + ".removeMatches");
 		this.tempFilterMap.remove(here + ".expressionString");
-		this.numFilters--;
+		this.numTempFilters--;
 		return (this.curFilterId > 0) ? this.curFilterId - 1 : 0;
 	}
 	
 	private void displayFilter(int fId) {
-		if (this.numFilters == 0 || !this.tempFilterMap.containsKey(Integer.toString(fId)+".filterName")) {
+		if (this.numTempFilters == 0 || !this.tempFilterMap.containsKey(Integer.toString(fId)+".filterName")) {
 			this.filterName.setTempValue("");
 			this.inverseMatch.setTempValue(false);
 			this.caseSensitive.setTempValue(false);
@@ -194,7 +195,7 @@ public class TCSettingsFilters extends TCSettingsGUI {
 	}
 	
 	private void storeTempFilter(int fId) {
-		if (this.numFilters == 0)
+		if (this.numTempFilters == 0)
 			return;
 		
 		String sId = Integer.toString(fId);
@@ -222,18 +223,18 @@ public class TCSettingsFilters extends TCSettingsGUI {
 			this.displayFilter(this.curFilterId);
 			break;
 		case delID:
-			if (this.numFilters > 0) {
+			if (this.numTempFilters > 0) {
 				this.curFilterId = this.deleteFilter();
 				this.displayFilter(this.curFilterId);
 			}
 			break;
 		case prevButtonID:
-			if (this.numFilters > 1)
-				this.displayFilter((this.curFilterId > 0) ? this.curFilterId - 1 : this.numFilters - 1);
+			if (this.numTempFilters > 1)
+				this.displayFilter((this.curFilterId > 0) ? this.curFilterId - 1 : this.numTempFilters - 1);
 			break;
 		case nextButtonID:
-			if (this.numFilters > 1)
-				this.displayFilter((this.curFilterId < this.numFilters-1) ? this.curFilterId + 1 : 0);
+			if (this.numTempFilters > 1)
+				this.displayFilter((this.curFilterId < this.numTempFilters-1) ? this.curFilterId + 1 : 0);
 			break;		
 		}
 			
@@ -241,6 +242,9 @@ public class TCSettingsFilters extends TCSettingsGUI {
 	}
 	
 	public void validateButtonStates() {
+		this.inverseMatch.enabled = !this.highlightBool.getTempValue();
+		this.caseSensitive.enabled = true;
+		
 		this.highlightBool.enabled = !this.removeMatches.getTempValue() && !this.inverseMatch.getTempValue();
 		this.audioNotificationBool.enabled = !this.removeMatches.getTempValue();
 		this.removeMatches.enabled = !this.sendToTabBool.getTempValue() && !this.highlightBool.getTempValue() && !this.audioNotificationBool.getTempValue();
@@ -251,10 +255,12 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		this.audioNotificationSound.enabled = this.audioNotificationBool.getTempValue();
 		this.sendToAllTabs.enabled = this.sendToTabBool.getTempValue();
 		
+
+		
 		for (int i = 0; i < this.buttonList.size(); i++) {
 			if (TCSetting.class.isInstance(this.buttonList.get(i))) {
 				TCSetting tmp = (TCSetting)this.buttonList.get(i);
-				if (this.numFilters == 0)
+				if (this.numTempFilters == 0)
 					tmp.disable();
 				else if (tmp.type == "textbox")
 					tmp.enable();
@@ -285,7 +291,7 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		this.tempFilterMap.clear();
 		String sId;
 		this.curFilterId = 0;
-		this.numFilters = 0;
+		this.numTempFilters = 0;
 		for (int i = 0; i < this.filterMap.size(); i++) {
 			sId = Integer.toString(i);
 			if (!this.filterMap.containsKey(sId + ".filterName"))
@@ -303,13 +309,14 @@ public class TCSettingsFilters extends TCSettingsGUI {
 			this.tempFilterMap.put(sId + ".sendToAllTabs", this.filterMap.get(sId + ".sendToAllTabs"));
 			this.tempFilterMap.put(sId + ".removeMatches", this.filterMap.get(sId + ".removeMatches"));
 			this.tempFilterMap.put(sId + ".expressionString", this.filterMap.get(sId + ".expressionString"));
-			this.numFilters++;
+			this.numTempFilters++;
 		}
 	}
 	
 	protected void storeTempVars() {
 		this.filterMap.clear();
 		String sId;
+		this.numFilters = 0;
 		for (int i = 0; i < this.tempFilterMap.size(); i++) {
 			sId = Integer.toString(i);
 			if (!this.tempFilterMap.containsKey(sId + ".filterName"))
@@ -336,14 +343,15 @@ public class TCSettingsFilters extends TCSettingsGUI {
 				this.filterMap.put(sId + ".expressionString", ".*");
 				this.filterMap.put(sId + ".expressionPattern", Pattern.compile(".*"));
 			}
+			this.numFilters++;
 		}
 	}
 	
 	protected void importSettings() {
-		int fId = 0;
 		String sId;
+		this.numFilters = 0;
 		for (CustomChatFilter oldfilter : tc.serverPrefs.customFilters) {
-			sId = Integer.toString(fId);
+			sId = Integer.toString(this.numFilters);
 			this.filterMap.put(sId + ".filterName", oldfilter.name);
 			this.filterMap.put(sId + ".inverseMatch", oldfilter.invert);
 			this.filterMap.put(sId + ".caseSensitive", oldfilter.caseSensitive);
@@ -361,13 +369,15 @@ public class TCSettingsFilters extends TCSettingsGUI {
 			this.filterMap.put(sId + ".removeMatches", false);
 			this.filterMap.put(sId + ".expressionString", oldfilter.filter.toString()); 
 			this.filterMap.put(sId + ".expressionPattern", oldfilter.filter);
-			fId++;
+			this.numFilters++;
 		}
 		this.resetTempVars();
 	}
 	
 	protected boolean loadSettingsFile() {
 		boolean loaded = false;
+		this.filterMap.clear();
+		this.numFilters = 0;
 		ServerData server = Minecraft.getMinecraft().getServerData();
 		if (server == null)
 			return loaded;
@@ -396,7 +406,8 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		}
 		
 		String sId;
-		for (int i = 0; i < settingsTable.size(); i++) {
+		int _ind = settingsTable.size();
+		for (int i = 0; i < _ind; i++) {
 			sId = Integer.toString(i);
 			if (!loaded || !settingsTable.containsKey(sId+".filterName"))
 				break;
@@ -423,6 +434,7 @@ public class TCSettingsFilters extends TCSettingsGUI {
 				this.filterMap.put(sId + ".expressionString", ".*");
 				this.filterMap.put(sId + ".expressionPattern", Pattern.compile(".*"));
 			}
+			this.numFilters++;
 		}		
 		this.resetTempVars();
 		return loaded;
@@ -562,6 +574,8 @@ public class TCSettingsFilters extends TCSettingsGUI {
 	}
 	
 	protected boolean applyFilterToDirtyChat(int filterNum, String input) {
+		if (filterNum >= this.numFilters)
+			return false;
 		
 // Pull data for the requested filter number
 		String fNum = Integer.toString(filterNum);
@@ -570,7 +584,7 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		Boolean highlightBool = (Boolean)this.filterMap.get(fNum + ".highlightBool");
 		ColorCodeEnum highlightColor = (ColorCodeEnum)this.filterMap.get(fNum + ".highlightColor");
 		FormatCodeEnum highlightFormat = (FormatCodeEnum)this.filterMap.get(fNum + ".highlightFormat");
-		String expressionString = (String)this.filterMap.get(fNum + ".expressionString");
+		String expressionString = new String((String)this.filterMap.get(fNum + ".expressionString"));
 		if (expressionString.equals(""))
 			return false;
 		Pattern filter = (Pattern)this.filterMap.get(fNum + ".expressionPattern");
