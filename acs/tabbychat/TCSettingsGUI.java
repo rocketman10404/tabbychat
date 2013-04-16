@@ -99,10 +99,10 @@ public class TCSettingsGUI extends net.minecraft.src.GuiScreen {
 			for (TCSettingsGUI screen : ScreenList) {
 				screen.storeTempVars();
 				screen.saveSettingsFile();
-				tc.updateDefaults();
-				tc.loadPatterns();
-				tc.updateFilters();
 			}
+			tc.updateDefaults();
+			tc.loadPatterns();
+			tc.updateFilters();
 			mc.displayGuiScreen((GuiScreen)null);
 			if (tc.generalSettings.tabbyChatEnable.getValue())
 				tc.resetDisplayedChat();
