@@ -28,7 +28,6 @@ public class GuiChat extends GuiScreen {
    private List<GuiTextField> inputList = new ArrayList<GuiTextField>(3);
    private String defaultInputFieldText = "";
    public ChatScrollBar scrollBar;
-   private static int lastWidth = 320;
 
    public GuiChat() {}
 
@@ -89,10 +88,6 @@ public class GuiChat extends GuiScreen {
          this.field_73897_d = false;
       }
       
-      if (mc.currentScreen != null) {
-    	  lastWidth = mc.currentScreen.width;    		  
-      }
-
       if(par2 == 1) {
          this.mc.displayGuiScreen((GuiScreen)null);
       } else if(par2 == 28) {
@@ -164,7 +159,7 @@ public class GuiChat extends GuiScreen {
     			  this.removeCharsAtCursor(1);
     	  } else if (par2 == Keyboard.KEY_LEFT || par2 == Keyboard.KEY_RIGHT) {
     		  this.inputList.get(this.getFocusedFieldInd()).textboxKeyTyped(par1, par2);    		  
-    	  } else if (this.inputField.isFocused() && mc.fontRenderer.getStringWidth(this.inputField.getText()) < lastWidth-20) {
+    	  } else if (this.inputField.isFocused() && mc.fontRenderer.getStringWidth(this.inputField.getText()) < mc.ingameGUI.getChatGUI().screenWidth-20) {
    			  this.inputField.textboxKeyTyped(par1, par2);
    		  } else {
    			  this.insertCharsAtCursor(((Character)Keyboard.getEventCharacter()).toString());
@@ -336,7 +331,7 @@ public class GuiChat extends GuiScreen {
       for (GuiTextField field : this.inputList)
     	  field.drawTextBox();
       String sends = ((Integer)this.getCurrentSends()).toString();
-      int sendsX = mc.currentScreen.width - mc.fontRenderer.getStringWidth(sends) - 2;
+      int sendsX = mc.ingameGUI.getChatGUI().screenWidth - mc.fontRenderer.getStringWidth(sends) - 2;
       mc.fontRenderer.drawStringWithShadow(sends, sendsX, this.height - tBoxHeight, 7368816);
         
       /*** modded here ***/
@@ -347,7 +342,7 @@ public class GuiChat extends GuiScreen {
       }
       float scaleSetting = mc.ingameGUI.getChatGUI().getScaleSetting();
       GL11.glPushMatrix();
-      float scaleOffset = (float)(mc.currentScreen.height - 28) * (1.0F - scaleSetting);
+      float scaleOffset = (float)(mc.ingameGUI.getChatGUI().screenHeight - 28) * (1.0F - scaleSetting);
       GL11.glTranslatef(0.0F, scaleOffset, 0.0F);
       GL11.glScalef(scaleSetting, scaleSetting, 1.0F);
       for(int var4 = 0; var4 < this.buttonList.size(); ++var4) {

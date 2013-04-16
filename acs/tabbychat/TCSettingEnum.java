@@ -29,12 +29,14 @@ public class TCSettingEnum extends TCSetting {
 	}
 	
 	public void next() {
-		Enum E[] = this.tempValue.getClass().getEnumConstants();
+		Enum[] E = this.tempValue.getClass().getEnumConstants();
+		Enum tmp;
 		if (this.tempValue.ordinal() == E.length - 1)
-			this.tempValue = Enum.valueOf(this.tempValue.getClass(), E[0].name());
+			tmp = Enum.valueOf(this.tempValue.getClass(), E[0].name());
 		else {
-			this.tempValue = Enum.valueOf(this.tempValue.getClass(), E[this.tempValue.ordinal()+1].name());
+			tmp = Enum.valueOf(this.tempValue.getClass(), E[this.tempValue.ordinal()+1].name());
 		}
+		this.tempValue = tmp;
 	}
 	
 	public void previous() {
@@ -80,7 +82,6 @@ public class TCSettingEnum extends TCSetting {
 	}
 	
 	public void actionPerformed() {
-		this.next();
 	}
 	
 	public void drawButton(Minecraft par1, int cursorX, int cursorY) {

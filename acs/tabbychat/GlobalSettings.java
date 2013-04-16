@@ -14,8 +14,6 @@ import net.minecraft.client.Minecraft;
 
 public class GlobalSettings {
 	private File settingsFile;
-	private File oldSettingsFile;
-	protected static File oldTabbyChatDir = new File(Minecraft.getMinecraftDir(), new StringBuilder().append("mods").append(File.separatorChar).append("tabbychat").toString());
 	protected static File tabbyChatDir = new File(Minecraft.getMinecraftDir(), new StringBuilder().append("config").append(File.separatorChar).append("tabbychat").toString());
 	public boolean autoSearchEnabled = true;
 	public int maxChannelNameLength = 10;
@@ -26,21 +24,13 @@ public class GlobalSettings {
 	public int retainedChats = 100;
 	
 	public GlobalSettings() {	
-		this.oldSettingsFile = new File(oldTabbyChatDir, "global_v2.cfg");
 		this.settingsFile = new File(tabbyChatDir, "global.cfg");
 	}
 	
 	protected void loadSettings() {
-		File source;
-		if (!this.settingsFile.exists()) {
-			if (!this.oldSettingsFile.exists()) {
-				saveSettings();
-				return;
-			} else {
-				source = this.oldSettingsFile;
-			}
-		} else
-			source = this.settingsFile;
+		File source = this.settingsFile;;
+		if (!this.settingsFile.exists())
+			return;
 		
 		try {
 			FileInputStream settingsStream = new FileInputStream(source);

@@ -8,6 +8,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.src.GuiButton;
 import net.minecraft.src.ServerData;
 
 public class TCSettingsGeneral extends TCSettingsGUI {
@@ -25,7 +26,7 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 	protected TCSettingBool saveChatLog = new TCSettingBool(false, "Log chat to file", saveChatLogID);
 	public TCSettingBool timeStampEnable = new TCSettingBool(false, "Timestamp chat", timeStampEnableID);
 	public TCSettingEnum timeStampStyle = new TCSettingEnum(TimeStampEnum.MILITARY, "\u00A7oTimestamp Style\u00A7r", timeStampStyleID);
-	protected TCSettingBool groupSpam = new TCSettingBool(true, "Consolidate spammed chat", groupSpamID);
+	protected TCSettingBool groupSpam = new TCSettingBool(false, "Consolidate spammed chat", groupSpamID);
 	public TCSettingBool unreadFlashing = new TCSettingBool(true, "Unread notification flashing", unreadFlashingID);
 	
 	public TCSettingsGeneral() {
@@ -85,6 +86,20 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 		this.validateButtonStates();
 	}
 	
+	public void actionPerformed(GuiButton button) {
+		super.actionPerformed(button);
+		switch (button.id) {
+		case tabbyChatEnableID:
+			if (TabbyChat.instance.enabled())
+				TabbyChat.instance.disable();
+			else
+				TabbyChat.instance.enable();
+			break;	
+		}
+			
+		this.validateButtonStates();
+	}
+	
 	public void validateButtonStates() {
 		this.timeStampStyle.enabled = this.timeStampEnable.getTempValue();
 	}
@@ -93,6 +108,9 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 		this.tabbyChatEnable.setValue(tc.globalPrefs.TCenabled);
 		this.saveChatLog.setValue(tc.globalPrefs.saveLocalLogEnabled);
 		this.timeStampEnable.setValue(tc.globalPrefs.timestampsEnabled);
+		this.timeStampStyle.setValue(tc.globalPrefs.timestampStyle);
+		this.timeStamp.applyPattern(((TimeStampEnum)this.timeStampStyle.getValue()).toCode());
+		this.resetTempVars();
 	}
 	
 	protected boolean loadSettingsFile() { 

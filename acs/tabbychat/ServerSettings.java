@@ -84,23 +84,6 @@ public class ServerSettings {
 		}
 	}
 	
-	public boolean filterMatchesChannel(int index, int _id) {
-		return (this.customFilters.get(index).chanID == _id);
-	}
-	
-	public boolean filterSentToTab(int index) {
-		return this.customFilters.get(index).sendToTab;
-	}
-	
-	public void filterSentToTab(int index, boolean setto) {
-		this.customFilters.get(index).sendToTab = setto;
-	}
-	
-	
-	public int numFilters() {
-		return this.customFilters.size();
-	}
-	
 	public void updateForServer() {
 		boolean clear = false;
 		

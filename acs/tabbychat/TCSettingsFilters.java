@@ -247,7 +247,6 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		this.highlightColor.enabled = this.highlightBool.getTempValue();
 		this.highlightFormat.enabled = this.highlightBool.getTempValue();
 		this.audioNotificationSound.enabled = this.audioNotificationBool.getTempValue();
-		this.sendToTabName.enabled(this.sendToTabBool.getTempValue() && !this.sendToAllTabs.getTempValue());
 		this.sendToAllTabs.enabled = this.sendToTabBool.getTempValue();
 		
 		for (int i = 0; i < this.buttonList.size(); i++) {
@@ -261,6 +260,7 @@ public class TCSettingsFilters extends TCSettingsGUI {
 					((TCSettingBool)tmp).setTempValue(((TCSettingBool)tmp).getTempValue() && tmp.enabled);
 			}
 		}
+		this.sendToTabName.enabled(this.sendToTabBool.getTempValue() && !this.sendToAllTabs.getTempValue());
 	}
 	
 	public void mouseClicked(int par1, int par2, int par3) {
@@ -326,9 +326,9 @@ public class TCSettingsFilters extends TCSettingsGUI {
 			this.filterMap.put(sId + ".removeMatches", this.tempFilterMap.get(sId + ".removeMatches"));
 			this.filterMap.put(sId + ".expressionString", this.tempFilterMap.get(sId + ".expressionString"));
 			if ((Boolean)this.tempFilterMap.get(sId + ".caseSensitive"))
-				this.filterMap.put(sId + ".expressionPattern", Pattern.compile((String)this.tempFilterMap.get(sId + ".expressionString"), Pattern.CASE_INSENSITIVE));
-			else
 				this.filterMap.put(sId + ".expressionPattern", Pattern.compile((String)this.tempFilterMap.get(sId + ".expressionString")));
+			else
+				this.filterMap.put(sId + ".expressionPattern", Pattern.compile((String)this.tempFilterMap.get(sId + ".expressionString"), Pattern.CASE_INSENSITIVE));
 		}
 	}
 	
@@ -341,18 +341,8 @@ public class TCSettingsFilters extends TCSettingsGUI {
 			this.filterMap.put(sId + ".inverseMatch", oldfilter.invert);
 			this.filterMap.put(sId + ".caseSensitive", oldfilter.caseSensitive);
 			this.filterMap.put(sId + ".highlightBool", oldfilter.highlight);
-			if (oldfilter.highlight) {
-				try {
-					this.filterMap.put(sId + ".highlightColor", ColorCodeEnum.valueOf(oldfilter.highlightColor.name()));
-					this.filterMap.put(sId + ".highlightFormat", FormatCodeEnum.valueOf(oldfilter.highlightFormat.name()));
-				} catch (Exception e) {
-					this.filterMap.put(sId + ".highlightcolor", ColorCodeEnum.YELLOW);
-					this.filterMap.put(sId + ".highlightFormat", FormatCodeEnum.BOLD);
-				}
-			} else {
-				this.filterMap.put(sId + ".highlightcolor", ColorCodeEnum.YELLOW);
-				this.filterMap.put(sId + ".highlightFormat", FormatCodeEnum.BOLD);
-			}
+			this.filterMap.put(sId + ".highlightColor", TabbyChatUtils.parseColor(oldfilter.highlightColor.name()));
+			this.filterMap.put(sId + ".highlightFormat", TabbyChatUtils.parseFormat(oldfilter.highlightFormat.name()));
 			this.filterMap.put(sId + ".audioNotificationBool", oldfilter.ding);
 			this.filterMap.put(sId + ".audioNotificationSound", NotificationSoundEnum.ORB);
 			this.filterMap.put(sId + ".sendToTabBool", oldfilter.sendToTab);
@@ -366,6 +356,7 @@ public class TCSettingsFilters extends TCSettingsGUI {
 			this.filterMap.put(sId + ".expressionPattern", oldfilter.filter);
 			fId++;
 		}
+		this.resetTempVars();
 	}
 	
 	protected boolean loadSettingsFile() {
@@ -417,9 +408,9 @@ public class TCSettingsFilters extends TCSettingsGUI {
 			this.filterMap.put(sId + ".removeMatches", Boolean.parseBoolean(settingsTable.getProperty(sId + ".removeMatches")));
 			this.filterMap.put(sId + ".expressionString", settingsTable.getProperty(sId + ".expressionString"));
 			if (Boolean.parseBoolean(settingsTable.getProperty(sId + ".caseSensitive")))
-				this.filterMap.put(sId + ".expressionPattern", Pattern.compile(settingsTable.getProperty(sId + ".expressionString"), Pattern.CASE_INSENSITIVE));
-			else
 				this.filterMap.put(sId + ".expressionPattern", Pattern.compile(settingsTable.getProperty(sId + ".expressionString")));
+			else
+				this.filterMap.put(sId + ".expressionPattern", Pattern.compile(settingsTable.getProperty(sId + ".expressionString"), Pattern.CASE_INSENSITIVE));
 		}		
 		this.resetTempVars();
 		return loaded;
@@ -485,6 +476,7 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		this.filterName.setButtonDims(100, 11);
 		this.filterName.labelX = col1x;
 		this.filterName.setButtonLoc(col1x + 33 + mc.fontRenderer.getStringWidth(this.filterName.description), this.rowY(1));
+		this.filterName.textBox.setMaxStringLength(50);
 		this.buttonList.add(this.filterName);
 		PrefsButton prevButton = new PrefsButton(prevButtonID, this.filterName.xPosition - 23, this.rowY(1), 20, this.line_height, "<<");
 		PrefsButton nextButton = new PrefsButton(nextButtonID, this.filterName.xPosition + 103, this.rowY(1), 20, this.line_height, ">>");
@@ -504,6 +496,7 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		this.sendToTabName.labelX = effRight - mc.fontRenderer.getStringWidth(this.sendToTabName.description) - 55;
 		this.sendToTabName.setButtonLoc(effRight - 50 , this.rowY(3));
 		this.sendToTabName.setButtonDims(50, 11);
+		this.sendToTabName.textBox.setMaxStringLength(20);
 		this.buttonList.add(this.sendToTabName);
 		
 		this.removeMatches.setButtonLoc(col1x,  this.rowY(4));
@@ -549,6 +542,7 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		this.expressionString.labelX = col1x;
 		this.expressionString.setButtonLoc(col1x + 5 + mc.fontRenderer.getStringWidth(this.expressionString.description), this.rowY(9));
 		this.expressionString.setButtonDims(effRight - this.expressionString.xPosition, 11);
+		this.expressionString.textBox.setMaxStringLength(600);
 		this.buttonList.add(this.expressionString);
 		
 		this.displayFilter(0);

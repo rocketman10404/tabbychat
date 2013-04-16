@@ -12,20 +12,23 @@ import acs.tabbychat.ChatChannel;
 import acs.tabbychat.TimeStampEnum;
 
 public class GuiNewChat extends Gui {
-   private final Minecraft mc;
-   private final List sentMessages = new ArrayList();
-   private final List chatLines = new ArrayList();
-   private final List field_96134_d = new ArrayList();
-   private int field_73768_d = 0;
-   private boolean field_73769_e = false;
-   public int screenWidth;
-   public int screenHeight;
-   public int chatWidth = 320;
-   public int chatHeight = 0;
+	private final Minecraft mc;
+	private final List sentMessages = new ArrayList();
+	private final List chatLines = new ArrayList();
+	private final List field_96134_d = new ArrayList();
+	private int field_73768_d = 0;
+	private boolean field_73769_e = false;
+	public int screenWidth;
+	public int screenHeight;
+	public int chatWidth = 320;
+	public int chatHeight = 0;
 
-   public GuiNewChat(Minecraft par1Minecraft) {
-      this.mc = par1Minecraft;
-   }
+	public GuiNewChat(Minecraft par1Minecraft) {
+		this.mc = par1Minecraft;
+		ScaledResolution sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
+		this.screenWidth = sr.getScaledWidth();
+		this.screenHeight = sr.getScaledHeight();
+	}
 
    public void drawChat(int par1) {
 	   if(this.mc.gameSettings.chatVisibility != 2) {
@@ -33,6 +36,8 @@ public class GuiNewChat extends Gui {
 		   ScaledResolution sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
 		   this.screenWidth = sr.getScaledWidth();
 		   this.screenHeight = sr.getScaledHeight();
+		   this.chatHeight = 0;
+		   this.chatWidth = 320;
 		   int var2;
 		   if (TabbyChat.instance.enabled() && TabbyChat.instance.advancedSettings.customChatBoxSize.getValue()) {
 			   float scaleFactor;

@@ -48,7 +48,8 @@ public class TabbyChatUtils extends Thread {
 	
 	public static void logChat(String theChat) {
 		Calendar tmpcal = Calendar.getInstance();
-		if (tmpcal.get(Calendar.DAY_OF_YEAR) != logDay.get(Calendar.DAY_OF_YEAR)) {
+	
+		if (logFile == null || tmpcal.get(Calendar.DAY_OF_YEAR) != logDay.get(Calendar.DAY_OF_YEAR)) {
 			logDay = tmpcal;
 			logFile = new File(Minecraft.getMinecraftDir(), new StringBuilder().append("TabbyChatLogs").append(File.separatorChar).append(logNameFormat.format(logDay.getTime())).toString());
 		}

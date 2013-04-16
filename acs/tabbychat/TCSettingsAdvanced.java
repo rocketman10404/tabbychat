@@ -23,7 +23,7 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 	public TCSettingSlider chatBoxWidth = new TCSettingSlider(50.0f, "Width", chatBoxWidthID);
 	public TCSettingSlider chatBoxFocHeight = new TCSettingSlider(50.0f, "Focused Height", chatBoxFocHeightID);
 	public TCSettingSlider chatBoxUnfocHeight = new TCSettingSlider(20.0f, "Unfocused Height", chatBoxUnfocHeightID);
-	public TCSettingSlider chatFadeTicks = new TCSettingSlider(200.0f, "Chat fade time (ticks)", chatFadeTicksID);
+	public TCSettingSlider chatFadeTicks = new TCSettingSlider(200.0f, "Chat fade time (ticks)", chatFadeTicksID, 10.0f, 2000.0f);
 	
 	public TCSettingsAdvanced() {
 		super();
@@ -147,8 +147,9 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 	}
 	
 	protected void importSettings() {
-		this.chatScrollHistory.setValue(tc.globalPrefs.retainedChats);
-		this.maxLengthChannelName.setValue(tc.globalPrefs.maxChannelNameLength);
+		this.chatScrollHistory.setValue(Integer.toString(tc.globalPrefs.retainedChats));
+		this.maxLengthChannelName.setValue(Integer.toString(tc.globalPrefs.maxChannelNameLength));
+		this.resetTempVars();
 	}
 	
 	protected boolean loadSettingsFile() {

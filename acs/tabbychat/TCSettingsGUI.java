@@ -99,6 +99,9 @@ public class TCSettingsGUI extends net.minecraft.src.GuiScreen {
 			for (TCSettingsGUI screen : ScreenList) {
 				screen.storeTempVars();
 				screen.saveSettingsFile();
+				tc.updateDefaults();
+				tc.loadPatterns();
+				tc.updateFilters();
 			}
 			mc.displayGuiScreen((GuiScreen)null);
 			if (tc.generalSettings.tabbyChatEnable.getValue())
@@ -158,7 +161,6 @@ public class TCSettingsGUI extends net.minecraft.src.GuiScreen {
 				this.drawString(mc.fontRenderer, mc.fontRenderer.trimStringToWidth(ScreenList.get(i).name, curWidth), effLeft, effTop + 6 + 30 * i, 0xffffff);
 			} else {
 				drawRect(absLeft, effTop + 30*i, absLeft + 45, effTop + 30*i + 20, ScreenList.get(i).bgcolor);
-				//this.drawString(mc.fontRenderer, mc.fontRenderer.trimStringToWidth(ScreenList.get(i).name, 36)+"...", effLeft, effTop + 6 + 30*i, 0xffffff);
 			}
 		}
 		for (int i = 0; i < this.buttonList.size(); i++) {

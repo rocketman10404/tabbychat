@@ -36,6 +36,13 @@ public class TCSettingSlider extends TCSetting {
 		this.sliderValue = (float)(this.tempValue - this.minValue) / (float)(this.maxValue - this.minValue);
 	}
 	
+	public TCSettingSlider(float theSetting, String theLabel, int theID, float minVal, float maxVal) {
+		this(theSetting, theLabel, theID);
+		this.minValue = minVal;
+		this.maxValue = maxVal;
+		this.sliderValue = (float)(this.tempValue - this.minValue) / (float)(this.maxValue - this.minValue);
+	}
+	
 	public void setButtonDims(int wide, int tall) {
 		this.width = wide;
 		this.height = tall;

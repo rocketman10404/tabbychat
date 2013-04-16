@@ -26,12 +26,17 @@ public class TCSettingsServer extends TCSettingsGUI {
 	protected TCSettingBool delimFormatBool = new TCSettingBool(false,"\u00A7oFormatted delimiters\u00A7r", delimFormatBoolID);
 	protected TCSettingEnum delimFormatCode = new TCSettingEnum(FormatCodeEnum.DEFAULT, "", delimFormatEnumID);
 	protected TCSettingTextBox defaultChannels = new TCSettingTextBox("Default channels", defaultChansID);
-	protected TCSettingTextBox ignoredChannels = new TCSettingTextBox("Ignored channels", ignoredChansID);	
+	protected TCSettingTextBox ignoredChannels = new TCSettingTextBox("Ignored channels", ignoredChansID);
+	
+	private ServerData server;
+	public String serverName;
+	public String serverIP;
 	
 	public TCSettingsServer() {
 		super();
 		this.name = "Server Config";
 		this.bgcolor = 0x66d6d643;
+		this.updateForServer();
 	}
 	
 	protected TCSettingsServer(TabbyChat _tc) {
@@ -96,8 +101,11 @@ public class TCSettingsServer extends TCSettingsGUI {
 	}
 
 	public void validateButtonStates() {
-		this.delimColorCode.enabled = this.delimColorBool.getTempValue();
-		this.delimFormatCode.enabled = this.delimFormatBool.getTempValue();
+		this.delimColorBool.enabled = this.autoChannelSearch.getTempValue();
+		this.delimFormatBool.enabled = this.autoChannelSearch.getTempValue();
+		this.delimColorCode.enabled = this.delimColorBool.getTempValue() && this.autoChannelSearch.getTempValue();
+		this.delimFormatCode.enabled = this.delimFormatBool.getTempValue() && this.autoChannelSearch.getTempValue();
+		this.delimiterChars.enabled = this.autoChannelSearch.getTempValue();
 	}
 
 	protected void storeTempVars() {
@@ -125,19 +133,18 @@ public class TCSettingsServer extends TCSettingsGUI {
 	protected void importSettings() {
 		this.autoChannelSearch.setValue(tc.globalPrefs.autoSearchEnabled);
 		this.delimiterChars.setValue(tc.serverPrefs.chanDelims);
-		this.delimColorCode.setValue(ChatColorEnum.valueOf(tc.serverPrefs.chanDelimColor.name()));
-		this.delimFormatCode.setValue(FormatCodeEnum.valueOf(tc.serverPrefs.chanDelimFormat.name()));
+		this.delimColorCode.setValue(TabbyChatUtils.parseColor(tc.serverPrefs.chanDelimColor.name()));
+		this.delimFormatCode.setValue(TabbyChatUtils.parseFormat(tc.serverPrefs.chanDelimFormat.name()));
 		this.defaultChannels.setValue(TabbyChatUtils.join(tc.serverPrefs.defaultChans, ","));
 		this.ignoredChannels.setValue(TabbyChatUtils.join(tc.serverPrefs.ignoredChans, ","));
+		this.resetTempVars();
 	}
 	
 	protected boolean loadSettingsFile() {
 		boolean loaded = false;
-		ServerData server = Minecraft.getMinecraft().getServerData();
-		if (server == null)
+		if (this.server == null)
 			return loaded;
-		String sname = server.serverName;
-		String ip = server.serverIP;
+		String ip = this.serverIP;
 			
 		if (ip.contains(":")) {
 			ip = ip.replaceAll(":", "(") + ")";
@@ -173,11 +180,8 @@ public class TCSettingsServer extends TCSettingsGUI {
 		return loaded;
 	}
 	
-	protected void saveSettingsFile() {
-		ServerData server = Minecraft.getMinecraft().getServerData();
-		String sname = server.serverName;
-		String ip = server.serverIP;
-	
+	protected void saveSettingsFile() {	
+		String ip = this.serverIP;
 		if (ip.contains(":")) {
 			ip = ip.replaceAll(":", "(") + ")";
 		}
@@ -204,6 +208,19 @@ public class TCSettingsServer extends TCSettingsGUI {
 			fOutStream.close();
 		} catch (Exception e) {
 			TabbyChat.printErr("Unable to write to filter settings file : '" + e.getLocalizedMessage() + "' : " + e.toString());
+		}
+	}
+	
+	public void updateForServer() {	
+		if (Minecraft.getMinecraft().isSingleplayer() || Minecraft.getMinecraft().getServerData() == null) {
+			this.server = null;
+			this.settingsFile = null;
+			this.serverName = "";
+			this.serverIP = "";
+		} else {
+			this.server = Minecraft.getMinecraft().getServerData();
+			this.serverName = this.server.serverName;
+			this.serverIP = this.server.serverIP;
 		}
 	}
 }
