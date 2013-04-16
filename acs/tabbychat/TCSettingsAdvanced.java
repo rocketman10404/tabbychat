@@ -20,9 +20,9 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 	protected TCSettingTextBox maxLengthChannelName = new TCSettingTextBox("10", "Channel name max. length", maxLengthChannelNameID);
 	protected TCSettingTextBox multiChatDelay = new TCSettingTextBox("100", "Multi-chat send delay (ms)", multiChatDelayID);
 	public TCSettingBool customChatBoxSize = new TCSettingBool(false, "Custom Chatbox size (screen %)", customChatBoxSizeID);
-	public TCSettingSlider chatBoxWidth = new TCSettingSlider(50.0f, "Width", chatBoxWidthID);
-	public TCSettingSlider chatBoxFocHeight = new TCSettingSlider(50.0f, "Focused Height", chatBoxFocHeightID);
-	public TCSettingSlider chatBoxUnfocHeight = new TCSettingSlider(20.0f, "Unfocused Height", chatBoxUnfocHeightID);
+	public TCSettingSlider chatBoxWidth = new TCSettingSlider(50.0f, "Width", chatBoxWidthID, 20.0f, 100.0f);
+	public TCSettingSlider chatBoxFocHeight = new TCSettingSlider(50.0f, "Focused Height", chatBoxFocHeightID, 20.0f, 100.0f);
+	public TCSettingSlider chatBoxUnfocHeight = new TCSettingSlider(20.0f, "Unfocused Height", chatBoxUnfocHeightID, 20.0f, 100.0f);
 	public TCSettingSlider chatFadeTicks = new TCSettingSlider(200.0f, "Chat fade time (ticks)", chatFadeTicksID, 10.0f, 2000.0f);
 	
 	public TCSettingsAdvanced() {
@@ -87,29 +87,32 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		this.chatBoxWidth.labelX = col1x+10;
 		this.chatBoxWidth.setButtonLoc(col1x + 15 + mc.fontRenderer.getStringWidth(this.chatBoxWidth.description), this.rowY(5));
 		this.chatBoxWidth.buttonOnColor = buttonColor;
-		this.chatBoxWidth.setRange(20.0f, 100.0f);
 		this.buttonList.add(this.chatBoxWidth);
 		
 		this.chatBoxFocHeight.labelX = col1x+10;
 		this.chatBoxFocHeight.setButtonLoc(col1x + 15 + mc.fontRenderer.getStringWidth(this.chatBoxFocHeight.description), this.rowY(6));
 		this.chatBoxFocHeight.buttonOnColor = buttonColor;
-		this.chatBoxFocHeight.setRange(20.0f, 100.0f);
 		this.buttonList.add(this.chatBoxFocHeight);
 		
 		this.chatBoxUnfocHeight.labelX = col1x+10;
 		this.chatBoxUnfocHeight.setButtonLoc(col1x + 15 + mc.fontRenderer.getStringWidth(this.chatBoxUnfocHeight.description), this.rowY(7));
 		this.chatBoxUnfocHeight.buttonOnColor = buttonColor;
-		this.chatBoxUnfocHeight.setRange(20.0f, 100.0f);
 		this.buttonList.add(this.chatBoxUnfocHeight);
 		
 		this.chatFadeTicks.labelX = col1x;
 		this.chatFadeTicks.setButtonLoc(col1x + 5 + mc.fontRenderer.getStringWidth(this.chatFadeTicks.description), this.rowY(8));
 		this.chatFadeTicks.buttonOnColor = buttonColor;
-		this.chatFadeTicks.setRange(10.0f, 2000.0f);
 		this.chatFadeTicks.units = "";
 		this.buttonList.add(this.chatFadeTicks);
 		
 		this.validateButtonStates();
+		
+		System.out.println("CBW value: "+this.chatBoxWidth.getValue());
+		System.out.println("CBW temp value: "+this.chatBoxWidth.getTempValue());
+		System.out.println("CBW slider value: "+this.chatBoxWidth.sliderValue);
+		System.out.println("CBW max value: "+this.chatBoxWidth.maxValue);
+		System.out.println("CBW min value: "+this.chatBoxWidth.minValue);
+		
 	}
 	
 	public void validateButtonStates() {

@@ -12,7 +12,7 @@ public class TCSettingSlider extends TCSetting {
 	protected float tempValue;
 	protected float minValue;
 	protected float maxValue;
-	private float sliderValue;
+	protected float sliderValue;
 	private int sliderX;
 	protected int buttonOnColor = 0xbba5e7e4;
 	protected int buttonOffColor = 0x44ffffff;

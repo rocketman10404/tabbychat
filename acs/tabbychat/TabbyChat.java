@@ -44,7 +44,7 @@ public class TabbyChat {
 	private Pattern chatChannelPatternDirty = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
 	private Pattern chatPMfromMePattern = Pattern.compile("^\\[(?:me)[ ]\\-\\>[ ]([A-Za-z0-9_]{1,16})\\]");
 	private Pattern chatPMtoMePattern = Pattern.compile("^\\[([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\]");
-	protected static String version = "1.5.00";
+	protected static String version = "1.5.01";
 	protected Calendar cal = Calendar.getInstance();
 	public List<ChatLine> lastChat;
 	public LinkedHashMap<String, ChatChannel> channelMap = new LinkedHashMap();
@@ -122,7 +122,8 @@ public class TabbyChat {
 			return;
 		}
 		
-		for (int i=0; i<lastChat.size(); i++) {
+		int _size = lastChat.size();
+		for (int i=0; i<_size; i++) {
 			newChat = newChat + lastChat.get(i).getChatLineString();
 			if (this.generalSettings.timeStampEnable.getValue()) {
 				oldChat = theChan.chatLog.get(i).getChatLineString().replaceAll("^"+((TimeStampEnum)this.generalSettings.timeStampStyle.getValue()).regEx, "") + oldChat;
@@ -137,7 +138,7 @@ public class TabbyChat {
 		if (oldChat.equals(newChat)) {
 			theChan.hasSpam = true;
 			theChan.spamCount++;
-			for (int i=1; i<lastChat.size(); i++)
+			for (int i=1; i<_size; i++)
 				theChan.chatLog.set(i, this.withTimeStamp(lastChat.get(lastChat.size()-i-1)));
 			theChan.chatLog.set(0, new ChatLine(lastChat.get(lastChat.size()-1).getUpdatedCounter(), this.withTimeStamp(lastChat.get(lastChat.size()-1).getChatLineString()) + " [" + theChan.spamCount + "x]", lastChat.get(lastChat.size()-1).getChatLineID()));
 		} else {
