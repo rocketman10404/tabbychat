@@ -90,7 +90,7 @@ public class TabbyChatUtils extends Thread {
 		Float result;
 		try {
 			result = Float.parseFloat(_input);
-			result = Math.max(min,  result);
+			result = Math.max(min, result);
 			result = Math.min(max, result);
 		} catch (NumberFormatException e) {
 			result = fallback;

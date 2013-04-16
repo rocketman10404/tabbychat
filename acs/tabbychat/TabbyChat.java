@@ -59,18 +59,18 @@ public class TabbyChat {
 	
 	private TabbyChat() {
 		mc = Minecraft.getMinecraft();
-		
+
 		this.generalSettings = new TCSettingsGeneral(this);
 		this.serverSettings = new TCSettingsServer(this);
 		this.filterSettings = new TCSettingsFilters(this);
 		this.advancedSettings = new TCSettingsAdvanced(this);
 		boolean globalLoaded1 = this.generalSettings.loadSettingsFile();
 		boolean globalLoaded2 = this.advancedSettings.loadSettingsFile();
-		 if (!globalLoaded1 && !globalLoaded2) {
+		if (!globalLoaded1 && !globalLoaded2) {
 			this.globalPrefs.loadSettings();
 			this.generalSettings.importSettings();
 			this.advancedSettings.importSettings();
-		 }
+		}
 		if (!this.enabled())
 			this.disable();
 		else {
@@ -349,8 +349,13 @@ public class TabbyChat {
 
 	public void pollForUnread(Gui _gui, int _y, int _tick) {
 		int _opacity = 0;
-		if (this.lastChat == null || this.lastChat.size() == 0) return;
-		int tickdiff = _tick - this.lastChat.get(0).getUpdatedCounter();
+		int tickdiff;
+		try {
+			if (this.lastChat == null || this.lastChat.size() == 0) return;
+			tickdiff = _tick - this.lastChat.get(0).getUpdatedCounter();
+		} catch (Exception e) {
+			return;
+		}
 		
 		if (tickdiff < 50) {
 			float var6 = this.mc.gameSettings.chatOpacity * 0.9F + 0.1F;
