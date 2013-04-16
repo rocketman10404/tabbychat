@@ -16,6 +16,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.src.GuiButton;
 import net.minecraft.src.ServerData;
@@ -240,7 +242,7 @@ public class TCSettingsFilters extends TCSettingsGUI {
 	
 	public void validateButtonStates() {
 		this.highlightBool.enabled = !this.removeMatches.getTempValue() && !this.inverseMatch.getTempValue();
-		this.audioNotificationBool.enabled = this.highlightBool.enabled;
+		this.audioNotificationBool.enabled = !this.removeMatches.getTempValue();
 		this.removeMatches.enabled = !this.sendToTabBool.getTempValue() && !this.highlightBool.getTempValue() && !this.audioNotificationBool.getTempValue();
 		this.sendToTabBool.enabled = !this.removeMatches.getTempValue();
 		
@@ -324,11 +326,16 @@ public class TCSettingsFilters extends TCSettingsGUI {
 			this.filterMap.put(sId + ".sendToTabName", this.tempFilterMap.get(sId + ".sendToTabName"));
 			this.filterMap.put(sId + ".sendToAllTabs", this.tempFilterMap.get(sId + ".sendToAllTabs"));
 			this.filterMap.put(sId + ".removeMatches", this.tempFilterMap.get(sId + ".removeMatches"));
-			this.filterMap.put(sId + ".expressionString", this.tempFilterMap.get(sId + ".expressionString"));
-			if ((Boolean)this.tempFilterMap.get(sId + ".caseSensitive"))
-				this.filterMap.put(sId + ".expressionPattern", Pattern.compile((String)this.tempFilterMap.get(sId + ".expressionString")));
-			else
-				this.filterMap.put(sId + ".expressionPattern", Pattern.compile((String)this.tempFilterMap.get(sId + ".expressionString"), Pattern.CASE_INSENSITIVE));
+			try {
+				this.filterMap.put(sId + ".expressionString", this.tempFilterMap.get(sId + ".expressionString"));
+				if ((Boolean)this.tempFilterMap.get(sId + ".caseSensitive"))
+					this.filterMap.put(sId + ".expressionPattern", Pattern.compile((String)this.tempFilterMap.get(sId + ".expressionString")));
+				else
+					this.filterMap.put(sId + ".expressionPattern", Pattern.compile((String)this.tempFilterMap.get(sId + ".expressionString"), Pattern.CASE_INSENSITIVE));
+			} catch (PatternSyntaxException e) {
+				this.filterMap.put(sId + ".expressionString", ".*");
+				this.filterMap.put(sId + ".expressionPattern", Pattern.compile(".*"));
+			}
 		}
 	}
 	
@@ -406,11 +413,16 @@ public class TCSettingsFilters extends TCSettingsGUI {
 			this.filterMap.put(sId + ".sendToTabName", settingsTable.getProperty(sId + ".sendToTabName"));
 			this.filterMap.put(sId + ".sendToAllTabs", Boolean.parseBoolean(settingsTable.getProperty(sId + ".sendToAllTabs")));
 			this.filterMap.put(sId + ".removeMatches", Boolean.parseBoolean(settingsTable.getProperty(sId + ".removeMatches")));
-			this.filterMap.put(sId + ".expressionString", settingsTable.getProperty(sId + ".expressionString"));
-			if (Boolean.parseBoolean(settingsTable.getProperty(sId + ".caseSensitive")))
-				this.filterMap.put(sId + ".expressionPattern", Pattern.compile(settingsTable.getProperty(sId + ".expressionString")));
-			else
-				this.filterMap.put(sId + ".expressionPattern", Pattern.compile(settingsTable.getProperty(sId + ".expressionString"), Pattern.CASE_INSENSITIVE));
+			try {
+				this.filterMap.put(sId + ".expressionString", settingsTable.getProperty(sId + ".expressionString"));
+				if (Boolean.parseBoolean(settingsTable.getProperty(sId + ".caseSensitive")))
+					this.filterMap.put(sId + ".expressionPattern", Pattern.compile(settingsTable.getProperty(sId + ".expressionString")));
+				else
+					this.filterMap.put(sId + ".expressionPattern", Pattern.compile(settingsTable.getProperty(sId + ".expressionString"), Pattern.CASE_INSENSITIVE));
+			} catch (PatternSyntaxException e) {
+				this.filterMap.put(sId + ".expressionString", ".*");
+				this.filterMap.put(sId + ".expressionPattern", Pattern.compile(".*"));
+			}
 		}		
 		this.resetTempVars();
 		return loaded;
