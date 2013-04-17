@@ -28,7 +28,7 @@ public class TCSettingsServer extends TCSettingsGUI {
 	protected TCSettingTextBox defaultChannels = new TCSettingTextBox("Default channels", defaultChansID);
 	protected TCSettingTextBox ignoredChannels = new TCSettingTextBox("Ignored channels", ignoredChansID);
 	
-	private ServerData server;
+	protected ServerData server;
 	public String serverName;
 	public String serverIP;
 	

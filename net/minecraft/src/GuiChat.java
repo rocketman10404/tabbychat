@@ -38,6 +38,8 @@ public class GuiChat extends GuiScreen {
    public void initGui() {
       Keyboard.enableRepeatEvents(true);
       /**** modded here ****/
+      this.buttonList.clear();
+      this.inputList.clear();
       TabbyChat.instance.checkServer();
       if (TabbyChat.instance.enabled()) {
     	  this.drawChatTabs();
@@ -323,7 +325,8 @@ public class GuiChat extends GuiScreen {
 
    public void drawScreen(int par1, int par2, float par3) {
 	  int tBoxHeight = 0;
-	  for (int i=0; i<this.inputList.size(); i++) {
+	  int _s = this.inputList.size();
+	  for (int i=0; i<_s; i++) {
 		  if (this.inputList.get(i).getVisible())
 			  tBoxHeight += 12;
 	  }
@@ -420,7 +423,8 @@ public class GuiChat extends GuiScreen {
 	}
 
 	public int getFocusedFieldInd() {
-		for (int i=0; i<this.inputList.size(); i++) {
+		int _s = this.inputList.size();
+		for (int i=0; i<_s; i++) {
 			if (this.inputList.get(i).isFocused() && this.inputList.get(i).getVisible())
 				return i;
 		}
@@ -530,7 +534,8 @@ public class GuiChat extends GuiScreen {
 
 	public int getCurrentSends() {
 		int lng = 0;
-		for (int i=this.inputList.size()-1; i>=0; i-=1) {
+		int _s = this.inputList.size() - 1;
+		for (int i=_s; i>=0; i-=1) {
 			lng += this.inputList.get(i).getText().length();
 		}
 		if (lng == 0)

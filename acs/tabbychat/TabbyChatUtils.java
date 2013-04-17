@@ -15,6 +15,7 @@ import net.minecraft.src.Gui;
 public class TabbyChatUtils extends Thread {
 	
 	private static Calendar logDay = Calendar.getInstance();
+	private static File logDir = new File(Minecraft.getMinecraftDir(), "TabbyChatLogs");
 	private static File logFile;
 	private static SimpleDateFormat logNameFormat = new SimpleDateFormat("'TabbyChatLog_'MM-dd-yyyy'.txt'");
 	
@@ -51,11 +52,12 @@ public class TabbyChatUtils extends Thread {
 	
 		if (logFile == null || tmpcal.get(Calendar.DAY_OF_YEAR) != logDay.get(Calendar.DAY_OF_YEAR)) {
 			logDay = tmpcal;
-			logFile = new File(Minecraft.getMinecraftDir(), new StringBuilder().append("TabbyChatLogs").append(File.separatorChar).append(logNameFormat.format(logDay.getTime())).toString());
+			logFile = new File(logDir, logNameFormat.format(logDay.getTime()).toString());
 		}
 		
 		if (!logFile.exists()) {
 			try {
+				logDir.mkdirs();
 				logFile.createNewFile();
 			} catch (Exception e) {
 				TabbyChat.printErr("Cannot create log file : '" + e.getLocalizedMessage() + "' : " + e.toString());
