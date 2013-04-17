@@ -189,7 +189,7 @@ public class TabbyChat {
 	private List<ChatLine> withTimeStamp(List<ChatLine> _orig) {
 		List<ChatLine> stamped = new ArrayList();
 		for (ChatLine cl : _orig)
-			stamped.add(this.withTimeStamp(cl));
+			stamped.add(0, this.withTimeStamp(cl));
 		return stamped;
 	}
 	
