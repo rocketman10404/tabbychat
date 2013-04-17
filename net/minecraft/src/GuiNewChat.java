@@ -79,15 +79,16 @@ public class GuiNewChat extends Gui {
 			   int var9;
 			   int var11;
 			   int var14;
-			   for(var9 = 0; var9 + this.field_73768_d < this.field_96134_d.size() && var9 < var2; ++var9) {
+			   int fadeTicks;
+			   if (TabbyChat.instance.enabled())
+				   fadeTicks = TabbyChat.instance.advancedSettings.chatFadeTicks.getValue().intValue();
+			   else
+				   fadeTicks = 200;
+			   int _size = this.field_96134_d.size();
+			   for(var9 = 0; var9 + this.field_73768_d < _size && var9 < var2; ++var9) {
 				   this.chatHeight = var9 * 9;
 				   ChatLine var10 = (ChatLine)this.field_96134_d.get(var9 + this.field_73768_d);
 				   if(var10 != null) {
-					   int fadeTicks;
-					   if (TabbyChat.instance.enabled())
-						   fadeTicks = TabbyChat.instance.advancedSettings.chatFadeTicks.getValue().intValue();
-					   else
-						   fadeTicks = 200;
 					   var11 = par1 - var10.getUpdatedCounter();
 					   if(var11 < fadeTicks || var3) {
 						   double var12 = (double)var11 / (double)fadeTicks;
@@ -147,7 +148,7 @@ public class GuiNewChat extends Gui {
 
 		   /**** modded here ****/
 		   if (TabbyChat.instance.enabled() && !this.getChatOpen() && TabbyChat.instance.generalSettings.unreadFlashing.getValue()) {
-			   TabbyChat.instance.pollForUnread(this, _y, par1);
+			   TabbyChat.instance.pollForUnread(this, _y, par1); // can probably replace _y with this.chatHeight-9
 		   }
 	   }
    }
@@ -278,28 +279,32 @@ public class GuiNewChat extends Gui {
    }
 
    public ChatClickData func_73766_a(int par1, int par2) {
-      if(!this.getChatOpen()) {
-         return null;
-      } else {
-         ScaledResolution var3 = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
-         int var4 = var3.getScaleFactor();
-         float var5 = this.func_96131_h();
-         int var6 = par1 / var4 - 3;
-         int var7 = par2 / var4 - 25;
-         var6 = MathHelper.floor_float((float)var6 / var5);
-         var7 = MathHelper.floor_float((float)var7 / var5);
-         if(var7 >= 0 && var6 >= 0) {
-            int var8 = Math.min(this.func_96127_i(), this.field_96134_d.size());
-            if(var6 <= MathHelper.floor_float((float)this.func_96126_f() / this.func_96131_h()) && var7 < this.mc.fontRenderer.FONT_HEIGHT * var8 + var8) {
-               int var9 = var7 / (this.mc.fontRenderer.FONT_HEIGHT + 1) + this.field_73768_d;
-               return new ChatClickData(this.mc.fontRenderer, (ChatLine)this.field_96134_d.get(var9), var6, var7 - (var9 - this.field_73768_d) * this.mc.fontRenderer.FONT_HEIGHT + var9);
-            } else {
-               return null;
-            }
-         } else {
-            return null;
-         }
-      }
+	   if(!this.getChatOpen()) {
+		   return null;
+	   } else {
+		   ScaledResolution var3 = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
+		   int var4 = var3.getScaleFactor();
+		   float var5 = this.func_96131_h();
+		   int var6 = par1 / var4 - 3;
+		   //int var7 = par2 / var4 - 25;
+		   int var7 = par2 / var4 - 28;
+		   var6 = MathHelper.floor_float((float)var6 / var5);  // these appear to be fine
+		   var7 = MathHelper.floor_float((float)var7 / var5);
+		   if(var7 >= 0 && var6 >= 0) {
+			   //int var8 = Math.min(this.func_96127_i(), this.field_96134_d.size());
+			   int var8 = Math.min(this.getHeightSetting() / 9, this.field_96134_d.size());
+			   //if(var6 <= MathHelper.floor_float((float)this.func_96126_f() / this.func_96131_h()) && var7 < this.mc.fontRenderer.FONT_HEIGHT * var8 + var8) {
+			   if(var6 <= MathHelper.floor_float((float)this.chatWidth / this.func_96131_h()) && var7 < this.mc.fontRenderer.FONT_HEIGHT * var8 + var8) {
+				   //int var9 = var7 / (this.mc.fontRenderer.FONT_HEIGHT + 1) + this.field_73768_d;
+				   int var9 = var7 / this.mc.fontRenderer.FONT_HEIGHT + this.field_73768_d;
+				   return new ChatClickData(this.mc.fontRenderer, (ChatLine)this.field_96134_d.get(var9), var6, var7 - (var9 - this.field_73768_d) * this.mc.fontRenderer.FONT_HEIGHT + var9);
+			   } else {
+				   return null;
+			   }
+		   } else {
+			   return null;
+		   }
+	   }
    }
 
    public void addTranslatedMessage(String par1Str, Object ... par2ArrayOfObj) {
@@ -388,18 +393,18 @@ public class GuiNewChat extends Gui {
    
    public void addChatLines(List _add) {
 	   this.field_96134_d.addAll(_add);
-	   this.field_73768_d = 0;
+	   //this.field_73768_d = 0;
    }
    
    public void addChatLines(int _pos, List _add) {
 	   this.field_96134_d.addAll(_pos, _add);
-	   this.field_73768_d = 0;
+	   //this.field_73768_d = 0;
    }
    
    public void setChatLines(int _pos, List _add) {
 	   for (int i=0; i < _add.size(); i++)
 		   this.field_96134_d.set(_pos+i, _add.get(i));
-	   this.field_73768_d = 0;
+	   //this.field_73768_d = 0;
    }
    
    public void clearChatLines() {

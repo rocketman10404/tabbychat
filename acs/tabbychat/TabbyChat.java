@@ -44,7 +44,7 @@ public class TabbyChat {
 	private Pattern chatChannelPatternDirty = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
 	private Pattern chatPMfromMePattern = Pattern.compile("^\\[(?:me)[ ]\\-\\>[ ]([A-Za-z0-9_]{1,16})\\]");
 	private Pattern chatPMtoMePattern = Pattern.compile("^\\[([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\]");
-	protected static String version = "1.5.05";
+	protected static String version = "1.5.06";
 	protected Calendar cal = Calendar.getInstance();
 	public List<ChatLine> lastChat;
 	public LinkedHashMap<String, ChatChannel> channelMap = new LinkedHashMap();
@@ -298,7 +298,7 @@ public class TabbyChat {
 		if (mc.getServerData() == null)
 			return;
 		
-		if (mc.getServerData().serverIP != this.serverSettings.serverIP) {
+		if (!mc.getServerData().serverIP.equalsIgnoreCase(this.serverSettings.serverIP)) {
 			this.channelMap.clear();
 			if (this.enabled())
 				this.enable();
@@ -312,10 +312,6 @@ public class TabbyChat {
 		this.channelMap.put(toName, this.channelMap.get(fromName));
 	}
 
-	public void displayChatLines(Minecraft mc, String cName) {
-		mc.ingameGUI.getChatGUI().addChatLines(this.channelMap.get(cName).chatLog);
-	}
-	
 	public boolean enabled() {
 		if (mc.isSingleplayer()) {
 			return false;

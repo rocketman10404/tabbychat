@@ -29,7 +29,7 @@ public class GuiChat extends GuiScreen {
    private String defaultInputFieldText = "";
    public ChatScrollBar scrollBar;
 
-   public GuiChat() {}
+   public GuiChat() { }
 
    public GuiChat(String par1Str) {
       this.defaultInputFieldText = par1Str;
@@ -331,8 +331,10 @@ public class GuiChat extends GuiScreen {
 			  tBoxHeight += 12;
 	  }
       drawRect(2, this.height - 2 - tBoxHeight, this.width - 2, this.height - 2, Integer.MIN_VALUE);
-      for (GuiTextField field : this.inputList)
-    	  field.drawTextBox();
+      for (GuiTextField field : this.inputList) {
+    	  if (field.getVisible())
+    		  field.drawTextBox();
+      }
       String sends = ((Integer)this.getCurrentSends()).toString();
       int sendsX = mc.ingameGUI.getChatGUI().screenWidth - mc.fontRenderer.getStringWidth(sends) - 2;
       mc.fontRenderer.drawStringWithShadow(sends, sendsX, this.height - tBoxHeight, 7368816);
