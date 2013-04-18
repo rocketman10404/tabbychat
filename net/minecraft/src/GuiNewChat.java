@@ -297,6 +297,8 @@ public class GuiNewChat extends Gui {
 			   if(var6 <= MathHelper.floor_float((float)this.chatWidth / this.func_96131_h()) && var7 < this.mc.fontRenderer.FONT_HEIGHT * var8 + var8) {
 				   //int var9 = var7 / (this.mc.fontRenderer.FONT_HEIGHT + 1) + this.field_73768_d;
 				   int var9 = var7 / this.mc.fontRenderer.FONT_HEIGHT + this.field_73768_d;
+				   if (var9 >= this.field_96134_d.size() || this.field_96134_d.get(var9) == null)
+					   return null;
 				   return new ChatClickData(this.mc.fontRenderer, (ChatLine)this.field_96134_d.get(var9), var6, var7 - (var9 - this.field_73768_d) * this.mc.fontRenderer.FONT_HEIGHT + var9);
 			   } else {
 				   return null;
