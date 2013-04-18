@@ -95,7 +95,7 @@ public class TabbyChat {
 				firstmsg.add(new ChatLine(mc.ingameGUI.getUpdateCounter(), "", 0));
 			}
 			this.lastChat = firstmsg;
-			mc.ingameGUI.getChatGUI().addChatLines(firstmsg);
+			mc.ingameGUI.getChatGUI().me.addChatLines(firstmsg);
 		}
 	}
 
@@ -423,7 +423,7 @@ public class TabbyChat {
 				this.filterSettings.audioNotification(i);
 		} 
 		
-		Iterator splitChat = mc.fontRenderer.listFormattedStringToWidth(filteredChat.toString(), mc.ingameGUI.getChatGUI().chatWidth).iterator();
+		Iterator splitChat = mc.fontRenderer.listFormattedStringToWidth(filteredChat.toString(), mc.ingameGUI.getChatGUI().me.chatWidth).iterator();
 		boolean firstline = true;
 		while (splitChat.hasNext()) {
 			String _line = (String)splitChat.next();
@@ -492,9 +492,9 @@ public class TabbyChat {
 		
 		if (ret > 0) {
 			if (this.generalSettings.groupSpam.getValue() && this.channelMap.get(activeTabs.get(0)).hasSpam) {
-				mc.ingameGUI.getChatGUI().setChatLines(0, this.lastChat);
+				mc.ingameGUI.getChatGUI().me.setChatLines(0, this.lastChat);
 			} else {
-				mc.ingameGUI.getChatGUI().addChatLines(0, this.lastChat);
+				mc.ingameGUI.getChatGUI().me.addChatLines(0, this.lastChat);
 			}
 		}
 
@@ -506,13 +506,13 @@ public class TabbyChat {
 	}
 
  	public void resetDisplayedChat() {
- 		mc.ingameGUI.getChatGUI().clearChatLines();
+ 		mc.ingameGUI.getChatGUI().me.clearChatLines();
  		List<String> actives = this.getActive();
  		if (actives.size() < 1) return;
- 		mc.ingameGUI.getChatGUI().addChatLines(this.channelMap.get(actives.get(0)).chatLog);
+ 		mc.ingameGUI.getChatGUI().me.addChatLines(this.channelMap.get(actives.get(0)).chatLog);
  		int n = actives.size();
  		for (int i = 1; i < n; i++) {
- 			mc.ingameGUI.getChatGUI().mergeChatLines(this.channelMap.get(actives.get(i)).chatLog);
+ 			mc.ingameGUI.getChatGUI().me.mergeChatLines(this.channelMap.get(actives.get(i)).chatLog);
  		}
  	}
  	
@@ -520,9 +520,9 @@ public class TabbyChat {
  		int xOff = 0;
  		int yOff = 0; 		
  		
- 		int maxlines = mc.ingameGUI.getChatGUI().getHeightSetting() / 9;
- 		int clines = (mc.ingameGUI.getChatGUI().GetChatHeight() < maxlines) ? mc.ingameGUI.getChatGUI().GetChatHeight() : maxlines;
- 		int vert = mc.ingameGUI.getChatGUI().screenHeight - mc.ingameGUI.getChatGUI().chatHeight - 51;;
+ 		int maxlines = mc.ingameGUI.getChatGUI().me.getHeightSetting() / 9;
+ 		int clines = (mc.ingameGUI.getChatGUI().me.GetChatHeight() < maxlines) ? mc.ingameGUI.getChatGUI().me.GetChatHeight() : maxlines;
+ 		int vert = mc.ingameGUI.getChatGUI().me.sr.getScaledHeight() - mc.ingameGUI.getChatGUI().me.chatHeight - 51;;
  		int horiz = 5;
  		int n = this.channelMap.size();
  		
@@ -544,7 +544,7 @@ public class TabbyChat {
  		
  		int i = 0;
  		for (ChatChannel chan : this.channelMap.values()) {
- 			if (horiz + chan.tab.width() > mc.ingameGUI.getChatGUI().chatWidth - 5) {
+ 			if (horiz + chan.tab.width() > mc.ingameGUI.getChatGUI().me.chatWidth - 5) {
  				vert = vert - chan.tab.height();
  				horiz = 5;
  			}

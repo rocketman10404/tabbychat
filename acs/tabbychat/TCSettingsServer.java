@@ -204,10 +204,10 @@ public class TCSettingsServer extends TCSettingsGUI {
 		
 		try {
 			FileOutputStream fOutStream = new FileOutputStream(settingsFile);
-			settingsTable.store(fOutStream, "Custom filters");
+			settingsTable.store(fOutStream, "Server config");
 			fOutStream.close();
 		} catch (Exception e) {
-			TabbyChat.printErr("Unable to write to filter settings file : '" + e.getLocalizedMessage() + "' : " + e.toString());
+			TabbyChat.printErr("Unable to write to server config file : '" + e.getLocalizedMessage() + "' : " + e.toString());
 		}
 	}
 	
