@@ -272,14 +272,6 @@ public class TCSettingsFilters extends TCSettingsGUI {
 	}
 	
 	public void mouseClicked(int par1, int par2, int par3) {
-		for (int i = 0; i < this.buttonList.size(); i++) {
-			if (TCSetting.class.isInstance(this.buttonList.get(i))) {
-				TCSetting tmp = (TCSetting)this.buttonList.get(i);
-				if (tmp.type == "textbox" || (tmp.type == "enum" && tmp.id != audioNotificationEnumID)) {
-					tmp.mouseClicked(par1, par2, par3);
-				}
-			}
-		}
 		if (this.audioNotificationSound.hovered(par1, par2)) {
 			this.audioNotificationSound.mouseClicked(par1, par2, par3);
 			mc.sndManager.playSoundFX(((NotificationSoundEnum)audioNotificationSound.tempValue).file(), 1.0F, 1.0F);
