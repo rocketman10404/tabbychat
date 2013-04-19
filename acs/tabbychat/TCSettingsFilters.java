@@ -67,6 +67,9 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		super();
 		this.name = "Custom Filters";
 		this.bgcolor = 0x66289f28;
+		this.filterName.textBox.setMaxStringLength(50);
+		this.sendToTabName.textBox.setMaxStringLength(20);
+		this.expressionString.textBox.setMaxStringLength(600);
 	}
 	
 	protected TCSettingsFilters(TabbyChat _tc) {
@@ -492,7 +495,6 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		this.filterName.setButtonDims(100, 11);
 		this.filterName.labelX = col1x;
 		this.filterName.setButtonLoc(col1x + 33 + mc.fontRenderer.getStringWidth(this.filterName.description), this.rowY(1));
-		this.filterName.textBox.setMaxStringLength(50);
 		this.buttonList.add(this.filterName);
 		PrefsButton prevButton = new PrefsButton(prevButtonID, this.filterName.xPosition - 23, this.rowY(1), 20, this.line_height, "<<");
 		PrefsButton nextButton = new PrefsButton(nextButtonID, this.filterName.xPosition + 103, this.rowY(1), 20, this.line_height, ">>");
@@ -512,7 +514,6 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		this.sendToTabName.labelX = effRight - mc.fontRenderer.getStringWidth(this.sendToTabName.description) - 55;
 		this.sendToTabName.setButtonLoc(effRight - 50 , this.rowY(3));
 		this.sendToTabName.setButtonDims(50, 11);
-		this.sendToTabName.textBox.setMaxStringLength(20);
 		this.buttonList.add(this.sendToTabName);
 		
 		this.removeMatches.setButtonLoc(col1x,  this.rowY(4));
@@ -558,7 +559,6 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		this.expressionString.labelX = col1x;
 		this.expressionString.setButtonLoc(col1x + 5 + mc.fontRenderer.getStringWidth(this.expressionString.description), this.rowY(9));
 		this.expressionString.setButtonDims(effRight - this.expressionString.xPosition, 11);
-		this.expressionString.textBox.setMaxStringLength(600);
 		this.buttonList.add(this.expressionString);
 		
 		this.displayFilter(0);
