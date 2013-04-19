@@ -47,7 +47,8 @@ public class mod_TabbyChat extends BaseMod {
 	public boolean onTickInGUI(float var1, Minecraft var2, GuiScreen var3)
     {
 		if(var3.getClass() == GuiChat.class) {
-			var2.displayGuiScreen(new GuiChatTC());
+				String defText = ((GuiChat)var3).inputField.getText();
+				var2.displayGuiScreen(new GuiChatTC(defText));
 		}
         return true;
     }

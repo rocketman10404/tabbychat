@@ -21,13 +21,17 @@ public class GuiChat extends GuiScreen {
 
 	protected GuiTextField inputField;
 	protected GuiChatTC wrapper;
+	public String defaultInputFieldText = "";
 	
 	public GuiChat() { }
 
-	public GuiChat(String par1Str) { }
+	public GuiChat(String par1Str) {
+		this.defaultInputFieldText = par1Str;
+	}
 
 	public void initGui() {
 		this.wrapper = new GuiChatTC();
+		this.wrapper.defaultInputFieldText = this.defaultInputFieldText;
 		this.wrapper.initGui();
 		this.inputField = this.wrapper.inputField;
 	}
