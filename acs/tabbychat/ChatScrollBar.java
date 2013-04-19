@@ -57,7 +57,7 @@ public class ChatScrollBar {
 
 		this.barX = 4 + this.offsetX + oX + (int)(TabbyChat.gnc.getWidthSetting() * TabbyChat.gnc.getScaleSetting());
 				
-		this.barMaxY = mc.currentScreen.height - 34 + this.offsetY;
+		this.barMaxY = this.gc.height - 34 + this.offsetY;
 		this.barMinY = this.barMaxY + 2 - MathHelper.floor_float((float)((clines - 1) * 9) * TabbyChat.gnc.getScaleSetting());		
 		
 		this.barTopY = this.barMinY + barHeight/2;

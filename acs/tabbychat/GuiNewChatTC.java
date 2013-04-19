@@ -18,7 +18,7 @@ import net.minecraft.src.ChatClickData;
 
 public class GuiNewChatTC extends GuiNewChat {
 
-	private final Minecraft mc;
+	public final Minecraft mc;
 	public ScaledResolution sr; // change to protected later
 	protected int chatWidth = 320;
 	protected int chatHeight = 0;
@@ -41,9 +41,10 @@ public class GuiNewChatTC extends GuiNewChat {
 	
 	public @Override void drawChat(int currentTick) {
 		if(this.mc.gameSettings.chatVisibility != 2) {
+			this.sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
 			this.chatHeight = 0;
 			this.chatWidth = 320;
-			int maxDisplayedLines;
+			int maxDisplayedLines = 0;
 			boolean chatOpen = false;
 			int validLinesDisplayed = 0;
 			int numLinesTotal = this.chatLines.size();
@@ -63,6 +64,9 @@ public class GuiNewChatTC extends GuiNewChat {
 					else
 						scaleFactor = TabbyChat.instance.advancedSettings.chatBoxUnfocHeight.getValue() / 100.0f;
 					maxDisplayedLines = (int)Math.floor((float)(this.sr.getScaledHeight() - 51) * scaleFactor / 9.0f);
+				} else {
+					maxDisplayedLines = this.func_96127_i();
+					this.chatWidth = MathHelper.ceiling_float_int((float)this.func_96126_f() / chatScaling);
 				}
 				if(TabbyChat.instance.generalSettings.timeStampEnable.getValue())
 					timeStampOffset = mc.fontRenderer.getStringWidth(((TimeStampEnum)TabbyChat.instance.generalSettings.timeStampStyle.getValue()).maxTime);
@@ -86,7 +90,7 @@ public class GuiNewChatTC extends GuiNewChat {
 			int currentOpacity;
 			int _size = this.chatLines.size();
 			// Display valid chat lines
-			for(lineCounter = 0; lineCounter + this.scrollOffset  < _size && lineCounter < numLinesTotal; ++lineCounter) {
+			for(lineCounter = 0; lineCounter + this.scrollOffset  < _size && lineCounter < maxDisplayedLines; ++lineCounter) {
 				this.chatHeight = lineCounter * 9;
 				ChatLine _line = this.chatLines.get(lineCounter + this.scrollOffset);
 				if(_line == null) continue;
@@ -277,7 +281,7 @@ public class GuiNewChatTC extends GuiNewChat {
 	}
 	
 	public @Override boolean getChatOpen() {
-		return this.mc.currentScreen instanceof GuiChat;
+		return (this.mc.currentScreen instanceof GuiChat || this.mc.currentScreen instanceof GuiChatTC);
 	}
 	
 	public @Override void deleteChatLine(int _id) {
