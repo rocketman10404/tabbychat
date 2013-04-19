@@ -31,11 +31,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.src.GuiChat;
 import net.minecraft.src.ChatLine;
 import net.minecraft.src.MathHelper;
+import net.minecraft.src.ScaledResolution;
 import net.minecraft.src.StringUtils;
 import net.minecraft.src.SoundManager;
 import net.minecraft.src.Gui;
 import net.minecraft.src.GuiContainer;
-import net.minecraft.src.mod_TabbyChat;
 
 public class TabbyChat {
 	protected static Minecraft mc;
@@ -43,7 +43,7 @@ public class TabbyChat {
 	private Pattern chatChannelPatternDirty = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
 	private Pattern chatPMfromMePattern = Pattern.compile("^\\[(?:me)[ ]\\-\\>[ ]([A-Za-z0-9_]{1,16})\\]");
 	private Pattern chatPMtoMePattern = Pattern.compile("^\\[([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\]");
-	public static String version = mod_TabbyChat.version;
+	public static String version = "1.6.00";
 	protected Calendar cal = Calendar.getInstance();
 	public List<ChatLine> lastChat;
 	public LinkedHashMap<String, ChatChannel> channelMap = new LinkedHashMap();
@@ -518,11 +518,13 @@ public class TabbyChat {
  	
  	public void updateButtonLocations() {
  		int xOff = 0;
- 		int yOff = 0; 		
+ 		int yOff = 0; 
+ 		ScaledResolution sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
+ 		
  		
  		int maxlines = gnc.getHeightSetting() / 9;
  		int clines = (gnc.GetChatHeight() < maxlines) ? gnc.GetChatHeight() : maxlines;
- 		int vert = gnc.sr.getScaledHeight() - gnc.chatHeight - 51;;
+ 		int vert = sr.getScaledHeight() - gnc.chatHeight - 51;;
  		int horiz = 5;
  		int n = this.channelMap.size();
  		

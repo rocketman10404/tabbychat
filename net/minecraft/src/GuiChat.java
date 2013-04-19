@@ -27,7 +27,7 @@ public class GuiChat extends GuiScreen {
 	public GuiChat(String par1Str) { }
 
 	public void initGui() {
-		this.wrapper = GuiChatTC.me;
+		this.wrapper = new GuiChatTC();
 		this.wrapper.initGui();
 		this.inputField = this.wrapper.inputField;
 	}

@@ -28,10 +28,12 @@ public class mod_TabbyChat extends BaseMod {
 		if(mc.ingameGUI.getChatGUI().getClass() == GuiNewChat.class) {
 			try {
 				Class IngameGui = mc.ingameGUI.getClass();
-				Field persistantGuiField = IngameGui.getDeclaredField("persistantChatGUI");
+				//Field persistantGuiField = IngameGui.getDeclaredField("persistantChatGui");
+				Field persistantGuiField = IngameGui.getDeclaredFields()[3];
 				persistantGuiField.setAccessible(true);
 				persistantGuiField.set(mc.ingameGUI, GuiNewChatTC.me);
 			} catch (Throwable e) {
+				e.printStackTrace();
 				ModLoader.throwException("The current GUI mods are incompatible with TabbyChat", new Throwable());
 			}
 		} else if(mc.ingameGUI.getChatGUI().getClass() != GuiNewChatTC.class) {

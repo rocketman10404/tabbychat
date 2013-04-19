@@ -17,6 +17,7 @@ import net.minecraft.src.GuiConfirmOpenLink;
 import net.minecraft.src.GuiScreen;
 import net.minecraft.src.GuiTextField;
 import net.minecraft.src.Packet203AutoComplete;
+import net.minecraft.src.ScaledResolution;
 
 public class GuiChatTC extends GuiChat {
 	public String historyBuffer = "";
@@ -35,12 +36,15 @@ public class GuiChatTC extends GuiChat {
     public long field_85043_c = 0L;
     public int field_92018_d = 0;
     public float zLevel = 0.0F;
-	public static final GuiChatTC me = new GuiChatTC();
+    public ScaledResolution sr;
+	public static GuiChatTC me;
 	public static final TabbyChat tc = TabbyChat.instance;
 	
 	public GuiChatTC() {
 		this.mc = Minecraft.getMinecraft();
 		this.fontRenderer = this.mc.fontRenderer;
+		me = this;
+		this.sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
 	}
 
 	public GuiChatTC(String par1Str) {
@@ -50,10 +54,11 @@ public class GuiChatTC extends GuiChat {
 	
 	public @Override void initGui() {
 		Keyboard.enableRepeatEvents(true);
+		this.sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
 		this.buttonList.clear();
 		this.inputList.clear();
-		this.width = tc.gnc.sr.getScaledWidth();
-		this.height = tc.gnc.sr.getScaledHeight();
+		this.width = this.sr.getScaledWidth();
+		this.height = this.sr.getScaledHeight();
 		tc.checkServer();
 		if(tc.enabled()) {
 			this.drawChatTabs();
@@ -150,7 +155,7 @@ public class GuiChatTC extends GuiChat {
 			else this.removeCharsAtCursor(1);
 		} else if(_code == Keyboard.KEY_LEFT || _code == Keyboard.KEY_RIGHT) {
 			this.inputList.get(this.getFocusedFieldInd()).textboxKeyTyped(_char, _code);
-		} else if(this.inputField.isFocused() && this.fontRenderer.getStringWidth(this.inputField.getText()) < tc.gnc.sr.getScaledWidth()-20) {
+		} else if(this.inputField.isFocused() && this.fontRenderer.getStringWidth(this.inputField.getText()) < this.sr.getScaledWidth()-20) {
 			this.inputField.textboxKeyTyped(_char, _code);
 		} else
 			this.insertCharsAtCursor(Character.toString(_char));
@@ -297,8 +302,8 @@ public class GuiChatTC extends GuiChat {
 	}
 	
 	public @Override void drawScreen(int cursorX, int cursorY, float pointless) {
-		this.width = tc.gnc.sr.getScaledWidth();
-		this.height = tc.gnc.sr.getScaledHeight();
+		this.width = this.sr.getScaledWidth();
+		this.height = this.sr.getScaledHeight();
 		// Calculate positions of currently-visible input fields
 		int inputHeight = 0;
 		for(int i=0; i<this.inputList.size(); i++) {
@@ -312,7 +317,7 @@ public class GuiChatTC extends GuiChat {
 		// Draw current message length indicator
 		if(tc.enabled()) {
 			String requiredSends = ((Integer)this.getCurrentSends()).toString();
-			int sendsX = tc.gnc.sr.getScaledWidth() - this.fontRenderer.getStringWidth(requiredSends)-2;
+			int sendsX = this.sr.getScaledWidth() - this.fontRenderer.getStringWidth(requiredSends)-2;
 			this.fontRenderer.drawStringWithShadow(requiredSends, sendsX, this.height-inputHeight, 0x707070);
 		}
 		// Draw chat tabs (add to buttonlist) & scroll bar if necessary
@@ -321,7 +326,7 @@ public class GuiChatTC extends GuiChat {
 		// Determine appropriate scaling for chat tab size and location
 		float scaleSetting = tc.gnc.getScaleSetting();
 		GL11.glPushMatrix();
-		float scaleOffset = (float)(tc.gnc.sr.getScaledHeight() - 28) * (1.0f - scaleSetting);
+		float scaleOffset = (float)(this.sr.getScaledHeight() - 28) * (1.0f - scaleSetting);
 		GL11.glTranslatef(0.0f, scaleOffset, 1.0f);
 		GL11.glScalef(scaleSetting, scaleSetting, 1.0f);
 		// Draw chat tabs
@@ -434,14 +439,14 @@ public class GuiChatTC extends GuiChat {
 				cPos += this.inputList.get(i).getText().length();
 			}			
 		}
-		if (this.fontRenderer.getStringWidth(msg.toString()) + this.fontRenderer.getStringWidth(_chars) < (tc.gnc.sr.getScaledWidth()-20)*this.inputList.size()) {
+		if (this.fontRenderer.getStringWidth(msg.toString()) + this.fontRenderer.getStringWidth(_chars) < (this.sr.getScaledWidth()-20)*this.inputList.size()) {
 			msg.insert(cPos, _chars);
 			this.setText(msg, cPos+_chars.length());
 		}
 	}
 
 	public void setText(StringBuilder txt, int pos) {
-		List<String> txtList = this.stringListByWidth(txt, tc.gnc.sr.getScaledWidth()-20);
+		List<String> txtList = this.stringListByWidth(txt, this.sr.getScaledWidth()-20);
 
 		int strings = Math.min(txtList.size()-1, this.inputList.size()-1);
 		for (int i=strings; i>=0; i--) {
