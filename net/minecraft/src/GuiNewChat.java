@@ -15,11 +15,10 @@ import acs.tabbychat.TimeStampEnum;
 
 public class GuiNewChat extends Gui {
 	private final Minecraft mc;
-	public static GuiNewChatTC me;
+	public static GuiNewChatTC me = new GuiNewChatTC();
 
 	public GuiNewChat(Minecraft par1Minecraft) {
 		this.mc = par1Minecraft;
-		me = new GuiNewChatTC(par1Minecraft);
 	}
 
 	public void drawChat(int par1) {

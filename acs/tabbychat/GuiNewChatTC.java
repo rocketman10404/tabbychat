@@ -19,7 +19,7 @@ import net.minecraft.src.ChatClickData;
 public class GuiNewChatTC extends GuiNewChat {
 
 	private final Minecraft mc;
-	protected ScaledResolution sr;
+	public ScaledResolution sr; // change to protected later
 	protected int chatWidth = 320;
 	protected int chatHeight = 0;
 	protected List<String> sentMessages = new ArrayList<String>();
@@ -28,9 +28,14 @@ public class GuiNewChatTC extends GuiNewChat {
 	private int scrollOffset = 0;
 	private boolean chatScrolled = false;
 	
+	public GuiNewChatTC() {
+		this(Minecraft.getMinecraft());		
+	}
+	
 	public GuiNewChatTC(Minecraft par1Minecraft) {
 		super(par1Minecraft);
 		this.mc = par1Minecraft;
+		me = this;
 		this.sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
 	}
 	
