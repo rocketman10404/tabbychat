@@ -10,10 +10,11 @@ import acs.tabbychat.TabbyChat;
 
 public class mod_TabbyChat extends BaseMod {
 	public GuiChatTC gc;
+	public static final String version = "1.6.00";
 	
 	@Override
 	public String getVersion() {
-		return "1.6.00";
+		return version;
 	}
 
 	@Override

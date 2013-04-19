@@ -35,6 +35,7 @@ import net.minecraft.src.StringUtils;
 import net.minecraft.src.SoundManager;
 import net.minecraft.src.Gui;
 import net.minecraft.src.GuiContainer;
+import net.minecraft.src.mod_TabbyChat;
 
 public class TabbyChat {
 	protected static Minecraft mc;
@@ -42,7 +43,7 @@ public class TabbyChat {
 	private Pattern chatChannelPatternDirty = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
 	private Pattern chatPMfromMePattern = Pattern.compile("^\\[(?:me)[ ]\\-\\>[ ]([A-Za-z0-9_]{1,16})\\]");
 	private Pattern chatPMtoMePattern = Pattern.compile("^\\[([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\]");
-	public static String version = "1.6.00";
+	public static String version = mod_TabbyChat.version;
 	protected Calendar cal = Calendar.getInstance();
 	public List<ChatLine> lastChat;
 	public LinkedHashMap<String, ChatChannel> channelMap = new LinkedHashMap();
