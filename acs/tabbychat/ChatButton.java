@@ -40,7 +40,7 @@ public class ChatButton extends net.minecraft.src.GuiButton {
 	
 	public boolean mousePressed(Minecraft mc, int par2, int par3) {
 
-        float scaleSetting = mc.ingameGUI.getChatGUI().me.getScaleSetting();
+        float scaleSetting = TabbyChat.gnc.getScaleSetting();
         int adjY = (int)((float)(mc.currentScreen.height - this.yPosition - 28) * (1.0F - scaleSetting)) + this.yPosition;
         int adjX = (int)((float)(this.xPosition - 5) * scaleSetting) + 5;
         int adjW = (int)((float)this.width * scaleSetting);
@@ -55,7 +55,7 @@ public class ChatButton extends net.minecraft.src.GuiButton {
 	          float _mult = mc.gameSettings.chatOpacity * 0.9F + 0.1F;
 	          int _opacity = (int)((float)255 * _mult);
 	          
-	          float scaleSetting = mc.ingameGUI.getChatGUI().me.getScaleSetting();
+	          float scaleSetting = TabbyChat.gnc.getScaleSetting();
 	          int adjY = (int)((float)(mc.currentScreen.height - this.yPosition - 28) * (1.0F - scaleSetting)) + this.yPosition;
 	          int adjX = (int)((float)(this.xPosition - 5) * scaleSetting) + 5;
 	          int adjW = (int)((float)this.width * scaleSetting);

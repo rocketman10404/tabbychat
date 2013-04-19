@@ -27,6 +27,7 @@ public class GuiNewChatTC extends GuiNewChat {
 	protected List<ChatLine> chatLines = new ArrayList<ChatLine>();
 	private int scrollOffset = 0;
 	private boolean chatScrolled = false;
+	public static final GuiNewChatTC me = new GuiNewChatTC(); 
 	
 	public GuiNewChatTC() {
 		this(Minecraft.getMinecraft());		
@@ -35,7 +36,7 @@ public class GuiNewChatTC extends GuiNewChat {
 	public GuiNewChatTC(Minecraft par1Minecraft) {
 		super(par1Minecraft);
 		this.mc = par1Minecraft;
-		me = this;
+		//me = this;
 		this.sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
 	}
 	

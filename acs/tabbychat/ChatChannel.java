@@ -87,7 +87,7 @@ public class ChatChannel {
 	}
 
 	public void unreadNotify(Gui _gui, int _y, int _opacity) {
-		float scaleSetting = TabbyChat.instance.mc.ingameGUI.getChatGUI().me.getScaleSetting();
+		float scaleSetting = TabbyChat.gnc.getScaleSetting();
 		GL11.glPushMatrix();
 		GL11.glTranslatef(0.0F, 20.0F, 0.0F);
 		GL11.glScalef(scaleSetting, scaleSetting, 1.0F);

@@ -47,18 +47,18 @@ public class ChatScrollBar {
 	}
 
 	private void update() {
-		int maxlines = mc.ingameGUI.getChatGUI().me.getHeightSetting() / 9;
-		int clines = (mc.ingameGUI.getChatGUI().me.GetChatHeight() < maxlines) ? mc.ingameGUI.getChatGUI().me.GetChatHeight() : maxlines;
+		int maxlines = TabbyChat.gnc.getHeightSetting() / 9;
+		int clines = (TabbyChat.gnc.GetChatHeight() < maxlines) ? TabbyChat.gnc.GetChatHeight() : maxlines;
 		int oX = 0;
 		if (TabbyChat.instance.generalSettings.timeStampEnable.getValue())
-			oX = MathHelper.floor_float((float)mc.fontRenderer.getStringWidth(((TimeStampEnum)TabbyChat.instance.generalSettings.timeStampStyle.getValue()).maxTime) * mc.ingameGUI.getChatGUI().me.getScaleSetting());
-		barHeight = MathHelper.floor_float((float)8 * mc.ingameGUI.getChatGUI().me.getScaleSetting());
-		barWidth = MathHelper.floor_float((float)5 * mc.ingameGUI.getChatGUI().me.getScaleSetting());
+			oX = MathHelper.floor_float((float)mc.fontRenderer.getStringWidth(((TimeStampEnum)TabbyChat.instance.generalSettings.timeStampStyle.getValue()).maxTime) * TabbyChat.gnc.getScaleSetting());
+		barHeight = MathHelper.floor_float((float)8 * TabbyChat.gnc.getScaleSetting());
+		barWidth = MathHelper.floor_float((float)5 * TabbyChat.gnc.getScaleSetting());
 
-		this.barX = 4 + this.offsetX + oX + (int)(mc.ingameGUI.getChatGUI().me.getWidthSetting() * mc.ingameGUI.getChatGUI().me.getScaleSetting());
+		this.barX = 4 + this.offsetX + oX + (int)(TabbyChat.gnc.getWidthSetting() * TabbyChat.gnc.getScaleSetting());
 				
 		this.barMaxY = mc.currentScreen.height - 34 + this.offsetY;
-		this.barMinY = this.barMaxY + 2 - MathHelper.floor_float((float)((clines - 1) * 9) * mc.ingameGUI.getChatGUI().me.getScaleSetting());		
+		this.barMinY = this.barMaxY + 2 - MathHelper.floor_float((float)((clines - 1) * 9) * TabbyChat.gnc.getScaleSetting());		
 		
 		this.barTopY = this.barMinY + barHeight/2;
 		this.barBottomY = this.barMaxY - barHeight/2;
@@ -68,18 +68,18 @@ public class ChatScrollBar {
 	public void drawScrollBar() {
 		this.update();
 		int minX = this.barX - (barWidth-1)/2;
-		int maxlines = mc.ingameGUI.getChatGUI().me.getHeightSetting() / 9;
-		if (mc.ingameGUI.getChatGUI().me.GetChatHeight() > maxlines)
+		int maxlines = TabbyChat.gnc.getHeightSetting() / 9;
+		if (TabbyChat.gnc.GetChatHeight() > maxlines)
 			gc.drawRect(minX, this.scrollBarCenter - barHeight/2, minX + barWidth, this.scrollBarCenter + barHeight/2, 0x55ffffff);
 		gc.drawRect(this.barX, this.barMinY, this.barX+1, this.barMaxY, 0x99ffffff);
 	}
 	
 	public void scrollBarMouseWheel() {
 		this.update();
-		int maxlines = mc.ingameGUI.getChatGUI().me.getHeightSetting() / 9;
-		int blines = mc.ingameGUI.getChatGUI().me.GetChatHeight();
+		int maxlines = TabbyChat.gnc.getHeightSetting() / 9;
+		int blines = TabbyChat.gnc.GetChatHeight();
 		if (blines > maxlines)
-			this.mouseLoc = (float)mc.ingameGUI.getChatGUI().me.chatLinesTraveled()/(blines-maxlines);
+			this.mouseLoc = (float)TabbyChat.gnc.chatLinesTraveled()/(blines-maxlines);
 		else
 			this.mouseLoc = 0f;
 		   
@@ -87,8 +87,8 @@ public class ChatScrollBar {
 	}
 	
 	public void scrollBarMouseDrag(int _absY) {
-		int maxlines = mc.ingameGUI.getChatGUI().me.getHeightSetting() / 9;
-		int blines = mc.ingameGUI.getChatGUI().me.GetChatHeight();
+		int maxlines = TabbyChat.gnc.getHeightSetting() / 9;
+		int blines = TabbyChat.gnc.GetChatHeight();
 		if (blines <= maxlines) {
 			this.mouseLoc = 0f;
 			return;
@@ -108,7 +108,7 @@ public class ChatScrollBar {
 		if (moveLines > blines - maxlines)
 			moveLines = blines - maxlines;
 		
-		mc.ingameGUI.getChatGUI().me.setVisChatLines(moveLines);
+		TabbyChat.gnc.setVisChatLines(moveLines);
 		this.mouseLoc = settleInc * moveLines;
 		this.scrollBarCenter = Math.round(this.mouseLoc*this.barTopY + (1.0f-this.mouseLoc)*this.barBottomY);		
 		this.lastY = _absY;	
@@ -117,8 +117,8 @@ public class ChatScrollBar {
 	public void setOffset(int _x, int _y) {
 		this.offsetX = _x;
 		this.offsetY = _y;
-		int maxlines = mc.ingameGUI.getChatGUI().me.getHeightSetting() / 9;
-		int clines = (mc.ingameGUI.getChatGUI().me.GetChatHeight() < maxlines) ? mc.ingameGUI.getChatGUI().me.GetChatHeight() : maxlines;
+		int maxlines = TabbyChat.gnc.getHeightSetting() / 9;
+		int clines = (TabbyChat.gnc.GetChatHeight() < maxlines) ? TabbyChat.gnc.GetChatHeight() : maxlines;
 		this.barX = 324 + _x;
 		this.barMinY = mc.currentScreen.height - ((clines-1) * 9 + 8) - 35 + _y;
 		this.barTopY = this.barMinY + barHeight/2 + _y;

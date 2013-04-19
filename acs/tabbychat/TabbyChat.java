@@ -28,14 +28,12 @@ import java.util.Calendar;
 import java.text.SimpleDateFormat;
 import org.lwjgl.input.Keyboard;
 import net.minecraft.client.Minecraft;
-import net.minecraft.src.GuiButton;
 import net.minecraft.src.GuiChat;
 import net.minecraft.src.ChatLine;
 import net.minecraft.src.MathHelper;
 import net.minecraft.src.StringUtils;
 import net.minecraft.src.SoundManager;
 import net.minecraft.src.Gui;
-
 import net.minecraft.src.GuiContainer;
 
 public class TabbyChat {
@@ -55,6 +53,7 @@ public class TabbyChat {
 	public TCSettingsServer serverSettings;
 	public TCSettingsFilters filterSettings;
 	public TCSettingsAdvanced advancedSettings;
+	public static final GuiNewChatTC gnc = GuiNewChatTC.me;
 	public static final TabbyChat instance = new TabbyChat();
 	
 	private TabbyChat() {
@@ -95,7 +94,7 @@ public class TabbyChat {
 				firstmsg.add(new ChatLine(mc.ingameGUI.getUpdateCounter(), "", 0));
 			}
 			this.lastChat = firstmsg;
-			mc.ingameGUI.getChatGUI().me.addChatLines(firstmsg);
+			gnc.addChatLines(firstmsg);
 		}
 	}
 
@@ -423,7 +422,7 @@ public class TabbyChat {
 				this.filterSettings.audioNotification(i);
 		} 
 		
-		Iterator splitChat = mc.fontRenderer.listFormattedStringToWidth(filteredChat.toString(), mc.ingameGUI.getChatGUI().me.chatWidth).iterator();
+		Iterator splitChat = mc.fontRenderer.listFormattedStringToWidth(filteredChat.toString(), gnc.chatWidth).iterator();
 		boolean firstline = true;
 		while (splitChat.hasNext()) {
 			String _line = (String)splitChat.next();
@@ -492,9 +491,9 @@ public class TabbyChat {
 		
 		if (ret > 0) {
 			if (this.generalSettings.groupSpam.getValue() && this.channelMap.get(activeTabs.get(0)).hasSpam) {
-				mc.ingameGUI.getChatGUI().me.setChatLines(0, this.lastChat);
+				gnc.setChatLines(0, this.lastChat);
 			} else {
-				mc.ingameGUI.getChatGUI().me.addChatLines(0, this.lastChat);
+				gnc.addChatLines(0, this.lastChat);
 			}
 		}
 
@@ -506,13 +505,13 @@ public class TabbyChat {
 	}
 
  	public void resetDisplayedChat() {
- 		mc.ingameGUI.getChatGUI().me.clearChatLines();
+ 		gnc.clearChatLines();
  		List<String> actives = this.getActive();
  		if (actives.size() < 1) return;
- 		mc.ingameGUI.getChatGUI().me.addChatLines(this.channelMap.get(actives.get(0)).chatLog);
+ 		gnc.addChatLines(this.channelMap.get(actives.get(0)).chatLog);
  		int n = actives.size();
  		for (int i = 1; i < n; i++) {
- 			mc.ingameGUI.getChatGUI().me.mergeChatLines(this.channelMap.get(actives.get(i)).chatLog);
+ 			gnc.mergeChatLines(this.channelMap.get(actives.get(i)).chatLog);
  		}
  	}
  	
@@ -520,9 +519,9 @@ public class TabbyChat {
  		int xOff = 0;
  		int yOff = 0; 		
  		
- 		int maxlines = mc.ingameGUI.getChatGUI().me.getHeightSetting() / 9;
- 		int clines = (mc.ingameGUI.getChatGUI().me.GetChatHeight() < maxlines) ? mc.ingameGUI.getChatGUI().me.GetChatHeight() : maxlines;
- 		int vert = mc.ingameGUI.getChatGUI().me.sr.getScaledHeight() - mc.ingameGUI.getChatGUI().me.chatHeight - 51;;
+ 		int maxlines = gnc.getHeightSetting() / 9;
+ 		int clines = (gnc.GetChatHeight() < maxlines) ? gnc.GetChatHeight() : maxlines;
+ 		int vert = gnc.sr.getScaledHeight() - gnc.chatHeight - 51;;
  		int horiz = 5;
  		int n = this.channelMap.size();
  		
@@ -537,14 +536,13 @@ public class TabbyChat {
  				yOff = aHudCls.getField("posY").getInt(aHudObj) - dVert;
  				horiz += xOff;
  				vert -= yOff;
- 				if (mc.ingameGUI.getChatGUI().getChatOpen())
- 					((GuiChat)mc.currentScreen).scrollBar.setOffset(xOff, yOff);
+ 				if (gnc.getChatOpen()) GuiChatTC.me.scrollBar.setOffset(xOff, yOff);
  			}
  		} catch (Throwable e) {}
  		
  		int i = 0;
  		for (ChatChannel chan : this.channelMap.values()) {
- 			if (horiz + chan.tab.width() > mc.ingameGUI.getChatGUI().me.chatWidth - 5) {
+ 			if (horiz + chan.tab.width() > gnc.chatWidth - 5) {
  				vert = vert - chan.tab.height();
  				horiz = 5;
  			}
