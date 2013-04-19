@@ -36,6 +36,8 @@ public class TCSettingsServer extends TCSettingsGUI {
 		super();
 		this.name = "Server Config";
 		this.bgcolor = 0x66d6d643;
+		this.defaultChannels.setCharLimit(300);
+		this.ignoredChannels.setCharLimit(300);
 		this.updateForServer();
 	}
 	
@@ -46,7 +48,7 @@ public class TCSettingsServer extends TCSettingsGUI {
 	
 	public void initGui() {
 		super.initGui();
-		
+			
 		int effLeft = (this.width - this.displayWidth)/2;
 		int absLeft = effLeft - this.margin;
 		int effTop = (this.height - this.displayHeight)/2;
@@ -88,13 +90,11 @@ public class TCSettingsServer extends TCSettingsGUI {
 		this.defaultChannels.labelX = col1x;
 		this.defaultChannels.setButtonLoc(col1x + 5 + mc.fontRenderer.getStringWidth(this.defaultChannels.description), this.rowY(5));
 		this.defaultChannels.setButtonDims(effRight - this.defaultChannels.xPosition, 11);
-		this.defaultChannels.setCharLimit(300);
 		this.buttonList.add(this.defaultChannels);
 		
 		this.ignoredChannels.labelX = col1x;
 		this.ignoredChannels.setButtonLoc(col1x + 5 + mc.fontRenderer.getStringWidth(this.ignoredChannels.description), this.rowY(6));
 		this.ignoredChannels.setButtonDims(effRight - this.ignoredChannels.xPosition, 11);
-		this.ignoredChannels.setCharLimit(300);
 		this.buttonList.add(this.ignoredChannels);
 		
 		this.validateButtonStates();
@@ -176,7 +176,7 @@ public class TCSettingsServer extends TCSettingsGUI {
 		this.defaultChannels.setValue((String)settingsTable.getProperty("defaultChannels"));
 		this.ignoredChannels.setValue((String)settingsTable.getProperty("ignoredChannels"));
 
-		this.resetTempVars();
+		this.resetTempVars();		
 		return loaded;
 	}
 	

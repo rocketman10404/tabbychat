@@ -29,6 +29,9 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		super();
 		this.name = "Advanced Settings";
 		this.bgcolor = 0x66802e94;
+		this.chatScrollHistory.textBox.setMaxStringLength(3);
+		this.maxLengthChannelName.textBox.setMaxStringLength(2);
+		this.multiChatDelay.textBox.setMaxStringLength(4);
 	}
 	
 	protected TCSettingsAdvanced(TabbyChat _tc) {
@@ -64,19 +67,16 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		this.chatScrollHistory.labelX = col1x;
 		this.chatScrollHistory.setButtonLoc(col1x + 5 + mc.fontRenderer.getStringWidth(this.chatScrollHistory.description), this.rowY(1));
 		this.chatScrollHistory.setButtonDims(30, 11);
-		this.chatScrollHistory.textBox.setMaxStringLength(3);
 		this.buttonList.add(this.chatScrollHistory);
 		
 		this.maxLengthChannelName.labelX = col1x;
 		this.maxLengthChannelName.setButtonLoc(col1x + 5 + mc.fontRenderer.getStringWidth(this.maxLengthChannelName.description), this.rowY(2));
 		this.maxLengthChannelName.setButtonDims(20, 11);
-		this.maxLengthChannelName.textBox.setMaxStringLength(2);
 		this.buttonList.add(this.maxLengthChannelName);
 		
 		this.multiChatDelay.labelX = col1x;
 		this.multiChatDelay.setButtonLoc(col1x + 5 + mc.fontRenderer.getStringWidth(this.multiChatDelay.description), this.rowY(3));
 		this.multiChatDelay.setButtonDims(40,11);
-		this.multiChatDelay.textBox.setMaxStringLength(4);
 		this.buttonList.add(this.multiChatDelay);
 		
 		this.customChatBoxSize.setButtonLoc(col1x, this.rowY(4));

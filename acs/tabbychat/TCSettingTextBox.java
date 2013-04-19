@@ -7,6 +7,7 @@ public class TCSettingTextBox extends TCSetting {
 
 	protected String value;
 	protected GuiTextField textBox;
+	protected int charLimit = 32;
 	
 	public TCSettingTextBox(String theLabel, int theID) {
 		this("", theLabel, theID);
@@ -28,6 +29,7 @@ public class TCSettingTextBox extends TCSetting {
 	private void reassignField() {
 		String tmp = this.textBox.getText();
 		this.textBox = new GuiTextField(mc.fontRenderer, this.xPosition, this.yPosition+1, this.width, this.height+1);
+		this.textBox.setMaxStringLength(this.charLimit);
 		this.textBox.setText(tmp);
 	}
 	
@@ -48,6 +50,7 @@ public class TCSettingTextBox extends TCSetting {
 	}
 	
 	public void setCharLimit(int newLimit) {
+		this.charLimit = newLimit;
 		this.textBox.setMaxStringLength(newLimit);
 	}
 	
