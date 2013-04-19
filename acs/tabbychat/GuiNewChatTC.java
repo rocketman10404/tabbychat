@@ -36,7 +36,6 @@ public class GuiNewChatTC extends GuiNewChat {
 	public GuiNewChatTC(Minecraft par1Minecraft) {
 		super(par1Minecraft);
 		this.mc = par1Minecraft;
-		//me = this;
 		this.sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
 	}
 	
@@ -149,7 +148,7 @@ public class GuiNewChatTC extends GuiNewChat {
 		this.mc.getLogAgent().logInfo("[CHAT] " + _msg);
 	}
 
-	public @Override void func_96129_a(String _msg, int id, int tick, boolean backupFlag) {
+	public void func_96129_a(String _msg, int id, int tick, boolean backupFlag) {
 		boolean chatOpen = this.getChatOpen();
 		boolean isLineOne = true;
 		List<ChatLine> multiLineChat = new ArrayList<ChatLine>();

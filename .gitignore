@@ -2,6 +2,7 @@ argo/
 org/
 net/
 Start.java
+!net/minecraft/src/mod_TabbyChat.java
 !net/minecraft/src/GuiChat.java
 !net/minecraft/src/GuiNewChat.java
 

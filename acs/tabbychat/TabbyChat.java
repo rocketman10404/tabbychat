@@ -536,7 +536,7 @@ public class TabbyChat {
  				yOff = aHudCls.getField("posY").getInt(aHudObj) - dVert;
  				horiz += xOff;
  				vert -= yOff;
- 				if (gnc.getChatOpen()) GuiChatTC.me.scrollBar.setOffset(xOff, yOff);
+ 				if (gnc.getChatOpen()) ((GuiChatTC)mc.currentScreen).scrollBar.setOffset(xOff, yOff);
  			}
  		} catch (Throwable e) {}
  		

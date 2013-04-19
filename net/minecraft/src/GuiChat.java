@@ -20,14 +20,16 @@ import acs.tabbychat.ChatButton;
 public class GuiChat extends GuiScreen {
 
 	protected GuiTextField inputField;
+	protected GuiChatTC wrapper;
 	
 	public GuiChat() { }
 
 	public GuiChat(String par1Str) { }
 
 	public void initGui() {
-		GuiChatTC.me.initGui();
-		this.inputField = GuiChatTC.me.inputField;
+		this.wrapper = GuiChatTC.me;
+		this.wrapper.initGui();
+		this.inputField = this.wrapper.inputField;
 	}
 
 	public void onGuiClosed() {
@@ -36,48 +38,48 @@ public class GuiChat extends GuiScreen {
 	}
 
 	public void updateScreen() {
-		GuiChatTC.me.updateScreen();
+		this.wrapper.updateScreen();
 	}
 
 	protected void keyTyped(char par1, int par2) {
-		GuiChatTC.me.keyTyped(par1, par2);
+		this.wrapper.keyTyped(par1, par2);
 	}
 
 	public void handleMouseInput() {
+		if(this.wrapper != null) this.wrapper.handleMouseInput();
 		super.handleMouseInput();
-		GuiChatTC.me.handleMouseInput();  // this will cause issues in Forge
 	}
 
 	protected void mouseClicked(int par1, int par2, int par3) {
-		GuiChatTC.me.mouseClicked(par1, par2, par3);
+		this.wrapper.mouseClicked(par1, par2, par3);
 	}
 
 	public void confirmClicked(boolean par1, int par2) {
-		GuiChatTC.me.confirmClicked(par1, par2);
+		this.wrapper.confirmClicked(par1, par2);
 	}
 
 	private void func_73896_a(URI par1URI) {
-		GuiChatTC.me.func_73896_a(par1URI);
+		this.wrapper.func_73896_a(par1URI);
 	}
 
 	public void completePlayerName() {
-		GuiChatTC.me.completePlayerName();
+		this.wrapper.completePlayerName();
 	}
 
 	private void func_73893_a(String par1Str, String par2Str) {
-		GuiChatTC.me.func_73893_a(par1Str, par2Str);
+		this.wrapper.func_73893_a(par1Str, par2Str);
 	}
 
 	public void getSentHistory(int par1) {
-		GuiChatTC.me.getSentHistory(par1);
+		this.wrapper.getSentHistory(par1);
 	}
 
 	public void drawScreen(int par1, int par2, float par3) {
-		GuiChatTC.me.drawScreen(par1, par2, par3);
+		this.wrapper.drawScreen(par1, par2, par3);
 	}
 
 	public void func_73894_a(String[] par1ArrayOfStr) {
-		GuiChatTC.me.func_73894_a(par1ArrayOfStr);
+		this.wrapper.func_73894_a(par1ArrayOfStr);
 	}
 
 	public boolean doesGuiPauseGame() {

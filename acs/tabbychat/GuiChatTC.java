@@ -19,18 +19,22 @@ import net.minecraft.src.GuiTextField;
 import net.minecraft.src.Packet203AutoComplete;
 
 public class GuiChatTC extends GuiChat {
-	protected String historyBuffer = "";
-	protected String defaultInputFieldText = "";
-	private int sentHistoryCursor = -1;
+	public String historyBuffer = "";
+	public String defaultInputFieldText = "";
+	public int sentHistoryCursor = -1;
 	private boolean playerNamesFound = false;	// field_73897_d
 	private boolean waitingOnPlayerNames = false;  // field_73905_m
 	private int playerNameIndex = 0;			// field_73903_n
 	private List foundPlayerNames = new ArrayList();	// field_73904_o
 	private URI clickedURI = null;
 	public GuiTextField inputField;
-	private List<GuiTextField> inputList = new ArrayList<GuiTextField>(3);
-	protected ChatScrollBar scrollBar;
-	protected GuiButton selectedButton = null;
+	public List<GuiTextField> inputList = new ArrayList<GuiTextField>(3);
+	public ChatScrollBar scrollBar;
+	public GuiButton selectedButton = null;
+	public int eventButton = 0;
+    public long field_85043_c = 0L;
+    public int field_92018_d = 0;
+    public float zLevel = 0.0F;
 	public static final GuiChatTC me = new GuiChatTC();
 	public static final TabbyChat tc = TabbyChat.instance;
 	
@@ -162,7 +166,17 @@ public class GuiChatTC extends GuiChat {
 			tc.gnc.scroll(wheelDelta);
 			if(tc.enabled()) this.scrollBar.scrollBarMouseWheel();
 		} else if(tc.enabled()) this.scrollBar.handleMouse();
+		if(mc.currentScreen.getClass() != GuiChat.class) super.handleMouseInput();
 	}
+	
+    public @Override void mouseMovedOrUp(int _x, int _y, int _button)
+    {
+        if (this.selectedButton != null && _button == 0)
+        {
+            this.selectedButton.mouseReleased(_x, _y);
+            this.selectedButton = null;
+        }
+    }
 	
 	public @Override void mouseClicked(int _x, int _y, int _button) {
 		if(_button == 0 && this.mc.gameSettings.chatLinks) {
