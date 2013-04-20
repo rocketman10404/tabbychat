@@ -15,7 +15,9 @@ import acs.tabbychat.TimeStampEnum;
 
 public class GuiNewChat extends Gui {
 	private final Minecraft mc;
-	//public static GuiNewChatTC me;
+    private final List sentMessages = new ArrayList();
+    private final List chatLines = new ArrayList();
+    private final List field_96134_d = new ArrayList();
 
 	public GuiNewChat(Minecraft par1Minecraft) {
 		this.mc = par1Minecraft;
