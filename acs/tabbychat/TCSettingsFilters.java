@@ -67,9 +67,9 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		super();
 		this.name = "Custom Filters";
 		this.bgcolor = 0x66289f28;
-		this.filterName.textBox.setMaxStringLength(50);
-		this.sendToTabName.textBox.setMaxStringLength(20);
-		this.expressionString.textBox.setMaxStringLength(600);
+		this.filterName.setCharLimit(50);
+		this.sendToTabName.setCharLimit(20);
+		this.expressionString.setCharLimit(600);
 	}
 	
 	protected TCSettingsFilters(TabbyChat _tc) {
