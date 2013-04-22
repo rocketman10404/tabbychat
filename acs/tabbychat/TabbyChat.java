@@ -456,7 +456,8 @@ public class TabbyChat {
 			Matcher findChannelClean = this.chatChannelPatternClean.matcher(cleanedChat);
 			Matcher findChannelDirty = this.chatChannelPatternDirty.matcher(coloredChat);
 			String cName;
-			if (findChannelClean.find() && findChannelDirty.find()) {
+			boolean dirtyValid = (!this.serverSettings.delimColorBool.getValue() && !this.serverSettings.delimFormatBool.getValue()) ? true : findChannelDirty.find();
+			if (findChannelClean.find() && dirtyValid) {
 				cName = cleanedChat.substring(findChannelClean.start(1), findChannelClean.end(1));
 				ret += this.addToChannel(cName, filteredChatLine);
 				toTabs.add(cName);
