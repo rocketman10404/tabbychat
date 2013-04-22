@@ -121,9 +121,9 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 	}
 		
 	protected void storeTempVars() {
-		this.chatScrollHistory.setValue(TabbyChatUtils.parseInteger(this.chatScrollHistory.getTempValue(), 1, 999, 100).toString());
-		this.maxLengthChannelName.setValue(TabbyChatUtils.parseInteger(this.maxLengthChannelName.getTempValue(), 1, 99, 10).toString());
-		this.multiChatDelay.setValue(TabbyChatUtils.parseInteger(this.multiChatDelay.getTempValue(), 1, 9999, 100));
+		this.chatScrollHistory.save();
+		this.maxLengthChannelName.save();
+		this.multiChatDelay.save();
 		this.customChatBoxSize.save();
 		this.chatBoxWidth.save();
 		this.chatBoxFocHeight.save();
@@ -179,7 +179,6 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 	protected void saveSettingsFile() {
 		if (!tabbyChatDir.exists())
 			tabbyChatDir.mkdirs();
-
 		Properties settingsTable = new Properties();
 		settingsTable.put("chatScrollHistory", this.chatScrollHistory.getValue());
 		settingsTable.put("maxLengthChannelName", this.maxLengthChannelName.getValue());

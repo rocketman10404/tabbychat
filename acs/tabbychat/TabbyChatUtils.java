@@ -78,6 +78,7 @@ public class TabbyChatUtils extends Thread {
 
 	public static Integer parseInteger(String _input, int min, int max, int fallback) {
 		Integer result;
+		System.out.println("parseInteger: parsing '"+_input+"'");
 		try {
 			result = Integer.parseInt(_input);
 			result = Math.max(min, result);
@@ -85,6 +86,7 @@ public class TabbyChatUtils extends Thread {
 		} catch (NumberFormatException e) {
 			result = fallback;
 		}
+		System.out.println("parsed to '"+result.toString()+"'");
 		return result;
 	}
 	
