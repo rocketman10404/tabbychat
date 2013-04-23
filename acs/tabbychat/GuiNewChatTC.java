@@ -41,6 +41,8 @@ public class GuiNewChatTC extends GuiNewChat {
 	
 	public @Override void drawChat(int currentTick) {
 		boolean unicodeStore = this.mc.fontRenderer.getUnicodeFlag();
+		int lineCounter = 0;
+		int visLineCounter = 0;
 		if(TabbyChat.instance.generalSettings.tabbyChatEnable.getValue() && TabbyChat.instance.advancedSettings.forceUnicode.getValue()) this.mc.fontRenderer.setUnicodeFlag(true);
 		if(this.mc.gameSettings.chatVisibility != 2) {			
 			this.sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
@@ -87,7 +89,6 @@ public class GuiNewChatTC extends GuiNewChat {
 			GL11.glTranslatef(2.0f, 20.0f, 0.0f);
 			GL11.glScalef(chatScaling, chatScaling, 1.0f);
 			
-			int lineCounter;
 			int lineAge;
 			int currentOpacity;
 			int _size = this.chatLines.size();
@@ -109,6 +110,7 @@ public class GuiNewChatTC extends GuiNewChat {
 					currentOpacity = (int)((float)currentOpacity * chatOpacity);
 					++validLinesDisplayed;
 					if(currentOpacity > 3) {
+						visLineCounter++;
 						byte xOrigin = 3;
 						int yOrigin = -lineCounter * 9;
 						drawRect(xOrigin, yOrigin-9, xOrigin + this.chatWidth + 4 + timeStampOffset, yOrigin, currentOpacity / 2 << 24);
@@ -137,6 +139,9 @@ public class GuiNewChatTC extends GuiNewChat {
 			}
 			GL11.glPopMatrix();
 		}
+		if(TabbyChat.instance.enabled() && !this.getChatOpen() && TabbyChat.instance.generalSettings.unreadFlashing.getValue())
+			TabbyChat.instance.pollForUnread(this, -visLineCounter * 9, currentTick);
+		
 		this.mc.fontRenderer.setUnicodeFlag(unicodeStore);
 	}
 
