@@ -15,6 +15,7 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 	private static final int chatBoxUnfocHeightID = 9406;
 	private static final int customChatBoxSizeID = 9407;
 	private static final int chatFadeTicksID = 9408;
+	private static final int forceUnicodeID = 9409;
 	
 	public TCSettingTextBox chatScrollHistory = new TCSettingTextBox("100", "Chat history to retain (lines)", chatScrollHistoryID);
 	protected TCSettingTextBox maxLengthChannelName = new TCSettingTextBox("10", "Channel name max. length", maxLengthChannelNameID);
@@ -24,6 +25,7 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 	public TCSettingSlider chatBoxFocHeight = new TCSettingSlider(50.0f, "Focused Height", chatBoxFocHeightID, 20.0f, 100.0f);
 	public TCSettingSlider chatBoxUnfocHeight = new TCSettingSlider(20.0f, "Unfocused Height", chatBoxUnfocHeightID, 20.0f, 100.0f);
 	public TCSettingSlider chatFadeTicks = new TCSettingSlider(200.0f, "Chat fade time (ticks)", chatFadeTicksID, 10.0f, 2000.0f);
+	public TCSettingBool forceUnicode = new TCSettingBool(false, "Force Unicode Chat Rendering", forceUnicodeID);
 	
 	public TCSettingsAdvanced() {
 		super();
@@ -105,6 +107,11 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		this.chatFadeTicks.units = "";
 		this.buttonList.add(this.chatFadeTicks);
 		
+		this.forceUnicode.setButtonLoc(col1x, this.rowY(9));
+		this.forceUnicode.labelX = col1x + 19;
+		this.forceUnicode.buttonOnColor = buttonColor;
+		this.buttonList.add(this.forceUnicode);
+		
 		this.validateButtonStates();		
 	}
 	
@@ -129,6 +136,7 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		this.chatBoxFocHeight.save();
 		this.chatBoxUnfocHeight.save();
 		this.chatFadeTicks.save();
+		this.forceUnicode.save();
 	}
 	
 	protected void resetTempVars() {
@@ -140,6 +148,7 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		this.chatBoxFocHeight.reset();
 		this.chatBoxUnfocHeight.reset();
 		this.chatFadeTicks.reset();
+		this.forceUnicode.reset();
 	}
 	
 	protected void importSettings() {
@@ -171,6 +180,7 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		this.chatBoxFocHeight.setValue(TabbyChatUtils.parseFloat((String)settingsTable.getProperty("chatBoxFocHeight"), 20.0f, 100.0f, 50.0f));
 		this.chatBoxUnfocHeight.setValue(TabbyChatUtils.parseFloat((String)settingsTable.getProperty("chatBoxUnfocHeight"), 20.0f, 100.0f, 20.0f));
 		this.chatFadeTicks.setValue(TabbyChatUtils.parseFloat((String)settingsTable.getProperty("chatFadeTicks"), 10.0f, 2000.0f, 200.0f));
+		this.forceUnicode.setValue(Boolean.parseBoolean((String)settingsTable.getProperty("forceUnicode")));
 		loaded = true;
 		this.resetTempVars();
 		return loaded;
@@ -188,6 +198,7 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		settingsTable.put("chatBoxFocHeight", this.chatBoxFocHeight.getValue().toString());
 		settingsTable.put("chatBoxUnfocHeight", this.chatBoxUnfocHeight.getValue().toString());
 		settingsTable.put("chatFadeTicks", this.chatFadeTicks.getValue().toString());
+		settingsTable.put("forceUnicode", this.forceUnicode.getValue().toString());
 		
 		try {
 			FileOutputStream fOutStream = new FileOutputStream(this.settingsFile);

@@ -43,7 +43,7 @@ public class TabbyChat {
 	private Pattern chatChannelPatternDirty = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
 	private Pattern chatPMfromMePattern = Pattern.compile("^\\[(?:me)[ ]\\-\\>[ ]([A-Za-z0-9_]{1,16})\\]");
 	private Pattern chatPMtoMePattern = Pattern.compile("^\\[([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\]");
-	public static String version = "1.6.03";
+	public static String version = "1.6.04";
 	protected Calendar cal = Calendar.getInstance();
 	public List<ChatLine> lastChat;
 	public LinkedHashMap<String, ChatChannel> channelMap = new LinkedHashMap();
@@ -260,7 +260,7 @@ public class TabbyChat {
 			frmt = "(?i:\u00A7[0-9A-FK-OR])*";
 		
 		
-		this.chatChannelPatternDirty = Pattern.compile("^"+frmt+"\\"+delims.open()+"([A-Za-z0-9_\u00A7]+)\\"+delims.close());
+		this.chatChannelPatternDirty = Pattern.compile("^(\u00A7r)?"+frmt+"\\"+delims.open()+"([A-Za-z0-9_\u00A7]+)\\"+delims.close());
 		this.chatChannelPatternClean = Pattern.compile("^"+"\\"+delims.open()+"([A-Za-z0-9_]{1,"+this.advancedSettings.maxLengthChannelName.getValue()+"})\\"+delims.close());
 //		this.chatPMtoMePattern = Pattern.compile("^"+"\\"+delims.open()+"([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\"+delims.close());
 //		this.chatPMfromMePattern = Pattern.compile("^"+"\\"+delims.open()+"(?:me)[ ]\\-\\>[ ]([A-Za-z0-9_]{1,16})\\"+delims.close());
@@ -550,6 +550,8 @@ public class TabbyChat {
  		
  		int i = 0;
  		for (ChatChannel chan : this.channelMap.values()) {
+ 			chan.tab.width(mc.fontRenderer.getStringWidth("<"+chan.title+">") + 8);
+ 			
  			if (horiz + chan.tab.width() > gnc.chatWidth - 5) {
  				vert = vert - chan.tab.height();
  				horiz = 5;

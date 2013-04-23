@@ -40,7 +40,9 @@ public class GuiNewChatTC extends GuiNewChat {
 	}
 	
 	public @Override void drawChat(int currentTick) {
-		if(this.mc.gameSettings.chatVisibility != 2) {
+		boolean unicodeStore = this.mc.fontRenderer.getUnicodeFlag();
+		if(TabbyChat.instance.generalSettings.tabbyChatEnable.getValue() && TabbyChat.instance.advancedSettings.forceUnicode.getValue()) this.mc.fontRenderer.setUnicodeFlag(true);
+		if(this.mc.gameSettings.chatVisibility != 2) {			
 			this.sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
 			this.chatHeight = 0;
 			this.chatWidth = 320;
@@ -135,6 +137,7 @@ public class GuiNewChatTC extends GuiNewChat {
 			}
 			GL11.glPopMatrix();
 		}
+		this.mc.fontRenderer.setUnicodeFlag(unicodeStore);
 	}
 
 	public @Override void clearChatMessages() {

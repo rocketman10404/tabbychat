@@ -302,6 +302,8 @@ public class GuiChatTC extends GuiChat {
 	}
 	
 	public @Override void drawScreen(int cursorX, int cursorY, float pointless) {
+		boolean unicodeStore = this.fontRenderer.getUnicodeFlag();
+		if (TabbyChat.instance.generalSettings.tabbyChatEnable.getValue() && TabbyChat.instance.advancedSettings.forceUnicode.getValue()) this.fontRenderer.setUnicodeFlag(true);
 		this.width = this.sr.getScaledWidth();
 		this.height = this.sr.getScaledHeight();
 		// Calculate positions of currently-visible input fields
@@ -332,6 +334,7 @@ public class GuiChatTC extends GuiChat {
 		// Draw chat tabs
 		for(GuiButton _button : (List<GuiButton>)this.buttonList) _button.drawButton(this.mc, cursorX, cursorY);
 		GL11.glPopMatrix();
+		this.fontRenderer.setUnicodeFlag(unicodeStore);
 	}
 	
 	public @Override void func_73894_a(String[] par1ArrayOfStr) {

@@ -4,7 +4,9 @@ public enum ChannelDelimEnum {
 	ANGLES("<Angles>", "<", ">"),
 	BRACES("{Braces}", "{", "}"),
 	BRACKETS("[Brackets]", "[", "]"),
-	PARENTHESIS("(Parenthesis)", "(", ")");
+	PARENTHESIS("(Parenthesis)", "(", ")"),
+	ANGLESPARENSCOMBO("<(Combo)Pl.>", "<\\(", ")( |\u00A7r)*[A-Za-z0-9_]{1,16}>"),
+	ANGLESBRACKETSCOMBO("<[Combo]Pl.>", "<\\[", "]( |\u00A7r)*[A-Za-z0-9_]{1,16}>");
 	
 	private String title;
 	private char open;
