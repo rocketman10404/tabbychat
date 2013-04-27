@@ -303,7 +303,7 @@ public class GuiChatTC extends GuiChat {
 	
 	public @Override void drawScreen(int cursorX, int cursorY, float pointless) {
 		boolean unicodeStore = this.fontRenderer.getUnicodeFlag();
-		if (TabbyChat.instance.generalSettings.tabbyChatEnable.getValue() && TabbyChat.instance.advancedSettings.forceUnicode.getValue()) this.fontRenderer.setUnicodeFlag(true);
+		if (TabbyChat.generalSettings.tabbyChatEnable.getValue() && TabbyChat.advancedSettings.forceUnicode.getValue()) this.fontRenderer.setUnicodeFlag(true);
 		this.width = this.sr.getScaledWidth();
 		this.height = this.sr.getScaledHeight();
 		// Calculate positions of currently-visible input fields
@@ -358,7 +358,7 @@ public class GuiChatTC extends GuiChat {
 	public void actionPerformed(GuiButton par1GuiButton) {
 		ChatButton _button = (ChatButton)par1GuiButton;
 		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) && tc.channelMap.get("*") == _button.channel) {
-			this.mc.displayGuiScreen(tc.generalSettings);
+			this.mc.displayGuiScreen(TabbyChat.generalSettings);
 			return;
 		}
 		if (!tc.enabled()) return;

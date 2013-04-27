@@ -1,5 +1,7 @@
 package acs.tabbychat;
 
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.ArrayList;
 import org.lwjgl.input.Keyboard;
@@ -9,23 +11,29 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.src.ChatLine;
 import net.minecraft.src.Gui;
 import net.minecraft.src.GuiButton;
+import net.minecraft.src.StringUtils;
 
-public class ChatChannel {
-	private static int nextID = 3600;
+public class ChatChannel implements Serializable {
+	protected static int nextID = 3600;
+	private static final long serialVersionUID = 546162627943686174L;
 	public String title;
-	public ChatButton tab;
-	public ArrayList<ChatLine> chatLog;
+	public transient ChatButton tab;
+	public ArrayList<TCChatLine> chatLog;
 	protected int chanID = nextID + 1;
 	public boolean unread = false;
 	public boolean active = false;
-	protected boolean hasFilter = false;
 	protected boolean hasSpam = false;
 	protected int spamCount = 1;
+	protected boolean notificationsOn = false;
+	protected String alias;
+	protected String cmdPrefix = "";
 	
 	public ChatChannel() {
 		this.chanID = nextID;
 		nextID++;
-		this.chatLog = new ArrayList<ChatLine>(100);
+		this.chatLog = new ArrayList<TCChatLine>(100);
+		this.alias = this.title;
+		this.notificationsOn = TabbyChat.generalSettings.unreadFlashing.getValue();
 	}
 	
 	public ChatChannel(int _x, int _y, int _w, int _h, String _title) {
@@ -81,7 +89,7 @@ public class ChatChannel {
 	}
 	
 	public void trimLog() {
-		if (TabbyChat.instance != null && this.chatLog.size() >= Integer.parseInt(TabbyChat.instance.advancedSettings.chatScrollHistory.getValue()) + 5) {
+		if (TabbyChat.instance != null && this.chatLog.size() >= Integer.parseInt(TabbyChat.advancedSettings.chatScrollHistory.getValue()) + 5) {
 			this.chatLog.subList(this.chatLog.size()-11, this.chatLog.size()-1).clear();
 		}
 	}
@@ -97,5 +105,14 @@ public class ChatChannel {
 		TabbyChat.instance.mc.ingameGUI.getChatGUI().drawCenteredString(TabbyChat.instance.mc.fontRenderer, this.getDisplayTitle(), this.tab.xPosition + this.tab.width()/2, -(this.tab.height()+8)/2 + _y, 16711680 + (_opacity << 24));
 		
 		GL11.glPopMatrix();	
+	}
+	
+	protected void importOldChat(List<TCChatLine> oldList) {
+		if(oldList == null || oldList.isEmpty()) return;
+		for(TCChatLine oldChat : oldList) {
+			if(oldChat.statusMsg) continue;
+			this.chatLog.add(new TCChatLine(-1, StringUtils.stripControlCodes(oldChat.getChatLineString()), 0));
+		}
+		this.trimLog();
 	}
 }

@@ -103,14 +103,15 @@ public class TCSettingsGUI extends net.minecraft.src.GuiScreen {
 			tc.updateDefaults();
 			tc.loadPatterns();
 			tc.updateFilters();
+			tc.storeChannelData();
 			mc.displayGuiScreen((GuiScreen)null);
-			if (tc.generalSettings.tabbyChatEnable.getValue())
+			if (TabbyChat.generalSettings.tabbyChatEnable.getValue())
 				tc.resetDisplayedChat();
 		} else if (button.id == cancelButton) {
 			for (TCSettingsGUI screen : ScreenList)
 				screen.resetTempVars();
 			mc.displayGuiScreen((GuiScreen)null);
-			if (tc.generalSettings.tabbyChatEnable.getValue())
+			if (TabbyChat.generalSettings.tabbyChatEnable.getValue())
 				tc.resetDisplayedChat();
 		} else {
 			for (int i = 0; i < ScreenList.size(); i++) {
@@ -138,7 +139,7 @@ public class TCSettingsGUI extends net.minecraft.src.GuiScreen {
 	
 	public void drawScreen(int x, int y, float f) {
 		boolean unicodeStore = mc.fontRenderer.getUnicodeFlag();
-		if(tc.generalSettings.tabbyChatEnable.getValue() && tc.advancedSettings.forceUnicode.getValue()) mc.fontRenderer.setUnicodeFlag(true);
+		if(TabbyChat.generalSettings.tabbyChatEnable.getValue() && tc.advancedSettings.forceUnicode.getValue()) mc.fontRenderer.setUnicodeFlag(true);
 		int iMargin = (this.line_height - mc.fontRenderer.FONT_HEIGHT)/2;
 		int effLeft = (this.width - this.displayWidth)/2;
 		int absLeft = effLeft - this.margin;

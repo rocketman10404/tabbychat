@@ -30,7 +30,7 @@ public class BackgroundChatThread extends Thread {
 			if (sendPart.length() + toSplit[word].length() + suffix > 100) {
 				mc.thePlayer.sendChatMessage(cmdPrefix + sendPart.toString().trim());
 				try {
-					Thread.sleep(Integer.parseInt(TabbyChat.instance.advancedSettings.multiChatDelay.getValue()));
+					Thread.sleep(Integer.parseInt(TabbyChat.advancedSettings.multiChatDelay.getValue()));
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

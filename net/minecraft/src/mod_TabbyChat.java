@@ -9,10 +9,11 @@ import net.minecraft.src.GuiIngame;
 import acs.tabbychat.GuiChatTC;
 import acs.tabbychat.GuiNewChatTC;
 import acs.tabbychat.TabbyChat;
+import acs.tabbychat.TabbyChatUtils;
 
 public class mod_TabbyChat extends BaseMod {
 	public GuiChatTC gc;
-	public static final String version = "1.6.03";
+	public static final String version = TabbyChatUtils.version;
 	
 	@Override
 	public String getVersion() {
