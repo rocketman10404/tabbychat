@@ -90,6 +90,16 @@ public class GuiChatTC extends GuiChat {
 			placeholder.setVisible(false);
 			this.inputList.add(i,placeholder);
 		}
+		
+		if(tc.enabled()) {
+			List<String> activeTabs = tc.getActive();
+			if(activeTabs.size() != 1) {
+				this.inputField.setText("");
+			} else {
+				String thePrefix = tc.channelMap.get(activeTabs.get(0)).cmdPrefix.trim();
+				if(thePrefix.length() > 0) this.inputField.setText(tc.channelMap.get(activeTabs.get(0)).cmdPrefix.trim() + " ");
+			}
+		}
 	}
 
 	public @Override void updateScreen() {
@@ -210,12 +220,18 @@ public class GuiChatTC extends GuiChat {
 		}
 		
 		// Replicating GuiScreen's mouseClicked method since 'super' won't work
-		if(_button == 0) {
-			for(GuiButton _guibutton : (List<GuiButton>)this.buttonList) {
-				if(_guibutton.mousePressed(this.mc, _x, _y)) {
+		for(GuiButton _guibutton : (List<GuiButton>)this.buttonList) {
+			if(_guibutton.mousePressed(this.mc, _x, _y)) {
+				if(_button == 0) {
 					this.selectedButton = _guibutton;
 					this.mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
 					this.actionPerformed(_guibutton);
+					return;
+				} else if (_button == 1) {
+					ChatButton _cb = (ChatButton)_guibutton;
+					if(_cb.channel == tc.channelMap.get("*")) return;
+					this.mc.displayGuiScreen(new ChatChannelGUI(_cb.channel));
+					return;
 				}
 			}
 		}
@@ -373,12 +389,21 @@ public class GuiChatTC extends GuiChat {
 			if (!_button.channel.active)
 				tc.resetDisplayedChat();
 		} else {
+			List<String> preActiveTabs = tc.getActive();
 			for (ChatChannel chan : tc.channelMap.values()) {
 				if (!_button.equals(chan.tab))
 					chan.active = false;
 			}
 			if (!_button.channel.active) {
 				this.scrollBar.scrollBarMouseWheel();
+				if(preActiveTabs.size() == 1) {
+					String oldPrefix = tc.channelMap.get(preActiveTabs.get(0)).cmdPrefix.trim();
+					if(this.inputField.getText().trim().equals(oldPrefix)) {
+						String newPrefix = _button.channel.cmdPrefix.trim();
+						if(newPrefix.length() > 0) this.inputField.setText(_button.channel.cmdPrefix.trim() + " ");
+						else this.inputField.setText("");
+					}
+				}
 				_button.channel.active = true;
 				_button.channel.unread = false;
 			}

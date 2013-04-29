@@ -83,7 +83,7 @@ public class TabbyChat {
 		else this.enable();
 	}
 
-	private int addToChannel(String name, TCChatLine thisChat) {
+	protected int addToChannel(String name, TCChatLine thisChat) {
 		int ret = 0;
 		TCChatLine newChat = this.withTimeStamp(thisChat);
 		ChatChannel theChan = this.channelMap.get(name);
@@ -431,11 +431,12 @@ public class TabbyChat {
 	public void pollForUnread(Gui _gui, int _y, int _tick) {
 		int _opacity = 0;
 		int tickdiff;
+
 		try {
-			if (this.lastChat == null || this.lastChat.size() == 0) return;
+			if(this.lastChat == null || this.lastChat.size() == 0) return;
 			tickdiff = _tick - this.lastChat.get(0).getUpdatedCounter();
-		} catch (Exception e) {
-			return;
+		} catch (Exception e) { 
+			tickdiff = 50;
 		}
 		
 		if (tickdiff < 50) {
@@ -453,7 +454,7 @@ public class TabbyChat {
 			this.updateButtonLocations();
 
 			for (ChatChannel chan : this.channelMap.values()) {
-				if (chan.unread)
+				if (chan.unread && chan.notificationsOn)
 					chan.unreadNotify(_gui, _y, _opacity);
 			}
 		}
@@ -546,12 +547,14 @@ public class TabbyChat {
 				if (findPMtoMe.find()) {
 					cName = cleanedChat.substring(findPMtoMe.start(1), findPMtoMe.end(1));
 					ret += this.addToChannel(cName, filteredChatLine);
+					this.channelMap.get(cName).cmdPrefix = "/msg "+cName;
 					toTabs.add(cName);
 				} else {
 					Matcher findPMfromMe = this.chatPMfromMePattern.matcher(cleanedChat);
 					if (findPMfromMe.find()) {
 						cName = cleanedChat.substring(findPMfromMe.start(1), findPMfromMe.end(1));
 						ret += this.addToChannel(cName, filteredChatLine);
+						this.channelMap.get(cName).cmdPrefix = "/msg "+cName;
 						toTabs.add(cName);
 					}
 				}
@@ -630,7 +633,7 @@ public class TabbyChat {
  		
  		int i = 0;
  		for (ChatChannel chan : this.channelMap.values()) {
- 			chan.tab.width(mc.fontRenderer.getStringWidth("<"+chan.title+">") + 8);
+ 			chan.tab.width(mc.fontRenderer.getStringWidth(chan.getDisplayTitle()) + 8);
  			
  			if (horiz + chan.tab.width() > gnc.chatWidth - 5) {
  				vert = vert - chan.tab.height();

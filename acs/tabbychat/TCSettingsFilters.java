@@ -90,7 +90,17 @@ public class TCSettingsFilters extends TCSettingsGUI {
 	}
 	
 	protected boolean sendToTabBool(int ind) {
-		return (Boolean)this.filterMap.get(Integer.toString(ind) + ".sendToTabBool");
+		Boolean result = (Boolean)this.filterMap.get(Integer.toString(ind)+".sendToTabBool");
+		if(result == null) {
+			StringBuilder debugReport = new StringBuilder("TabbyChat debug report: missing value found for filter #"+ind);
+			debugReport.append("\nThis error should not have happened!");
+			debugReport.append("\nCurrent filter set loaded for server '"+TabbyChat.serverSettings.serverIP+"'");
+			debugReport.append("\nSettings file contained "+this.numFilters+" filter(s)");
+			TabbyChat.printErr(debugReport.toString());
+			return false;
+		}
+		return result.booleanValue();
+		//return (Boolean)this.filterMap.get(Integer.toString(ind) + ".sendToTabBool");
 	}
 	
 	protected String sendToTabName(int ind) {

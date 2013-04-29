@@ -32,7 +32,6 @@ public class ChatChannel implements Serializable {
 		this.chanID = nextID;
 		nextID++;
 		this.chatLog = new ArrayList<TCChatLine>(100);
-		this.alias = this.title;
 		this.notificationsOn = TabbyChat.generalSettings.unreadFlashing.getValue();
 	}
 	
@@ -40,6 +39,7 @@ public class ChatChannel implements Serializable {
 		this();
 		this.tab = new ChatButton(this.chanID, _x, _y, _w, _h, _title);
 		this.title = _title;
+		this.alias = this.title;
 		this.tab.channel = this;
 	}
 	
@@ -61,11 +61,11 @@ public class ChatChannel implements Serializable {
 	
 	public String getDisplayTitle() {
 		if (this.active)
-			return "[" + this.title + "]";
+			return "[" + this.alias + "]";
 		else if (this.unread)
-			return "<" + this.title + ">";
+			return "<" + this.alias + ">";
 		else
-			return this.title;
+			return this.alias;
 	}
 	
 	public void setButtonObj(ChatButton btnObj) {

@@ -59,6 +59,7 @@ public class TCSettingTextBox extends TCSetting {
 	}
 	
 	public void reset() {
+		if(this.value == null) this.value = "";
 		this.textBox.setText(this.value);
 	}
 	

@@ -10,6 +10,8 @@ import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+
 import net.minecraft.client.Minecraft;
 
 import net.minecraft.src.Gui;
@@ -20,7 +22,7 @@ public class TabbyChatUtils extends Thread {
 	private static File logDir = new File(Minecraft.getMinecraftDir(), "TabbyChatLogs");
 	private static File logFile;
 	private static SimpleDateFormat logNameFormat = new SimpleDateFormat("'TabbyChatLog_'MM-dd-yyyy'.txt'");
-	public static String version = "1.6.05b1";
+	public static String version = "1.7.00b3";
 	
 	private TabbyChatUtils() {}
 	
@@ -143,5 +145,31 @@ public class TabbyChatUtils extends Thread {
 		} catch (IllegalArgumentException e) {
 			return TimeStampEnum.MILITARY;
 		}
+	}
+
+	public static LinkedHashMap<String, ChatChannel> swapChannels(LinkedHashMap<String, ChatChannel> currentMap, int _left, int _right) {
+		// Ensure ordering of 'indices' is 0<=_left<_right<=end
+		if(_left == _right) return currentMap;
+		else if (_left > _right) {
+			int _tmp = _left;
+			_left = _right;
+			_right = _tmp;
+		}
+		if(_right >= currentMap.size()) return currentMap;
+		
+		// Convert map to array for access by index
+		String[] arrayCopy = new String[currentMap.size()];
+		arrayCopy = currentMap.keySet().toArray(arrayCopy);
+		// Swap array entries using passed index arguments
+		String tmp = arrayCopy[_left];
+		arrayCopy[_left] = arrayCopy[_right];
+		arrayCopy[_right] = tmp;
+		// Create new map and populate
+		int n = arrayCopy.length;
+		LinkedHashMap<String, ChatChannel> returnMap = new LinkedHashMap(n);
+		for(int i=0; i<n; i++) {
+			returnMap.put(arrayCopy[i], currentMap.get(arrayCopy[i]));
+		}
+		return returnMap;
 	}
 }

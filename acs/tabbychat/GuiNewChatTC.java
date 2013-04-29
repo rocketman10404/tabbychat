@@ -151,7 +151,7 @@ public class GuiNewChatTC extends GuiNewChat {
 			}
 			GL11.glPopMatrix();
 		}
-		if(TabbyChat.instance.enabled() && !this.getChatOpen() && TabbyChat.generalSettings.unreadFlashing.getValue())
+		if(TabbyChat.instance.enabled() && !this.getChatOpen())
 			TabbyChat.instance.pollForUnread(this, -visLineCounter * 9, currentTick);
 		
 		this.mc.fontRenderer.setUnicodeFlag(unicodeStore);

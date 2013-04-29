@@ -27,7 +27,7 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 	public TCSettingBool timeStampEnable = new TCSettingBool(false, "Timestamp chat", timeStampEnableID);
 	public TCSettingEnum timeStampStyle = new TCSettingEnum(TimeStampEnum.MILITARY, "\u00A7oTimestamp Style\u00A7r", timeStampStyleID);
 	protected TCSettingBool groupSpam = new TCSettingBool(false, "Consolidate spammed chat", groupSpamID);
-	public TCSettingBool unreadFlashing = new TCSettingBool(true, "Unread notification flashing", unreadFlashingID);
+	public TCSettingBool unreadFlashing = new TCSettingBool(true, "Default unread notification flashing", unreadFlashingID);
 	
 	public TCSettingsGeneral() {
 		super();
