@@ -49,8 +49,10 @@ public class TabbyChat {
 	protected static Minecraft mc;
 	private Pattern chatChannelPatternClean = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
 	private Pattern chatChannelPatternDirty = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
-	private Pattern chatPMfromMePattern = Pattern.compile("^\\[(?:me)[ ]\\-\\>[ ]([A-Za-z0-9_]{1,16})\\]");
-	private Pattern chatPMtoMePattern = Pattern.compile("^\\[([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\]");
+	//private Pattern chatPMfromMePattern = Pattern.compile("^\\[(?:me)[ ]\\-\\>[ ]([A-Za-z0-9_]{1,16})\\]");
+	//private Pattern chatPMtoMePattern = Pattern.compile("^\\[([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\]");\
+	private Pattern chatPMfromMePattern = null;
+	private Pattern chatPMtoMePattern = null;
 	public static String version = TabbyChatUtils.version;
 	protected Calendar cal = Calendar.getInstance();
 	public List<TCChatLine> lastChat;
@@ -232,6 +234,7 @@ public class TabbyChat {
 		this.updateDefaults();
 		this.updateFilters();
 		this.loadChannelData();
+		if(serverSettings.server != null) this.loadPMPatterns();
 		if (generalSettings.saveChatLog.getValue() && serverSettings.server != null) {
 			TabbyChatUtils.logChat("\nBEGIN CHAT LOGGING FOR "+serverSettings.serverName+"("+serverSettings.serverIP+") -- "+(new SimpleDateFormat()).format(Calendar.getInstance().getTime()));
 		}
@@ -263,8 +266,23 @@ public class TabbyChat {
 		this.chatChannelPatternClean = Pattern.compile("^"+"\\"+delims.open()+"([A-Za-z0-9_]{1,"+this.advancedSettings.maxLengthChannelName.getValue()+"})\\"+delims.close());
 //		this.chatPMtoMePattern = Pattern.compile("^"+"\\"+delims.open()+"([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\"+delims.close());
 //		this.chatPMfromMePattern = Pattern.compile("^"+"\\"+delims.open()+"(?:me)[ ]\\-\\>[ ]([A-Za-z0-9_]{1,16})\\"+delims.close());
-		this.chatPMtoMePattern = Pattern.compile("^"+"\\[([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\]");
-		this.chatPMfromMePattern = Pattern.compile("^"+"\\[(?:me)[ ]\\-\\>[ ]([A-Za-z0-9_]{1,16})\\]");
+	}
+	
+	protected void loadPMPatterns() {
+		String me = mc.thePlayer.username;
+		StringBuilder toPM = new StringBuilder();
+		// Matches '[Player -> me]' and '[Player->Player1]', capturing name of Player
+		toPM.append("^").append("\\[(\\w{3,16})[ ]?\\-\\>[ ]?(?:me|").append(me).append(")\\]");
+		// Matches 'From Player' and 'Player whispers to you', capturing name of player
+		toPM.append("|^From (\\w{3,16})").append("|^(\\w{3,16}) whispers to you");
+		this.chatPMtoMePattern = Pattern.compile(toPM.toString());
+		
+		StringBuilder fromPM = new StringBuilder();
+		// Matches '[me -> Player]' and '[Player1->Player]', capturing name of player
+		fromPM.append("^").append("\\[(?:me|").append(me).append(")[ ]?\\-\\>[ ]?(\\w{3,16})\\]");
+		// Matches 'To Player' and 'You whisper to Player', capturing name of player
+		fromPM.append("|^To (\\w{3,16})").append("|^You whisper to ([A-Za-z0-9_]{3,16})");
+		this.chatPMfromMePattern = Pattern.compile(fromPM.toString());
 	}
 
 	protected void updateFilters() {
@@ -536,7 +554,7 @@ public class TabbyChat {
 		if (!skip) {
 			Matcher findChannelClean = this.chatChannelPatternClean.matcher(cleanedChat);
 			Matcher findChannelDirty = this.chatChannelPatternDirty.matcher(coloredChat);
-			String cName;
+			String cName = null;
 			boolean dirtyValid = (!serverSettings.delimColorBool.getValue() && !serverSettings.delimFormatBool.getValue()) ? true : findChannelDirty.find();
 			if (findChannelClean.find() && dirtyValid) {
 				cName = cleanedChat.substring(findChannelClean.start(1), findChannelClean.end(1));
@@ -544,18 +562,28 @@ public class TabbyChat {
 				toTabs.add(cName);
 			} else {
 				Matcher findPMtoMe = this.chatPMtoMePattern.matcher(cleanedChat);
-				if (findPMtoMe.find()) {
-					cName = cleanedChat.substring(findPMtoMe.start(1), findPMtoMe.end(1));
-					ret += this.addToChannel(cName, filteredChatLine);
-					this.channelMap.get(cName).cmdPrefix = "/msg "+cName;
-					toTabs.add(cName);
+				if (findPMtoMe.find()) {					
+					for(int i=1;i<=findPMtoMe.groupCount();i++) {
+						if(findPMtoMe.group(i) != null) {
+							cName = findPMtoMe.group(i);
+							ret += this.addToChannel(cName, filteredChatLine);
+							this.channelMap.get(cName).cmdPrefix = "/msg "+cName;
+							toTabs.add(cName);
+							break;
+						}
+					}
 				} else {
 					Matcher findPMfromMe = this.chatPMfromMePattern.matcher(cleanedChat);
-					if (findPMfromMe.find()) {
-						cName = cleanedChat.substring(findPMfromMe.start(1), findPMfromMe.end(1));
-						ret += this.addToChannel(cName, filteredChatLine);
-						this.channelMap.get(cName).cmdPrefix = "/msg "+cName;
-						toTabs.add(cName);
+					if (findPMfromMe.find()) {						
+						for(int i=1;i<=findPMfromMe.groupCount();i++) {
+							if(findPMfromMe.group(i) != null) {
+								cName = findPMfromMe.group(i);
+								ret += this.addToChannel(cName, filteredChatLine);
+								this.channelMap.get(cName).cmdPrefix = "/msg "+cName;
+								toTabs.add(cName);
+								break;
+							}
+						}
 					}
 				}
 			}
@@ -616,7 +644,7 @@ public class TabbyChat {
  		int horiz = 5;
  		int n = this.channelMap.size();
  		
- 		try {
+/* 		try {
  			if (TabbyChatUtils.is(mc.ingameGUI.getChatGUI(), "GuiNewChatWrapper")) {
  				Class aHudCls = Class.forName("advancedhud.ahuditem.DefaultHudItems");
  				Field aHudFld = aHudCls.getField("chat");
@@ -629,7 +657,7 @@ public class TabbyChat {
  				vert -= yOff;
  				if (gnc.getChatOpen()) ((GuiChatTC)mc.currentScreen).scrollBar.setOffset(xOff, yOff);
  			}
- 		} catch (Throwable e) {}
+ 		} catch (Throwable e) {}*/
  		
  		int i = 0;
  		for (ChatChannel chan : this.channelMap.values()) {
