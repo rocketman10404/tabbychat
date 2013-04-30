@@ -49,8 +49,6 @@ public class TabbyChat {
 	protected static Minecraft mc;
 	private Pattern chatChannelPatternClean = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
 	private Pattern chatChannelPatternDirty = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
-	//private Pattern chatPMfromMePattern = Pattern.compile("^\\[(?:me)[ ]\\-\\>[ ]([A-Za-z0-9_]{1,16})\\]");
-	//private Pattern chatPMtoMePattern = Pattern.compile("^\\[([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\]");\
 	private Pattern chatPMfromMePattern = null;
 	private Pattern chatPMtoMePattern = null;
 	public static String version = TabbyChatUtils.version;
@@ -264,8 +262,6 @@ public class TabbyChat {
 		
 		this.chatChannelPatternDirty = Pattern.compile("^(\u00A7r)?"+frmt+"\\"+delims.open()+"([A-Za-z0-9_\u00A7]+)\\"+delims.close());
 		this.chatChannelPatternClean = Pattern.compile("^"+"\\"+delims.open()+"([A-Za-z0-9_]{1,"+this.advancedSettings.maxLengthChannelName.getValue()+"})\\"+delims.close());
-//		this.chatPMtoMePattern = Pattern.compile("^"+"\\"+delims.open()+"([A-Za-z0-9_]{1,16})[ ]\\-\\>[ ](?:me)\\"+delims.close());
-//		this.chatPMfromMePattern = Pattern.compile("^"+"\\"+delims.open()+"(?:me)[ ]\\-\\>[ ]([A-Za-z0-9_]{1,16})\\"+delims.close());
 	}
 	
 	protected void loadPMPatterns() {
@@ -323,8 +319,11 @@ public class TabbyChat {
 			ip = ip.replaceAll(":", "(") + ")";
 		}
 		
+		String pName = "";
+		if(mc.thePlayer != null && mc.thePlayer.username != null) pName = mc.thePlayer.username;
+		
 		File settingsDir = new File(TCSettingsGUI.tabbyChatDir, ip);
-		chanDataFile = new File(settingsDir, "chanData.ser");
+		chanDataFile = new File(settingsDir, pName+"_chanData.ser");
 		if(!chanDataFile.exists()) return;
 		
 		FileInputStream cFileStream = null;
@@ -375,11 +374,14 @@ public class TabbyChat {
 			ip = ip.replaceAll(":", "(") + ")";
 		}
 		
+		String pName = "";
+		if(mc.thePlayer != null && mc.thePlayer.username != null) pName = mc.thePlayer.username;
+		
 		File settingsDir = new File(TCSettingsGUI.tabbyChatDir, ip);
 	
 		if (!settingsDir.exists())
 			settingsDir.mkdirs();
-		chanDataFile = new File(settingsDir, "chanData.ser");
+		chanDataFile = new File(settingsDir, pName+"_chanData.ser");
 		
 		FileOutputStream cFileStream = null;
 		BufferedOutputStream cBuffStream = null;
