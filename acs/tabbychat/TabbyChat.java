@@ -214,28 +214,32 @@ public class TabbyChat {
 		this.channelMap.put("*", new ChatChannel("*"));
 	}
 	
-	protected void enable() {
+	protected synchronized void enable() {
 		if (!this.channelMap.containsKey("*")) {
 			this.channelMap.put("*", new ChatChannel("*"));
 			this.channelMap.get("*").active = true;
 		}
 		serverSettings.updateForServer();
+		this.reloadServerData();
+		this.updateDefaults();
+		this.updateFilters();
+		if (generalSettings.saveChatLog.getValue() && serverSettings.server != null) {
+			TabbyChatUtils.logChat("\nBEGIN CHAT LOGGING FOR "+serverSettings.serverName+"("+serverSettings.serverIP+") -- "+(new SimpleDateFormat()).format(Calendar.getInstance().getTime()));
+		}
+	}
+	
+	private void reloadServerData() {
 		boolean serverLoaded1 = serverSettings.loadSettingsFile();
 		boolean serverLoaded2 = filterSettings.loadSettingsFile();
-		if (!serverLoaded1 && !serverLoaded2) {
+		if(!serverLoaded1 && !serverLoaded2) {
 			this.serverPrefs.updateForServer();
 			this.serverPrefs.loadSettings();
 			serverSettings.importSettings();
 			filterSettings.importSettings();
 		}
 		this.loadPatterns();
-		this.updateDefaults();
-		this.updateFilters();
 		this.loadChannelData();
 		if(serverSettings.server != null) this.loadPMPatterns();
-		if (generalSettings.saveChatLog.getValue() && serverSettings.server != null) {
-			TabbyChatUtils.logChat("\nBEGIN CHAT LOGGING FOR "+serverSettings.serverName+"("+serverSettings.serverIP+") -- "+(new SimpleDateFormat()).format(Calendar.getInstance().getTime()));
-		}
 	}
 
 	protected void loadPatterns() {
