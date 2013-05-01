@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.src.GuiButton;
@@ -92,8 +93,10 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 		case tabbyChatEnableID:
 			if (TabbyChat.instance.enabled())
 				TabbyChat.instance.disable();
-			else
+			else {
+				TabbyChat.instance.serverLoading = new CountDownLatch(1);
 				TabbyChat.instance.enable();
+			}
 			break;	
 		}
 			

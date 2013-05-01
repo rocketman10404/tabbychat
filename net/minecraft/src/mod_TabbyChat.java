@@ -44,13 +44,15 @@ public class mod_TabbyChat extends BaseMod {
 				persistantGuiField.set(mc.ingameGUI, GuiNewChatTC.me);
 				
 				// Convert missed ChatLines to TCChatLines
-				List<TCChatLine> addChats = new ArrayList<TCChatLine>(missedChats.size());
-				for(ChatLine cl : missedChats) {
-					addChats.add(new TCChatLine(cl.getUpdatedCounter(), cl.getChatLineString(), cl.getChatLineID()));
-				}
+				if(missedChats.size() > 0) {
+					List<TCChatLine> addChats = new ArrayList<TCChatLine>(missedChats.size());
+					for(ChatLine cl : missedChats) {
+						addChats.add(new TCChatLine(cl.getUpdatedCounter(), cl.getChatLineString(), cl.getChatLineID()));
+					}
 				
-				// Add any missed chatLines to replacement class
-				GuiNewChatTC.me.addChatLines(0, addChats);
+					//Add any missed chatLines to replacement class
+					GuiNewChatTC.me.addChatLines(0, addChats);
+				}
 			} catch (Throwable e) {
 				e.printStackTrace();
 				ModLoader.throwException("The current GUI mods are incompatible with TabbyChat", new Throwable());
