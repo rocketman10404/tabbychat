@@ -566,7 +566,7 @@ public class TabbyChat {
 				cName = cleanedChat.substring(findChannelClean.start(1), findChannelClean.end(1));
 				ret += this.addToChannel(cName, filteredChatLine);
 				toTabs.add(cName);
-			} else {
+			} else if(this.chatPMtoMePattern != null){
 				Matcher findPMtoMe = this.chatPMtoMePattern.matcher(cleanedChat);
 				if (findPMtoMe.find()) {					
 					for(int i=1;i<=findPMtoMe.groupCount();i++) {
@@ -580,7 +580,7 @@ public class TabbyChat {
 							break;
 						}
 					}
-				} else {
+				} else if(this.chatPMfromMePattern != null) {
 					Matcher findPMfromMe = this.chatPMfromMePattern.matcher(cleanedChat);
 					if (findPMfromMe.find()) {						
 						for(int i=1;i<=findPMfromMe.groupCount();i++) {
