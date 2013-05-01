@@ -214,28 +214,32 @@ public class TabbyChat {
 		this.channelMap.put("*", new ChatChannel("*"));
 	}
 	
-	protected void enable() {
+	protected synchronized void enable() {
 		if (!this.channelMap.containsKey("*")) {
 			this.channelMap.put("*", new ChatChannel("*"));
 			this.channelMap.get("*").active = true;
 		}
 		serverSettings.updateForServer();
+		this.reloadServerData();
+		this.loadPatterns();
+		this.updateDefaults();
+		this.updateFilters();
+		if(serverSettings.server != null) this.loadPMPatterns();
+		if (generalSettings.saveChatLog.getValue() && serverSettings.server != null) {
+			TabbyChatUtils.logChat("\nBEGIN CHAT LOGGING FOR "+serverSettings.serverName+"("+serverSettings.serverIP+") -- "+(new SimpleDateFormat()).format(Calendar.getInstance().getTime()));
+		}
+	}
+	
+	private void reloadServerData() {
 		boolean serverLoaded1 = serverSettings.loadSettingsFile();
 		boolean serverLoaded2 = filterSettings.loadSettingsFile();
-		if (!serverLoaded1 && !serverLoaded2) {
+		if(!serverLoaded1 && !serverLoaded2) {
 			this.serverPrefs.updateForServer();
 			this.serverPrefs.loadSettings();
 			serverSettings.importSettings();
 			filterSettings.importSettings();
 		}
-		this.loadPatterns();
-		this.updateDefaults();
-		this.updateFilters();
 		this.loadChannelData();
-		if(serverSettings.server != null) this.loadPMPatterns();
-		if (generalSettings.saveChatLog.getValue() && serverSettings.server != null) {
-			TabbyChatUtils.logChat("\nBEGIN CHAT LOGGING FOR "+serverSettings.serverName+"("+serverSettings.serverIP+") -- "+(new SimpleDateFormat()).format(Calendar.getInstance().getTime()));
-		}
 	}
 
 	protected void loadPatterns() {
@@ -568,8 +572,10 @@ public class TabbyChat {
 					for(int i=1;i<=findPMtoMe.groupCount();i++) {
 						if(findPMtoMe.group(i) != null) {
 							cName = findPMtoMe.group(i);
-							ret += this.addToChannel(cName, filteredChatLine);
-							this.channelMap.get(cName).cmdPrefix = "/msg "+cName;
+							ChatChannel newPM = new ChatChannel(cName);
+							newPM.cmdPrefix = "/msg "+cName;
+							this.channelMap.put(cName, newPM);							
+							ret += this.addToChannel(cName, filteredChatLine);							
 							toTabs.add(cName);
 							break;
 						}
@@ -580,8 +586,10 @@ public class TabbyChat {
 						for(int i=1;i<=findPMfromMe.groupCount();i++) {
 							if(findPMfromMe.group(i) != null) {
 								cName = findPMfromMe.group(i);
+								ChatChannel newPM = new ChatChannel(cName);
+								newPM.cmdPrefix = "/msg "+cName;
+								this.channelMap.put(cName, newPM);
 								ret += this.addToChannel(cName, filteredChatLine);
-								this.channelMap.get(cName).cmdPrefix = "/msg "+cName;
 								toTabs.add(cName);
 								break;
 							}
