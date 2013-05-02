@@ -31,9 +31,9 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		super();
 		this.name = "Advanced Settings";
 		this.bgcolor = 0x66802e94;
-		this.chatScrollHistory.textBox.setMaxStringLength(3);
-		this.maxLengthChannelName.textBox.setMaxStringLength(2);
-		this.multiChatDelay.textBox.setMaxStringLength(4);
+		this.chatScrollHistory.setCharLimit(3);
+		this.maxLengthChannelName.setCharLimit(2);
+		this.multiChatDelay.setCharLimit(4);
 	}
 	
 	protected TCSettingsAdvanced(TabbyChat _tc) {
@@ -157,7 +157,7 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		this.resetTempVars();
 	}
 	
-	protected boolean loadSettingsFile() {
+	protected synchronized boolean loadSettingsFile() {
 		this.settingsFile = new File(tabbyChatDir, "advanced.cfg");
 		boolean loaded = false;
 		if (!this.settingsFile.exists())

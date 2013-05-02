@@ -94,7 +94,7 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 			if (TabbyChat.instance.enabled())
 				TabbyChat.instance.disable();
 			else {
-				TabbyChat.instance.serverLoading = new CountDownLatch(1);
+				TabbyChat.instance.serverDataLock.acquireUninterruptibly();
 				TabbyChat.instance.enable();
 			}
 			break;	
@@ -116,7 +116,7 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 		this.resetTempVars();
 	}
 	
-	protected boolean loadSettingsFile() { 
+	protected synchronized boolean loadSettingsFile() { 
 		this.settingsFile = new File(tabbyChatDir, "general.cfg");
 		boolean loaded = false;
 	

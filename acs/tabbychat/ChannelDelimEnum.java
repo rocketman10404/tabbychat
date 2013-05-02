@@ -5,17 +5,17 @@ public enum ChannelDelimEnum {
 	BRACES("{Braces}", "{", "}"),
 	BRACKETS("[Brackets]", "[", "]"),
 	PARENTHESIS("(Parenthesis)", "(", ")"),
-	ANGLESPARENSCOMBO("<(Combo)Pl.>", "<\\(", ")( |\u00A7r)*[A-Za-z0-9_]{1,16}>"),
-	ANGLESBRACKETSCOMBO("<[Combo]Pl.>", "<\\[", "]( |\u00A7r)*[A-Za-z0-9_]{1,16}>");
+	ANGLESPARENSCOMBO("<(Combo)Pl.>", "<\\(", ")(?: |\u00A7r)?[A-Za-z0-9_]{1,16}>"),
+	ANGLESBRACKETSCOMBO("<[Combo]Pl.>", "<\\[", "](?: |\u00A7r)?[A-Za-z0-9_]{1,16}>");
 	
 	private String title;
-	private char open;
-	private char close;
+	private String open;
+	private String close;
 	
 	private ChannelDelimEnum(String title, String open, String close) {
 		this.title = title;
-		this.open = open.charAt(0);
-		this.close = close.charAt(0);
+		this.open = open;
+		this.close = close;
 	}
 	
 	public String getTitle() {
@@ -38,22 +38,10 @@ public enum ChannelDelimEnum {
 	}
 	
 	public String open() {
-		return Character.toString(this.open);
+		return this.open;
 	}
 	
 	public String close() {
-		return Character.toString(this.close);
-	}
-
-	protected ChannelDelimEnum next() {
-		if (this.equals(ANGLES)) {
-			return BRACES;
-		} else if (this.equals(BRACES)) {
-			return BRACKETS;
-		} else if (this.equals(BRACKETS)) {
-			return PARENTHESIS;
-		} else {
-			return ANGLES;
-		}
+		return this.close;
 	}
 }

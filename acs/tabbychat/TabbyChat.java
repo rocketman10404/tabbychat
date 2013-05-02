@@ -30,7 +30,7 @@ import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.Calendar;
@@ -63,7 +63,7 @@ public class TabbyChat {
 	public static TCSettingsServer serverSettings;
 	public static TCSettingsFilters filterSettings;
 	public static TCSettingsAdvanced advancedSettings;
-	protected CountDownLatch serverLoading = new CountDownLatch(1);
+	protected Semaphore serverDataLock = new Semaphore(0, true);
 	public static final GuiNewChatTC gnc = GuiNewChatTC.me;
 	public static final TabbyChat instance = new TabbyChat();
 	
@@ -82,7 +82,9 @@ public class TabbyChat {
 			advancedSettings.importSettings();
 		}
 		if (!this.enabled()) this.disable();
-		else this.enable();
+		else {
+			this.enable();
+		}
 	}
 
 	protected int addToChannel(String name, TCChatLine thisChat) {
@@ -217,7 +219,6 @@ public class TabbyChat {
 	}
 	
 	protected synchronized void enable() {
-		//this.serverLoading = new CountDownLatch(1);
 		if (!this.channelMap.containsKey("*")) {
 			this.channelMap.put("*", new ChatChannel("*"));
 			this.channelMap.get("*").active = true;
@@ -231,7 +232,7 @@ public class TabbyChat {
 		if (generalSettings.saveChatLog.getValue() && serverSettings.server != null) {
 			TabbyChatUtils.logChat("\nBEGIN CHAT LOGGING FOR "+serverSettings.serverName+"("+serverSettings.serverIP+") -- "+(new SimpleDateFormat()).format(Calendar.getInstance().getTime()));
 		}
-		this.serverLoading.countDown();
+		this.serverDataLock.release();
 	}
 	
 	private void reloadServerData() {
@@ -247,8 +248,7 @@ public class TabbyChat {
 	}
 
 	protected void loadPatterns() {
-		ChannelDelimEnum delims = (ChannelDelimEnum)serverSettings.delimiterChars.getValue();
-		
+		ChannelDelimEnum delims = (ChannelDelimEnum)serverSettings.delimiterChars.getValue();		
 		String colCode = "";
 		String fmtCode = "";
 		if (serverSettings.delimColorBool.getValue())
@@ -423,7 +423,7 @@ public class TabbyChat {
 			this.storeChannelData();
 			this.channelMap.clear();
 			if (this.enabled()) {
-				this.serverLoading = new CountDownLatch(1);
+				this.serverDataLock.acquireUninterruptibly();
 				this.enable();
 				this.resetDisplayedChat();
 			} else this.disable();
@@ -495,11 +495,9 @@ public class TabbyChat {
 	}
 	
 	public int processChat(List<TCChatLine> theChat) {
-		try {
-			this.serverLoading.await();
-		} catch (Exception e) {
-			printErr("processChat was interrupted: "+e.getStackTrace());
-		}
+		this.serverDataLock.acquireUninterruptibly();
+		this.serverDataLock.release();
+		
 		ArrayList<TCChatLine> filteredChatLine = new ArrayList<TCChatLine>(theChat.size());
 		List<String> toTabs = new ArrayList<String>();
 		toTabs.add("*");
@@ -573,7 +571,7 @@ public class TabbyChat {
 			String cName = null;
 			boolean dirtyValid = (!serverSettings.delimColorBool.getValue() && !serverSettings.delimFormatBool.getValue()) ? true : findChannelDirty.find();
 			if (findChannelClean.find() && dirtyValid) {
-				cName = cleanedChat.substring(findChannelClean.start(1), findChannelClean.end(1));
+				cName = findChannelClean.group(1);
 				ret += this.addToChannel(cName, filteredChatLine);
 				toTabs.add(cName);
 			} else if(this.chatPMtoMePattern != null){

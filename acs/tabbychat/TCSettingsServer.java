@@ -140,7 +140,7 @@ public class TCSettingsServer extends TCSettingsGUI {
 		this.resetTempVars();
 	}
 	
-	protected boolean loadSettingsFile() {
+	protected synchronized boolean loadSettingsFile() {
 		boolean loaded = false;
 		if (this.server == null)
 			return loaded;
