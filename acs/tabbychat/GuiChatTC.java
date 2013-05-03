@@ -201,7 +201,7 @@ public class GuiChatTC extends GuiChat {
 				if(url != null) {
 					if(this.mc.gameSettings.chatLinksPrompt) {
 						this.clickedURI = url;
-						this.mc.displayGuiScreen(new GuiConfirmOpenLink(this, ccd.getClickedUrl(), 0));
+						this.mc.displayGuiScreen(new GuiConfirmOpenLink(this, ccd.getClickedUrl(), 0, false));
 					} else this.func_73896_a(url);
 					return;
 				}

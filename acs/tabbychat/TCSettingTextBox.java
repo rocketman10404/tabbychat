@@ -77,17 +77,17 @@ public class TCSettingTextBox extends TCSetting {
 	
 	public void enable() {
 		this.enabled = true;
-		this.textBox.func_82265_c(true);
+		this.textBox.setEnabled(true);
 	}
 	
 	public void disable() {
 		this.enabled = false;
-		this.textBox.func_82265_c(false);
+		this.textBox.setEnabled(false);
 	}
 	
 	public void enabled(boolean val) {
 		this.enabled = val;
-		this.textBox.func_82265_c(val);
+		this.textBox.setEnabled(val);
 	}
 	
 	protected void keyTyped(char par1, int par2) {
