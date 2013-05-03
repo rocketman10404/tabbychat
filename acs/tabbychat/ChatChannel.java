@@ -110,7 +110,7 @@ public class ChatChannel implements Serializable {
 	protected void importOldChat(List<TCChatLine> oldList) {
 		if(oldList == null || oldList.isEmpty()) return;
 		for(TCChatLine oldChat : oldList) {
-			if(oldChat.statusMsg) continue;
+			if(oldChat == null || oldChat.statusMsg) continue;
 			this.chatLog.add(new TCChatLine(-1, StringUtils.stripControlCodes(oldChat.getChatLineString()), 0));
 		}
 		this.trimLog();

@@ -10,7 +10,19 @@ public enum NotificationSoundEnum {
 	BASS("Bass", "note.bassattack"),
 	HARP("Harp", "note.harp"),
 	PLING("Pling", "note.pling"),
-	CAT("Cat", "mob.cat.meow");
+	CAT("Cat", "mob.cat.meow"),
+	BLAST("Blast", "fireworks.blast"),
+	SPLASH("Splash", "liquid.splash"),
+	SWIM("Swim", "liquid.swim"),
+	BAT("Bat", "mob.bat.hurt"),
+	BLAZE("Blaze", "mob.blaze.hit"),
+	CHICKEN("Chicken", "mob.chicken.hurt"),
+	COW("Cow", "mob.cow.hurt"),
+	DRAGON("Dragon", "mob.enderdragon.hit"),
+	ENDERMEN("Endermen", "mob.endermen.hit"),
+	GHAST("Ghast", "mob.ghast.moan"),
+	PIG("Pig", "mob.pig.say"),
+	WOLF("Wolf", "mob.wolf.bark");
 	
 	private String title;
 	private String file;

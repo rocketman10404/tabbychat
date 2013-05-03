@@ -14,8 +14,8 @@ public class BackgroundUpdateCheck extends Thread {
 		if (!ver.equals(TabbyChatUtils.version)) {
 			ver = "\u00A77TabbyChat: An update is available!  (Current version is "+TabbyChatUtils.version+", newest is "+ver+")";
 			String ver2 = " \u00A77Visit the TabbyChat forum thread at minecraftforum.net to download.";
-			TCChatLine updateLine = new TCChatLine(mc.ingameGUI.getUpdateCounter(), ver, 0);
-			TCChatLine updateLine2 = new TCChatLine(mc.ingameGUI.getUpdateCounter(), ver2, 0);
+			TCChatLine updateLine = new TCChatLine(mc.ingameGUI.getUpdateCounter(), ver, 0, true);
+			TCChatLine updateLine2 = new TCChatLine(mc.ingameGUI.getUpdateCounter(), ver2, 0, true);
 			if(!TabbyChat.instance.channelMap.containsKey("TabbyChat")) TabbyChat.instance.channelMap.put("TabbyChat", new ChatChannel("TabbyChat"));
 			updateMsg.add(updateLine);
 			updateMsg.add(updateLine2);			
