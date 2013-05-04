@@ -593,9 +593,11 @@ public class TabbyChat {
 					for(int i=1;i<=findPMtoMe.groupCount();i++) {
 						if(findPMtoMe.group(i) != null) {
 							cName = findPMtoMe.group(i);
-							ChatChannel newPM = new ChatChannel(cName);
-							newPM.cmdPrefix = "/msg "+cName;
-							this.channelMap.put(cName, newPM);							
+							if(!this.channelMap.containsKey(cName)) {
+								ChatChannel newPM = new ChatChannel(cName);
+								newPM.cmdPrefix = "/msg "+cName;
+								this.channelMap.put(cName, newPM);
+							}
 							ret += this.addToChannel(cName, filteredChatLine);							
 							toTabs.add(cName);
 							break;
@@ -607,9 +609,11 @@ public class TabbyChat {
 						for(int i=1;i<=findPMfromMe.groupCount();i++) {
 							if(findPMfromMe.group(i) != null) {
 								cName = findPMfromMe.group(i);
-								ChatChannel newPM = new ChatChannel(cName);
-								newPM.cmdPrefix = "/msg "+cName;
-								this.channelMap.put(cName, newPM);
+								if(!this.channelMap.containsKey(cName)) {
+									ChatChannel newPM = new ChatChannel(cName);
+									newPM.cmdPrefix = "/msg "+cName;
+									this.channelMap.put(cName, newPM);
+								}
 								ret += this.addToChannel(cName, filteredChatLine);
 								toTabs.add(cName);
 								break;
