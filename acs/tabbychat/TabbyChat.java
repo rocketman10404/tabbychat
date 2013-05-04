@@ -91,7 +91,9 @@ public class TabbyChat {
 		int ret = 0;
 		TCChatLine newChat = this.withTimeStamp(thisChat);
 		ChatChannel theChan = this.channelMap.get(name);
+		theChan.chatLogLock.acquireUninterruptibly();
 		theChan.chatLog.add(0, newChat);
+		theChan.chatLogLock.release();
 		theChan.trimLog();
 		if (theChan.active || this.channelMap.get("*").active)
 			ret = 1;
@@ -273,20 +275,31 @@ public class TabbyChat {
 	}
 	
 	protected void loadPMPatterns() {
-		String me = mc.thePlayer.username;
-		StringBuilder toPM = new StringBuilder();
-		// Matches '[Player -> me]' and '[Player->Player1]', capturing name of Player
-		toPM.append("^").append("\\[(\\w{3,16})[ ]?\\-\\>[ ]?(?:me|").append(me).append(")\\]");
-		// Matches 'From Player' and 'Player whispers to you', capturing name of player
-		toPM.append("|^From (\\w{3,16})").append("|^(\\w{3,16}) whispers to you");
-		this.chatPMtoMePattern = Pattern.compile(toPM.toString());
+		StringBuilder toMePM = new StringBuilder();
+		StringBuilder fromMePM = new StringBuilder();
 		
-		StringBuilder fromPM = new StringBuilder();
-		// Matches '[me -> Player]' and '[Player1->Player]', capturing name of player
-		fromPM.append("^").append("\\[(?:me|").append(me).append(")[ ]?\\-\\>[ ]?(\\w{3,16})\\]");
-		// Matches 'To Player' and 'You whisper to Player', capturing name of player
-		fromPM.append("|^To (\\w{3,16})").append("|^You whisper to ([A-Za-z0-9_]{3,16})");
-		this.chatPMfromMePattern = Pattern.compile(fromPM.toString());
+		// Matches '[Player -> me]' and '[me -> Player]'
+		toMePM.append("^\\[(\\w{3,16})[ ]?\\-\\>[ ]?me\\]");
+		fromMePM.append("^\\[me[ ]?\\-\\>[ ]?(\\w{3,16})\\]");
+		
+		// Matches 'From Player' and 'From Player'
+		toMePM.append("|^From (\\w{3,16})");
+		fromMePM.append("|^To (\\w{3,16})");
+		
+		// Matches 'Player whispers to you' and 'You whisper to Player'
+		toMePM.append("|^(\\w{3,16}) whispers to you");
+		fromMePM.append("|^You whisper to (\\w{3,16})");
+		
+		if(mc.thePlayer != null && mc.thePlayer.username != null) {
+			String me = mc.thePlayer.username;
+			
+			// Matches '[Player->Player1]' and '[Player1->Player]'
+			toMePM.append("|^\\[(\\w{3,16})[ ]?\\-\\>[ ]?").append(me).append("\\]");
+			fromMePM.append("|^\\[").append(me).append("[ ]?\\-\\>[ ]?(\\w{3,16})\\]");
+		}
+
+		this.chatPMtoMePattern = Pattern.compile(toMePM.toString());
+		this.chatPMfromMePattern = Pattern.compile(fromMePM.toString());
 	}
 
 	protected void updateFilters() {
