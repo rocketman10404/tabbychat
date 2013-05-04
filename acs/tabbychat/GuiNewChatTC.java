@@ -107,6 +107,7 @@ public class GuiNewChatTC extends GuiNewChat {
 			int _size = this.chatLines.size();
 			// Display valid chat lines
 			for(lineCounter = 0; lineCounter + this.scrollOffset  < _size && lineCounter < maxDisplayedLines; ++lineCounter) {
+				_size = this.chatLines.size();
 				this.chatHeight = lineCounter * 9;
 				TCChatLine _line = this.chatLines.get(lineCounter + this.scrollOffset);
 				if(_line == null) continue;
