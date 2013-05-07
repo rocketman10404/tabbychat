@@ -21,9 +21,7 @@ public class BackgroundUpdateCheck extends Thread {
 			updateMsg.add(updateLine);
 			updateMsg.add(updateLine2);			
 			TabbyChat.instance.processChat(updateMsg);
-			synchronized(TabbyChat.instance.lastChatLock) { 
-				TabbyChat.instance.channelMap.get("TabbyChat").chatLog.addAll(0, TabbyChat.instance.lastChat);
-			}
+			TabbyChat.instance.addLastChatToChannel(TabbyChat.instance.channelMap.get("TabbyChat"));
 		}
 	}	
 }

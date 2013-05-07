@@ -351,17 +351,25 @@ public class GuiNewChatTC extends GuiNewChat {
 		return this.chatLines.size();
 	}
 
-	public void addChatLines(List _add) {
-		this.chatLines.addAll(_add);
+	public void addChatLines(List<TCChatLine> _add) {
+		synchronized(_add) {
+			for(int i=0; i<_add.size();i++)
+				this.chatLines.add(_add.get(i));
+		}
 	}
 
-	public void addChatLines(int _pos, List _add) {
-		this.chatLines.addAll(_pos, _add);
+	public void addChatLines(int _pos, List<TCChatLine> _add) {
+		synchronized(_add) {
+			for(int i=_add.size()-1;i>=0;i--)
+				this.chatLines.add(_pos,_add.get(i));
+		}
 	}
 
 	public void setChatLines(int _pos, List<TCChatLine> _add) {
-		for (int i=0; i < _add.size(); i++)
-			this.chatLines.set(_pos+i, _add.get(i));
+		synchronized(_add) {
+			for (int i=0; i < _add.size(); i++)
+				this.chatLines.set(_pos+i, _add.get(i));
+		}
 	}
 
 	public void clearChatLines() {

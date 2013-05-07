@@ -49,8 +49,8 @@ public class TabbyChat {
 	private volatile Pattern chatPMtoMePattern = null;
 	public static String version = TabbyChatUtils.version;
 	protected Calendar cal = Calendar.getInstance();
-	public volatile List<TCChatLine> lastChat = Collections.synchronizedList(new ArrayList());
-	public final Object lastChatLock = new Object();
+	private volatile List<TCChatLine> lastChat = Collections.synchronizedList(new ArrayList());
+	//public final Object lastChatLock = new Object();
 	public LinkedHashMap<String, ChatChannel> channelMap = new LinkedHashMap();
 	public int nextID = 3600;
 	public static TCSettingsGeneral generalSettings;
@@ -87,44 +87,6 @@ public class TabbyChat {
 		return ret;		
 	}
 	
-	private void spamCheck(String _chan, List<TCChatLine> lastChat) {
-		ChatChannel theChan = this.channelMap.get(_chan);
-		String oldChat = "";
-		String oldChat2 = "";
-		String newChat = "";
-
-		if (theChan.chatLog.size() < lastChat.size()) {
-			theChan.hasSpam = false;
-			theChan.spamCount = 1;
-			return;
-		}
-		
-		int _size = lastChat.size();
-		for (int i=0; i<_size; i++) {
-			if(lastChat.get(i).getChatLineString() == null || theChan.chatLog.get(i).getChatLineString() == null) continue;
-			newChat = newChat + lastChat.get(i).getChatLineString();
-			if (generalSettings.timeStampEnable.getValue()) {
-				oldChat = theChan.chatLog.get(i).getChatLineString().replaceAll("^"+((TimeStampEnum)generalSettings.timeStampStyle.getValue()).regEx, "") + oldChat;
-			} else {
-				oldChat = theChan.chatLog.get(i).getChatLineString() + oldChat;
-			}
-		}
-		if (theChan.hasSpam) {
-			oldChat2 = oldChat.substring(0, oldChat.length() - 4 - Integer.toString(theChan.spamCount).length());
-			oldChat = oldChat2;
-		}
-		if (oldChat.equals(newChat)) {
-			theChan.hasSpam = true;
-			theChan.spamCount++;
-			for (int i=1; i<_size; i++)
-				theChan.chatLog.set(i, this.withTimeStamp(lastChat.get(lastChat.size()-i-1)));
-			theChan.chatLog.set(0, new TCChatLine(lastChat.get(lastChat.size()-1).getUpdatedCounter(), this.withTimeStamp(lastChat.get(lastChat.size()-1).getChatLineString()) + " [" + theChan.spamCount + "x]", lastChat.get(lastChat.size()-1).getChatLineID()));
-		} else {
-			theChan.hasSpam = false;
-			theChan.spamCount = 1;
-		}
-	}
-
 	protected int addToChannel(String _name, List<TCChatLine> thisChat) {
 		ChatChannel theChan = this.channelMap.get(_name);
 		for (String ichan : Pattern.compile("[ ]?,[ ]?").split(serverSettings.ignoredChannels.getValue())) {
@@ -163,7 +125,52 @@ public class TabbyChat {
 		}
 		return 0;
 	}
+	
+	protected void addLastChatToChannel(ChatChannel _chan) {
+		synchronized(this.lastChat) {
+			for(int i=this.lastChat.size()-1;i>=0;i--)
+				_chan.chatLog.add(0, this.lastChat.get(i));
+		}
+	}
 
+	private void spamCheck(String _chan, List<TCChatLine> lastChat) {
+		ChatChannel theChan = this.channelMap.get(_chan);
+		String oldChat = "";
+		String oldChat2 = "";
+		String newChat = "";
+
+		if (theChan.chatLog.size() < lastChat.size()) {
+			theChan.hasSpam = false;
+			theChan.spamCount = 1;
+			return;
+		}
+		
+		int _size = lastChat.size();
+		for (int i=0; i<_size; i++) {
+			if(lastChat.get(i).getChatLineString() == null || theChan.chatLog.get(i).getChatLineString() == null) continue;
+			newChat = newChat + lastChat.get(i).getChatLineString();
+			if (generalSettings.timeStampEnable.getValue()) {
+				oldChat = theChan.chatLog.get(i).getChatLineString().replaceAll("^"+((TimeStampEnum)generalSettings.timeStampStyle.getValue()).regEx, "") + oldChat;
+			} else {
+				oldChat = theChan.chatLog.get(i).getChatLineString() + oldChat;
+			}
+		}
+		if (theChan.hasSpam) {
+			oldChat2 = oldChat.substring(0, oldChat.length() - 4 - Integer.toString(theChan.spamCount).length());
+			oldChat = oldChat2;
+		}
+		if (oldChat.equals(newChat)) {
+			theChan.hasSpam = true;
+			theChan.spamCount++;
+			for (int i=1; i<_size; i++)
+				theChan.chatLog.set(i, this.withTimeStamp(lastChat.get(lastChat.size()-i-1)));
+			theChan.chatLog.set(0, new TCChatLine(lastChat.get(lastChat.size()-1).getUpdatedCounter(), this.withTimeStamp(lastChat.get(lastChat.size()-1).getChatLineString()) + " [" + theChan.spamCount + "x]", lastChat.get(lastChat.size()-1).getChatLineID()));
+		} else {
+			theChan.hasSpam = false;
+			theChan.spamCount = 1;
+		}
+	}
+	
 	private List<TCChatLine> withTimeStamp(List<TCChatLine> _orig) {
 		List<TCChatLine> stamped = new ArrayList();
 		for (TCChatLine cl : _orig)
@@ -448,12 +455,21 @@ public class TabbyChat {
 		}
 		return actives;
 	}
+		
+	public void setLastChat(List<TCChatLine> newChat) {
+		synchronized(this.lastChat) {
+			this.lastChat.clear();
+			for(TCChatLine newChatLine : newChat) {
+				this.lastChat.add(newChatLine);
+			}
+		}
+	}
 	
 	public void pollForUnread(Gui _gui, int _y, int _tick) {
 		int _opacity = 0;
 		int tickdiff = 50;
 
-		synchronized(this.lastChatLock) {
+		synchronized(this.lastChat) {
 			if(this.lastChat != null && this.lastChat.size() > 0) tickdiff = _tick - this.lastChat.get(0).getUpdatedCounter();
 		}
 		
@@ -611,7 +627,7 @@ public class TabbyChat {
 		}
 		
 		List<String> activeTabs = this.getActive();
-		synchronized(this.lastChatLock) { 
+		synchronized(this.lastChat) { 
 			if (generalSettings.groupSpam.getValue() && activeTabs.size() > 0) {
 				if (toTabs.contains(activeTabs.get(0)))
 					this.lastChat = this.channelMap.get(activeTabs.get(0)).chatLog.subList(0, filteredChatLine.size());
@@ -619,13 +635,12 @@ public class TabbyChat {
 					this.lastChat = this.withTimeStamp(filteredChatLine);
 			} else
 				this.lastChat = this.withTimeStamp(filteredChatLine);
-			
-			if (ret > 0) {
-				if (generalSettings.groupSpam.getValue() && this.channelMap.get(activeTabs.get(0)).hasSpam) {
-					gnc.setChatLines(0, this.lastChat);
-				} else {
-					gnc.addChatLines(0, this.lastChat);
-				}
+		}
+		if (ret > 0) {
+			if (generalSettings.groupSpam.getValue() && this.channelMap.get(activeTabs.get(0)).hasSpam) {
+				gnc.setChatLines(0, this.lastChat);
+			} else {
+				gnc.addChatLines(0, this.lastChat);
 			}
 		}
 
