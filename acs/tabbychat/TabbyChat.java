@@ -11,6 +11,7 @@ package acs.tabbychat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -48,7 +49,7 @@ public class TabbyChat {
 	private volatile Pattern chatPMtoMePattern = null;
 	public static String version = TabbyChatUtils.version;
 	protected Calendar cal = Calendar.getInstance();
-	public volatile List<TCChatLine> lastChat;
+	public volatile List<TCChatLine> lastChat = Collections.synchronizedList(new ArrayList());
 	public final Object lastChatLock = new Object();
 	public LinkedHashMap<String, ChatChannel> channelMap = new LinkedHashMap();
 	public int nextID = 3600;

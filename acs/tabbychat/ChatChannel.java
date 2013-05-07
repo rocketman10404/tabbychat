@@ -114,7 +114,6 @@ public class ChatChannel implements Serializable {
 	protected void importOldChat(List<TCChatLine> oldList) {
 		if(oldList == null || oldList.isEmpty()) return;
 		for(TCChatLine oldChat : oldList) {
-			System.out.println("Importing '"+oldChat.getChatLineString()+"' -- status:"+oldChat.statusMsg);
 			if(oldChat == null || oldChat.statusMsg) continue;
 			this.chatLog.add(new TCChatLine(-1, StringUtils.stripControlCodes(oldChat.getChatLineString()), 0));
 		}
