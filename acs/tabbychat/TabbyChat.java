@@ -30,6 +30,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.Calendar;
@@ -49,8 +51,7 @@ public class TabbyChat {
 	private volatile Pattern chatPMtoMePattern = null;
 	public static String version = TabbyChatUtils.version;
 	protected Calendar cal = Calendar.getInstance();
-	private volatile List<TCChatLine> lastChat = Collections.synchronizedList(new ArrayList());
-	//public final Object lastChatLock = new Object();
+	private volatile List<TCChatLine> lastChat = new ArrayList();
 	public LinkedHashMap<String, ChatChannel> channelMap = new LinkedHashMap();
 	public int nextID = 3600;
 	public static TCSettingsGeneral generalSettings;
@@ -58,6 +59,9 @@ public class TabbyChat {
 	public static TCSettingsFilters filterSettings;
 	public static TCSettingsAdvanced advancedSettings;
 	private Semaphore serverDataLock = new Semaphore(0, true);
+	private final ReentrantReadWriteLock lastChatLock = new ReentrantReadWriteLock(true);
+	private final Lock lastChatReadLock = lastChatLock.readLock();
+	private final Lock lastChatWriteLock = lastChatLock.writeLock();
 	public static final GuiNewChatTC gnc = GuiNewChatTC.me;
 	public static final TabbyChat instance = new TabbyChat();
 	
@@ -127,9 +131,12 @@ public class TabbyChat {
 	}
 	
 	protected void addLastChatToChannel(ChatChannel _chan) {
-		synchronized(this.lastChat) {
+		this.lastChatReadLock.lock();
+		try {
 			for(int i=this.lastChat.size()-1;i>=0;i--)
 				_chan.chatLog.add(0, this.lastChat.get(i));
+		} finally {
+			this.lastChatReadLock.unlock();
 		}
 	}
 
@@ -459,9 +466,12 @@ public class TabbyChat {
 	public void pollForUnread(Gui _gui, int _y, int _tick) {
 		int _opacity = 0;
 		int tickdiff = 50;
-
-		synchronized(this.lastChat) {
+		
+		this.lastChatReadLock.lock();
+		try {
 			if(this.lastChat != null && this.lastChat.size() > 0) tickdiff = _tick - this.lastChat.get(0).getUpdatedCounter();
+		} finally {
+			this.lastChatReadLock.unlock();
 		}
 		
 		if (tickdiff < 50) {
@@ -618,7 +628,8 @@ public class TabbyChat {
 		}
 		
 		List<String> activeTabs = this.getActive();
-		synchronized(this.lastChat) { 
+		this.lastChatWriteLock.lock();
+		try {
 			if (generalSettings.groupSpam.getValue() && activeTabs.size() > 0) {
 				if (toTabs.contains(activeTabs.get(0)))
 					this.lastChat = this.channelMap.get(activeTabs.get(0)).chatLog.subList(0, filteredChatLine.size());
@@ -626,7 +637,11 @@ public class TabbyChat {
 					this.lastChat = this.withTimeStamp(filteredChatLine);
 			} else
 				this.lastChat = this.withTimeStamp(filteredChatLine);
-
+		} finally {
+			this.lastChatWriteLock.unlock();
+		}
+		this.lastChatReadLock.lock();
+		try {
 			if (ret > 0) {
 				if (generalSettings.groupSpam.getValue() && this.channelMap.get(activeTabs.get(0)).hasSpam) {
 					gnc.setChatLines(0, new ArrayList<TCChatLine>(this.lastChat));
@@ -634,6 +649,8 @@ public class TabbyChat {
 					gnc.addChatLines(0, new ArrayList<TCChatLine>(this.lastChat));
 				}
 			}
+		} finally {
+			this.lastChatReadLock.unlock();
 		}
 
 		return ret;
