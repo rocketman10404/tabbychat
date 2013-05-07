@@ -274,8 +274,8 @@ public class TabbyChat {
 		fromMePM.append("^\\[me[ ]?\\-\\>[ ]?(\\w{3,16})\\]");
 		
 		// Matches 'From Player' and 'From Player'
-		toMePM.append("|^From (\\w{3,16})");
-		fromMePM.append("|^To (\\w{3,16})");
+		toMePM.append("|^From (\\w{3,16})[ ]?:");
+		fromMePM.append("|^To (\\w{3,16})[ ]?:");
 		
 		// Matches 'Player whispers to you' and 'You whisper to Player'
 		toMePM.append("|^(\\w{3,16}) whispers to you");
@@ -455,15 +455,6 @@ public class TabbyChat {
 		}
 		return actives;
 	}
-		
-	public void setLastChat(List<TCChatLine> newChat) {
-		synchronized(this.lastChat) {
-			this.lastChat.clear();
-			for(TCChatLine newChatLine : newChat) {
-				this.lastChat.add(newChatLine);
-			}
-		}
-	}
 	
 	public void pollForUnread(Gui _gui, int _y, int _tick) {
 		int _opacity = 0;
@@ -635,12 +626,13 @@ public class TabbyChat {
 					this.lastChat = this.withTimeStamp(filteredChatLine);
 			} else
 				this.lastChat = this.withTimeStamp(filteredChatLine);
-		}
-		if (ret > 0) {
-			if (generalSettings.groupSpam.getValue() && this.channelMap.get(activeTabs.get(0)).hasSpam) {
-				gnc.setChatLines(0, this.lastChat);
-			} else {
-				gnc.addChatLines(0, this.lastChat);
+
+			if (ret > 0) {
+				if (generalSettings.groupSpam.getValue() && this.channelMap.get(activeTabs.get(0)).hasSpam) {
+					gnc.setChatLines(0, new ArrayList<TCChatLine>(this.lastChat));
+				} else {
+					gnc.addChatLines(0, new ArrayList<TCChatLine>(this.lastChat));
+				}
 			}
 		}
 
