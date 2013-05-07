@@ -8,7 +8,7 @@ import net.minecraft.src.GuiTextField;
 
 public class TCSettingSlider extends TCSetting {
 	
-	protected Float value;
+	protected volatile Float value;
 	protected Float tempValue;
 	protected float minValue;
 	protected float maxValue;

@@ -7,7 +7,7 @@ import org.lwjgl.input.Mouse;
 import net.minecraft.client.Minecraft;
 
 public class TCSettingEnum extends TCSetting {
-	protected Enum value;
+	protected volatile Enum value;
 	protected Enum tempValue;
 	
 	public TCSettingEnum(String theLabel, int theID) {

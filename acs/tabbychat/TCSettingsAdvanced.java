@@ -151,17 +151,17 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		this.forceUnicode.reset();
 	}
 	
-	protected void importSettings() {
+/*** DEPRECATED ***/
+/*	protected void importSettings() {
 		this.chatScrollHistory.setValue(Integer.toString(tc.globalPrefs.retainedChats));
 		this.maxLengthChannelName.setValue(Integer.toString(tc.globalPrefs.maxChannelNameLength));
 		this.resetTempVars();
-	}
+	}*/
 	
-	protected synchronized boolean loadSettingsFile() {
+	protected void loadSettingsFile() {
 		this.settingsFile = new File(tabbyChatDir, "advanced.cfg");
-		boolean loaded = false;
 		if (!this.settingsFile.exists())
-			return loaded;		
+			return;		
 		Properties settingsTable = new Properties();
 		
 		try {
@@ -181,9 +181,8 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		this.chatBoxUnfocHeight.setValue(TabbyChatUtils.parseFloat((String)settingsTable.getProperty("chatBoxUnfocHeight"), 20.0f, 100.0f, 20.0f));
 		this.chatFadeTicks.setValue(TabbyChatUtils.parseFloat((String)settingsTable.getProperty("chatFadeTicks"), 10.0f, 2000.0f, 200.0f));
 		this.forceUnicode.setValue(Boolean.parseBoolean((String)settingsTable.getProperty("forceUnicode")));
-		loaded = true;
 		this.resetTempVars();
-		return loaded;
+		return;
 	}
 	
 	protected void saveSettingsFile() {

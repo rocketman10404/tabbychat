@@ -5,7 +5,7 @@ import net.minecraft.src.GuiTextField;
 
 public class TCSettingTextBox extends TCSetting {
 
-	protected String value;
+	protected volatile String value;
 	protected GuiTextField textBox;
 	protected int charLimit = 32;
 	

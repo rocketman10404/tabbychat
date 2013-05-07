@@ -341,8 +341,9 @@ public class TCSettingsFilters extends TCSettingsGUI {
 			this.numFilters++;
 		}
 	}
-	
-	protected void importSettings() {
+
+/*** DEPRECATED ***/	
+/*	protected void importSettings() {
 		String sId;
 		this.numFilters = 0;
 		for (CustomChatFilter oldfilter : tc.serverPrefs.customFilters) {
@@ -367,15 +368,14 @@ public class TCSettingsFilters extends TCSettingsGUI {
 			this.numFilters++;
 		}
 		this.resetTempVars();
-	}
+	}*/
 	
-	protected synchronized boolean loadSettingsFile() {
-		boolean loaded = false;
+	protected void loadSettingsFile() {
 		this.filterMap.clear();
 		this.numFilters = 0;
 		ServerData server = Minecraft.getMinecraft().getServerData();
 		if (server == null)
-			return loaded;
+			return;
 		String sname = server.serverName;
 		String ip = server.serverIP;
 	
@@ -387,24 +387,22 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		this.settingsFile = new File(settingsDir, "filters.cfg");
 	
 		if (!this.settingsFile.exists())
-			return loaded;		
+			return;		
 		Properties settingsTable = new Properties();
 		
 		try {
 			FileInputStream fInStream = new FileInputStream(this.settingsFile);
 			settingsTable.load(fInStream);
 			fInStream.close();
-			loaded = true;
 		} catch (Exception e) {
 			TabbyChat.printErr("Unable to read from filter settings file : '" + e.getLocalizedMessage() + "' : " + e.toString());
-			loaded = false;
 		}
 		
 		String sId;
 		int _ind = settingsTable.size();
 		for (int i = 0; i < _ind; i++) {
 			sId = Integer.toString(i);
-			if (!loaded || !settingsTable.containsKey(sId+".filterName"))
+			if (!settingsTable.containsKey(sId+".filterName"))
 				break;
 
 			this.filterMap.put(sId + ".filterName", settingsTable.getProperty(sId + ".filterName"));
@@ -432,7 +430,7 @@ public class TCSettingsFilters extends TCSettingsGUI {
 			this.numFilters++;
 		}		
 		this.resetTempVars();
-		return loaded;
+		return;
 	}
 	
 	protected void saveSettingsFile() { 

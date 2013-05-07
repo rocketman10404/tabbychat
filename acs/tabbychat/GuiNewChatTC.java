@@ -3,6 +3,7 @@ package acs.tabbychat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Semaphore;
 
 import org.lwjgl.opengl.GL11;
@@ -24,12 +25,11 @@ public class GuiNewChatTC extends GuiNewChat {
 	protected int chatWidth = 320;
 	protected int chatHeight = 0;
 	protected List<String> sentMessages = new ArrayList<String>();
-	protected List<TCChatLine> backupLines = new ArrayList<TCChatLine>();
-	protected List<TCChatLine> chatLines = new ArrayList<TCChatLine>();
+	protected CopyOnWriteArrayList<TCChatLine> backupLines = new CopyOnWriteArrayList();
+	protected CopyOnWriteArrayList<TCChatLine> chatLines = new CopyOnWriteArrayList();
 	private int scrollOffset = 0;
 	private boolean chatScrolled = false;
 	protected boolean saveNeeded = true;
-	private Semaphore chatListLock = new Semaphore(1, true);
 	
 	public static final GuiNewChatTC me = new GuiNewChatTC();
 	private final static TabbyChat tc = TabbyChat.instance;
@@ -211,20 +211,17 @@ public class GuiNewChatTC extends GuiNewChat {
 			int ret = TabbyChat.instance.processChat(multiLineChat);
 		} else {
 			int _len = multiLineChat.size();
-			this.chatListLock.acquireUninterruptibly();
 			for(int i=0; i<_len; i++) {
 				this.chatLines.add(0, multiLineChat.get(i));
 				if (!backupFlag)
 					this.backupLines.add(0, multiLineChat.get(i));
 			}
-			this.chatListLock.release();
 		}
 		
 		// Trim lists to size as needed
 		int maxChats = TabbyChat.instance.enabled() ? Integer.parseInt(TabbyChat.advancedSettings.chatScrollHistory.getValue()) : 100;
 		int chatLineSize = this.chatLines.size();
 		if(chatLineSize >= maxChats + 5) {
-			this.chatListLock.acquireUninterruptibly();
 			chatLineSize = this.chatLines.size();
 			int cmdLineSize = this.backupLines.size();
 			if(chatLineSize >= maxChats + 5)
@@ -233,7 +230,6 @@ public class GuiNewChatTC extends GuiNewChat {
 				if(cmdLineSize >= maxChats + 5)
 					this.backupLines.subList(cmdLineSize-11, cmdLineSize-1).clear();
 			}
-			this.chatListLock.release();
 		}		
 		
 	}
@@ -316,7 +312,6 @@ public class GuiNewChatTC extends GuiNewChat {
 	}
 	
 	public @Override void deleteChatLine(int _id) {
-		this.chatListLock.acquireUninterruptibly();
 		Iterator _iter = this.chatLines.iterator();
 		ChatLine _cl;
 		do {
@@ -334,7 +329,6 @@ public class GuiNewChatTC extends GuiNewChat {
 			_cl = (ChatLine)_iter.next();
 		} while(_cl.getChatLineID() != _id);
 		_iter.remove();
-		this.chatListLock.release();
 	}
 	
 	public int getHeightSetting() {
@@ -358,29 +352,21 @@ public class GuiNewChatTC extends GuiNewChat {
 	}
 
 	public void addChatLines(List _add) {
-		this.chatListLock.acquireUninterruptibly();
 		this.chatLines.addAll(_add);
-		this.chatListLock.release();
 	}
 
 	public void addChatLines(int _pos, List _add) {
-		this.chatListLock.acquireUninterruptibly();
 		this.chatLines.addAll(_pos, _add);
-		this.chatListLock.release();
 	}
 
 	public void setChatLines(int _pos, List<TCChatLine> _add) {
-		this.chatListLock.acquireUninterruptibly();
 		for (int i=0; i < _add.size(); i++)
 			this.chatLines.set(_pos+i, _add.get(i));
-		this.chatListLock.release();
 	}
 
 	public void clearChatLines() {
 		this.resetScroll();
-		this.chatListLock.acquireUninterruptibly();
 		this.chatLines.clear();
-		this.chatListLock.release();
 	}
 
 	public int chatLinesTraveled() {
@@ -396,8 +382,7 @@ public class GuiNewChatTC extends GuiNewChat {
 	}
 
 	public void mergeChatLines(List<TCChatLine> _new) {
-		this.chatListLock.acquireUninterruptibly();
-		ArrayList<TCChatLine> _current = (ArrayList<TCChatLine>)this.chatLines;
+		List<TCChatLine> _current = this.chatLines;
 		if (_new == null || _new.size() <= 0) return;
 
 		int _c = 0;
@@ -423,6 +408,5 @@ public class GuiNewChatTC extends GuiNewChat {
 			_current.add(_current.size(), _new.get(_n));
 			_n++;
 		}
-		this.chatListLock.release();
 	}
 }

@@ -130,7 +130,8 @@ public class TCSettingsServer extends TCSettingsGUI {
 		this.ignoredChannels.reset();
 	}
 
-	protected void importSettings() {
+/*** DEPRECATED ***/	
+/*	protected void importSettings() {
 		this.autoChannelSearch.setValue(tc.globalPrefs.autoSearchEnabled);
 		this.delimiterChars.setValue(tc.serverPrefs.chanDelims);
 		this.delimColorCode.setValue(TabbyChatUtils.parseColor(tc.serverPrefs.chanDelimColor.name()));
@@ -138,12 +139,11 @@ public class TCSettingsServer extends TCSettingsGUI {
 		this.defaultChannels.setValue(TabbyChatUtils.join(tc.serverPrefs.defaultChans, ","));
 		this.ignoredChannels.setValue(TabbyChatUtils.join(tc.serverPrefs.ignoredChans, ","));
 		this.resetTempVars();
-	}
+	}*/
 	
-	protected synchronized boolean loadSettingsFile() {
-		boolean loaded = false;
+	protected void loadSettingsFile() {
 		if (this.server == null)
-			return loaded;
+			return;
 		String ip = this.serverIP;
 			
 		if (ip.contains(":")) {
@@ -154,17 +154,15 @@ public class TCSettingsServer extends TCSettingsGUI {
 		this.settingsFile = new File(settingsDir, "settings.cfg");
 	
 		if (!this.settingsFile.exists())
-			return loaded;		
+			return;		
 		Properties settingsTable = new Properties();
 		
 		try {
 			FileInputStream fInStream = new FileInputStream(this.settingsFile);
 			settingsTable.load(fInStream);
 			fInStream.close();
-			loaded = true;
 		} catch (Exception e) {
 			TabbyChat.printErr("Unable to read from server settings file : '" + e.getLocalizedMessage() + "' : " + e.toString());
-			loaded = false;
 		}
 		
 		this.autoChannelSearch.setValue(Boolean.parseBoolean((String)settingsTable.getProperty("autoChannelSearch")));
@@ -177,7 +175,7 @@ public class TCSettingsServer extends TCSettingsGUI {
 		this.ignoredChannels.setValue((String)settingsTable.getProperty("ignoredChannels"));
 
 		this.resetTempVars();		
-		return loaded;
+		return;
 	}
 	
 	protected void saveSettingsFile() {	

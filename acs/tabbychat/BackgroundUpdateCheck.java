@@ -8,6 +8,7 @@ public class BackgroundUpdateCheck extends Thread {
 	BackgroundUpdateCheck() { }
 	
 	public void run() {
+		if(!TabbyChat.generalSettings.tabbyChatEnable.getValue()) return;
 		Minecraft mc = Minecraft.getMinecraft();
 		String ver = TabbyChat.getNewestVersion();
 		ArrayList<TCChatLine> updateMsg = new ArrayList<TCChatLine>();
@@ -20,7 +21,9 @@ public class BackgroundUpdateCheck extends Thread {
 			updateMsg.add(updateLine);
 			updateMsg.add(updateLine2);			
 			TabbyChat.instance.processChat(updateMsg);
-			TabbyChat.instance.channelMap.get("TabbyChat").chatLog.addAll(0, TabbyChat.instance.lastChat);
+			synchronized(TabbyChat.instance.lastChatLock) { 
+				TabbyChat.instance.channelMap.get("TabbyChat").chatLog.addAll(0, TabbyChat.instance.lastChat);
+			}
 		}
 	}	
 }

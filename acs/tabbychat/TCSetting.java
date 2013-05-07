@@ -10,7 +10,7 @@ public class TCSetting extends GuiButton {
 	protected int labelX;
 	protected String description;
 	protected String type;
-	protected Object value;
+	protected volatile Object value;
 	protected Object tempValue;
 	protected static Minecraft mc;
 		

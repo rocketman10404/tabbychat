@@ -94,7 +94,6 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 			if (TabbyChat.instance.enabled())
 				TabbyChat.instance.disable();
 			else {
-				TabbyChat.instance.serverDataLock.acquireUninterruptibly();
 				TabbyChat.instance.enable();
 			}
 			break;	
@@ -106,22 +105,22 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 	public void validateButtonStates() {
 		this.timeStampStyle.enabled = this.timeStampEnable.getTempValue();
 	}
-	
-	protected void importSettings() {
+
+/*** DEPRECATED ***/
+/*	protected void importSettings() {
 		this.tabbyChatEnable.setValue(tc.globalPrefs.TCenabled);
 		this.saveChatLog.setValue(tc.globalPrefs.saveLocalLogEnabled);
 		this.timeStampEnable.setValue(tc.globalPrefs.timestampsEnabled);
 		this.timeStampStyle.setValue(tc.globalPrefs.timestampStyle);
 		this.timeStamp.applyPattern(((TimeStampEnum)this.timeStampStyle.getValue()).toCode());
 		this.resetTempVars();
-	}
+	}*/
 	
-	protected synchronized boolean loadSettingsFile() { 
+	protected void loadSettingsFile() { 
 		this.settingsFile = new File(tabbyChatDir, "general.cfg");
-		boolean loaded = false;
 	
 		if (!this.settingsFile.exists())
-			return loaded;		
+			return;		
 		Properties settingsTable = new Properties();
 		
 		try {
@@ -138,11 +137,10 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 		this.timeStampStyle.setValue(TabbyChatUtils.parseTimestamp((String)settingsTable.get("timeStampStyle")));
 		this.groupSpam.setValue(Boolean.parseBoolean((String)settingsTable.get("groupSpam")));
 		this.unreadFlashing.setValue(Boolean.parseBoolean((String)settingsTable.get("unreadFlashing")));
-		loaded = true;
 			
 		this.timeStamp.applyPattern(((TimeStampEnum)this.timeStampStyle.getValue()).toCode());
 		this.resetTempVars();
-		return loaded;
+		return;
 	}
 	
 	protected void saveSettingsFile() { 

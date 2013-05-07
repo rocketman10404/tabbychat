@@ -7,7 +7,7 @@ import net.minecraft.src.FontRenderer;
 public class TCSettingBool extends TCSetting {
 	protected int buttonOnColor = 0xbba5e7e4;
 	protected int buttonOffColor = 0x99000000;
-	protected Boolean value;
+	protected volatile Boolean value;
 	protected Boolean tempValue;
 	private static Minecraft mc;
 	

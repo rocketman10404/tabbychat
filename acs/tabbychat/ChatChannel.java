@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Semaphore;
 
 import org.lwjgl.input.Keyboard;
@@ -20,7 +21,7 @@ public class ChatChannel implements Serializable {
 	private static final long serialVersionUID = 546162627943686174L;
 	public String title;
 	public transient ChatButton tab;
-	public ArrayList<TCChatLine> chatLog;
+	public CopyOnWriteArrayList<TCChatLine> chatLog;
 	protected int chanID = nextID + 1;
 	public boolean unread = false;
 	public boolean active = false;
@@ -29,12 +30,11 @@ public class ChatChannel implements Serializable {
 	protected boolean notificationsOn = false;
 	protected String alias;
 	protected String cmdPrefix = "";
-	protected Semaphore chatLogLock = new Semaphore(1, true);
 	
 	public ChatChannel() {
 		this.chanID = nextID;
 		nextID++;
-		this.chatLog = new ArrayList<TCChatLine>(100);
+		this.chatLog = new CopyOnWriteArrayList<TCChatLine>();
 		this.notificationsOn = TabbyChat.generalSettings.unreadFlashing.getValue();
 	}
 	
@@ -94,9 +94,7 @@ public class ChatChannel implements Serializable {
 	public void trimLog() {
 		int maxChats = Integer.parseInt(TabbyChat.advancedSettings.chatScrollHistory.getValue()) + 5;
 		if(TabbyChat.instance != null && this.chatLog.size() >= maxChats) {
-			this.chatLogLock.acquireUninterruptibly();
 			this.chatLog.subList(this.chatLog.size()-11, this.chatLog.size()-1).clear();
-			this.chatLogLock.release();
 		}
 	}
 
@@ -115,12 +113,11 @@ public class ChatChannel implements Serializable {
 	
 	protected void importOldChat(List<TCChatLine> oldList) {
 		if(oldList == null || oldList.isEmpty()) return;
-		this.chatLogLock.acquireUninterruptibly();
 		for(TCChatLine oldChat : oldList) {
+			System.out.println("Importing '"+oldChat.getChatLineString()+"' -- status:"+oldChat.statusMsg);
 			if(oldChat == null || oldChat.statusMsg) continue;
 			this.chatLog.add(new TCChatLine(-1, StringUtils.stripControlCodes(oldChat.getChatLineString()), 0));
 		}
-		this.chatLogLock.release();
 		this.trimLog();
 	}
 }

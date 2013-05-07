@@ -11,8 +11,6 @@ package acs.tabbychat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,33 +35,28 @@ import java.util.Calendar;
 import java.text.SimpleDateFormat;
 import org.lwjgl.input.Keyboard;
 import net.minecraft.client.Minecraft;
-import net.minecraft.src.GuiChat;
-import net.minecraft.src.ChatLine;
+import net.minecraft.src.Gui;
 import net.minecraft.src.MathHelper;
 import net.minecraft.src.ScaledResolution;
 import net.minecraft.src.StringUtils;
-import net.minecraft.src.SoundManager;
-import net.minecraft.src.Gui;
-import net.minecraft.src.GuiContainer;
 
 public class TabbyChat {
 	protected static Minecraft mc;
-	private Pattern chatChannelPatternClean = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
-	private Pattern chatChannelPatternDirty = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
-	private Pattern chatPMfromMePattern = null;
-	private Pattern chatPMtoMePattern = null;
+	private volatile Pattern chatChannelPatternClean = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
+	private volatile Pattern chatChannelPatternDirty = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
+	private volatile Pattern chatPMfromMePattern = null;
+	private volatile Pattern chatPMtoMePattern = null;
 	public static String version = TabbyChatUtils.version;
 	protected Calendar cal = Calendar.getInstance();
-	public List<TCChatLine> lastChat;
+	public volatile List<TCChatLine> lastChat;
+	public final Object lastChatLock = new Object();
 	public LinkedHashMap<String, ChatChannel> channelMap = new LinkedHashMap();
 	public int nextID = 3600;
-	public GlobalSettings globalPrefs = new GlobalSettings();
-	public ServerSettings serverPrefs = new ServerSettings();
 	public static TCSettingsGeneral generalSettings;
 	public static TCSettingsServer serverSettings;
 	public static TCSettingsFilters filterSettings;
 	public static TCSettingsAdvanced advancedSettings;
-	protected Semaphore serverDataLock = new Semaphore(0, true);
+	private Semaphore serverDataLock = new Semaphore(0, true);
 	public static final GuiNewChatTC gnc = GuiNewChatTC.me;
 	public static final TabbyChat instance = new TabbyChat();
 	
@@ -74,13 +67,8 @@ public class TabbyChat {
 		serverSettings = new TCSettingsServer(this);
 		filterSettings = new TCSettingsFilters(this);
 		advancedSettings = new TCSettingsAdvanced(this);
-		boolean globalLoaded1 = generalSettings.loadSettingsFile();
-		boolean globalLoaded2 = advancedSettings.loadSettingsFile();
-		if (!globalLoaded1 && !globalLoaded2) {
-			this.globalPrefs.loadSettings();
-			generalSettings.importSettings();
-			advancedSettings.importSettings();
-		}
+		generalSettings.loadSettingsFile();
+		advancedSettings.loadSettingsFile();
 		if (!this.enabled()) this.disable();
 		else {
 			this.enable();
@@ -91,9 +79,7 @@ public class TabbyChat {
 		int ret = 0;
 		TCChatLine newChat = this.withTimeStamp(thisChat);
 		ChatChannel theChan = this.channelMap.get(name);
-		theChan.chatLogLock.acquireUninterruptibly();
 		theChan.chatLog.add(0, newChat);
-		theChan.chatLogLock.release();
 		theChan.trimLog();
 		if (theChan.active || this.channelMap.get("*").active)
 			ret = 1;
@@ -220,32 +206,29 @@ public class TabbyChat {
 		this.channelMap.put("*", new ChatChannel("*"));
 	}
 	
-	protected synchronized void enable() {
+	protected void enable() {
 		if (!this.channelMap.containsKey("*")) {
 			this.channelMap.put("*", new ChatChannel("*"));
 			this.channelMap.get("*").active = true;
 		}
-		serverSettings.updateForServer();
-		this.reloadServerData();
-		this.loadPatterns();
-		this.updateDefaults();
-		this.updateFilters();
-		if(serverSettings.server != null) this.loadPMPatterns();
+		synchronized(TabbyChat.class) {
+			this.serverDataLock.tryAcquire();
+			serverSettings.updateForServer();
+			this.reloadServerData();
+			this.loadPatterns();
+			this.updateDefaults();
+			this.updateFilters();
+			if(serverSettings.server != null) this.loadPMPatterns();
+			this.serverDataLock.release();
+		}
 		if (generalSettings.saveChatLog.getValue() && serverSettings.server != null) {
 			TabbyChatUtils.logChat("\nBEGIN CHAT LOGGING FOR "+serverSettings.serverName+"("+serverSettings.serverIP+") -- "+(new SimpleDateFormat()).format(Calendar.getInstance().getTime()));
 		}
-		this.serverDataLock.release();
 	}
 	
 	private void reloadServerData() {
-		boolean serverLoaded1 = serverSettings.loadSettingsFile();
-		boolean serverLoaded2 = filterSettings.loadSettingsFile();
-		if(!serverLoaded1 && !serverLoaded2) {
-			this.serverPrefs.updateForServer();
-			this.serverPrefs.loadSettings();
-			serverSettings.importSettings();
-			filterSettings.importSettings();
-		}
+		serverSettings.loadSettingsFile();
+		filterSettings.loadSettingsFile();
 		this.loadChannelData();
 	}
 
@@ -436,7 +419,6 @@ public class TabbyChat {
 			this.storeChannelData();
 			this.channelMap.clear();
 			if (this.enabled()) {
-				this.serverDataLock.acquireUninterruptibly();
 				this.enable();
 				this.resetDisplayedChat();
 			} else this.disable();
@@ -465,20 +447,13 @@ public class TabbyChat {
 		}
 		return actives;
 	}
-
-	public ChatLine getChatLine(String _chan, int _line) {
-		return this.channelMap.get(_chan).chatLog.get(_line);
-	}
 	
 	public void pollForUnread(Gui _gui, int _y, int _tick) {
 		int _opacity = 0;
-		int tickdiff;
+		int tickdiff = 50;
 
-		try {
-			if(this.lastChat == null || this.lastChat.size() == 0) return;
-			tickdiff = _tick - this.lastChat.get(0).getUpdatedCounter();
-		} catch (Exception e) { 
-			tickdiff = 50;
+		synchronized(this.lastChatLock) {
+			if(this.lastChat != null && this.lastChat.size() > 0) tickdiff = _tick - this.lastChat.get(0).getUpdatedCounter();
 		}
 		
 		if (tickdiff < 50) {
@@ -508,8 +483,10 @@ public class TabbyChat {
 	}
 	
 	public int processChat(List<TCChatLine> theChat) {
-		this.serverDataLock.acquireUninterruptibly();
-		this.serverDataLock.release();
+		if(this.serverDataLock.availablePermits() == 0) {
+			this.serverDataLock.acquireUninterruptibly();
+			this.serverDataLock.release();
+		}
 		
 		ArrayList<TCChatLine> filteredChatLine = new ArrayList<TCChatLine>(theChat.size());
 		List<String> toTabs = new ArrayList<String>();
@@ -517,7 +494,7 @@ public class TabbyChat {
 
 		int _ind;
 		int ret = 0;
-		boolean skip = false;
+		boolean skip = !serverSettings.autoChannelSearch.getValue();
 		
 		int n = theChat.size();
 		StringBuilder filteredChat = new StringBuilder(theChat.get(0).getChatLineString().length() * n);
@@ -559,7 +536,7 @@ public class TabbyChat {
 			String _line = (String)splitChat.next();
 			if (!firstline)
 				_line = " " + _line;
-			filteredChatLine.add(new TCChatLine(theChat.get(0).getUpdatedCounter(), _line, theChat.get(0).getChatLineID()));
+			filteredChatLine.add(new TCChatLine(theChat.get(0).getUpdatedCounter(), _line, theChat.get(0).getChatLineID(), theChat.get(0).statusMsg));
 			firstline = false;
 		}
 		
@@ -573,7 +550,7 @@ public class TabbyChat {
 		}
 		
 		String coloredChat = "";
-		for (ChatLine cl : theChat)
+		for (TCChatLine cl : theChat)
 			coloredChat = coloredChat + cl.getChatLineString();
 		String cleanedChat = StringUtils.stripControlCodes(coloredChat);
 		if (generalSettings.saveChatLog.getValue()) TabbyChatUtils.logChat(this.withTimeStamp(cleanedChat));
@@ -633,19 +610,21 @@ public class TabbyChat {
 		}
 		
 		List<String> activeTabs = this.getActive();
-		if (generalSettings.groupSpam.getValue() && activeTabs.size() > 0) {
-			if (toTabs.contains(activeTabs.get(0)))
-				this.lastChat = this.channelMap.get(activeTabs.get(0)).chatLog.subList(0, filteredChatLine.size());
-			else
+		synchronized(this.lastChatLock) { 
+			if (generalSettings.groupSpam.getValue() && activeTabs.size() > 0) {
+				if (toTabs.contains(activeTabs.get(0)))
+					this.lastChat = this.channelMap.get(activeTabs.get(0)).chatLog.subList(0, filteredChatLine.size());
+				else
+					this.lastChat = this.withTimeStamp(filteredChatLine);
+			} else
 				this.lastChat = this.withTimeStamp(filteredChatLine);
-		} else
-			this.lastChat = this.withTimeStamp(filteredChatLine);
-		
-		if (ret > 0) {
-			if (generalSettings.groupSpam.getValue() && this.channelMap.get(activeTabs.get(0)).hasSpam) {
-				gnc.setChatLines(0, this.lastChat);
-			} else {
-				gnc.addChatLines(0, this.lastChat);
+			
+			if (ret > 0) {
+				if (generalSettings.groupSpam.getValue() && this.channelMap.get(activeTabs.get(0)).hasSpam) {
+					gnc.setChatLines(0, this.lastChat);
+				} else {
+					gnc.addChatLines(0, this.lastChat);
+				}
 			}
 		}
 
