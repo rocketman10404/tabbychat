@@ -1,6 +1,7 @@
 package acs.tabbychat;
 
 import java.awt.Rectangle;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
@@ -42,9 +43,11 @@ public class GuiChatTC extends GuiChat {
     public ScaledResolution sr;
     // first attempt
 	private Object mkInChatLayout = null;
+	private Object mkInChatGUI = null;
 	private Method mkOnTick = null;
 	private Method mkDraw = null;
-	private ArrayList mkLayouts = new ArrayList();
+	private Method mkControlClicked = null;
+
 	// second attempt
 	private Class mkGuiCustomGui = null;
 	private Method mkDrawControls = null;
@@ -233,6 +236,9 @@ public class GuiChatTC extends GuiChat {
 				break;
 			}
 		}
+		
+		// Pass click info to Macro/Keybind mod if present
+		this.attemptMKControlClick(_x, _y, _button);		
 		
 		// Replicating GuiScreen's mouseClicked method since 'super' won't work
 		for(GuiButton _guibutton : (List<GuiButton>)this.buttonList) {
@@ -562,7 +568,7 @@ public class GuiChatTC extends GuiChat {
 		if(this.mkInChatLayout != null && this.mkInChatLayout.getClass() == String.class) {
 			mcLogger.logInfo("Skipping Macro/Keybind onTick call - reflection unsuccessful");
 			return;
-		} else if(this.mkInChatLayout == null || this.mkOnTick == null || this.mkDraw == null || this.mkLayouts == null) {
+		} else if(this.mkInChatLayout == null || this.mkOnTick == null || this.mkDraw == null) {
 			try {
 				// net.eq2online.macros.gui.designable.LayoutManager.getBoundLayout(String slotName, boolean canBeNull)
 				Class[] cArgs = new Class[2];
@@ -584,25 +590,60 @@ public class GuiChatTC extends GuiChat {
 				oArgs2[1] = par1;
 				oArgs2[2] = par2;
 				
+				// net.eq2online.macros.gui.screens.GuiCustomGui.controlClicked(int mouseX, int mouseY, int button)
+				Class[] cArgs3 = new Class[3];
+				cArgs3[0] = int.class;
+				cArgs3[1] = int.class;
+				cArgs3[2] = int.class;
+				
 				Class mkLayoutManager = Class.forName("net.eq2online.macros.gui.designable.LayoutManager");
 				if(mkLayoutManager != null) mcLogger.logInfo("[M/K TICK] LayoutManager Class found");
+				
 				Class mkDesignableGuiLayout = Class.forName("net.eq2online.macros.gui.designable.DesignableGuiLayout");
 				if(mkDesignableGuiLayout != null) mcLogger.logInfo("[M/K TICK] DesignableGuiLayout Class found");
+				
+				Class mkGuiCustomGui = Class.forName("net.eq2online.macros.gui.screens.GuiCustomGui");
+				if(mkGuiCustomGui != null) mcLogger.logInfo("[M/K TICK] GuiCustomGui Class found");
+				
 				Method mkgetBoundLayout = mkLayoutManager.getDeclaredMethod("getBoundLayout", cArgs);
 				if(mkgetBoundLayout != null) mcLogger.logInfo("[M/K TICK] getBoundLayout Method found");
+				
 				Object mkInChatLayoutObj = mkgetBoundLayout.invoke(null, oArgs);
 				if(mkInChatLayoutObj != null) mcLogger.logInfo("[M/K TICK] inChatLayout Object found");
-				Method mkOnTick = mkDesignableGuiLayout.getDeclaredMethod("onTick", (Class[])null);
+				
+				Class[] cArgsTmp = new Class[2];
+				cArgsTmp[0] = mkDesignableGuiLayout;
+				cArgsTmp[1] = GuiScreen.class;
+				Constructor mkChatGuiConstruct = mkGuiCustomGui.getConstructor(cArgsTmp);
+				if(mkChatGuiConstruct != null) mcLogger.logInfo("[M/K TICK] GuiCustomGui constructor found");
+				
+				Object[] oArgsTmp = new Object[2];
+				oArgsTmp[0] = mkInChatLayoutObj;
+				oArgsTmp[1] = null;				
+				Object mkChatGUI = mkChatGuiConstruct.newInstance(oArgsTmp);
+				if(mkChatGUI != null) mcLogger.logInfo("[M/K TICK] GuiCustomGui object instantiated");
+				
+				Method mkOnTick = mkDesignableGuiLayout.getDeclaredMethod("onTick", (Class[])null);				
 				if(mkOnTick != null) mcLogger.logInfo("[M/K TICK] inChatLayout.onTick Method found");
+				
 				Method mkLayoutDraw = mkDesignableGuiLayout.getDeclaredMethod("draw", cArgs2);
 				if(mkLayoutDraw != null) mcLogger.logInfo("[M/K TICK] inChatLayout.draw Method found");
+				
+				Method mkControl = mkGuiCustomGui.getDeclaredMethod("controlClicked", cArgs3);
+				if(mkControl != null) mcLogger.logInfo("[M/K TICK] controlClicked Method found");
+				
 				mkOnTick.invoke(mkInChatLayoutObj, (Object[])null);
 				mcLogger.logInfo("[M/K TICK] inChatLayout.onTick Method executed");
+				
 				mkLayoutDraw.invoke(mkInChatLayoutObj, oArgs2);
 				mcLogger.logInfo("[M/K TICK] inChatLayout.draw Method executed");
+				
 				this.mkInChatLayout = mkInChatLayoutObj;
+				this.mkInChatGUI = mkChatGUI;
 				this.mkOnTick = mkOnTick;
 				this.mkDraw = mkLayoutDraw;
+				this.mkControlClicked = mkControl;
+				this.mkControlClicked.setAccessible(true);
 			} catch (Exception e) {
 				mcLogger.logInfo("Error: Capture of M/K onTick Method unsuccessful");
 				this.mkInChatLayout = new String();
@@ -617,9 +658,7 @@ public class GuiChatTC extends GuiChat {
 				oArgs2[2] = par2;
 				
 				this.mkOnTick.invoke(this.mkInChatLayout, (Object[])null);
-				mcLogger.logInfo("[M/K TICK] onTick Method executed");
 				this.mkDraw.invoke(this.mkInChatLayout, oArgs2);
-				mcLogger.logInfo("[M/K TICK] draw Method executed");
 			} catch (Exception e) {
 				mcLogger.logInfo("WHAT? onTick Method execution FAILURE");
 				e.printStackTrace();
@@ -628,7 +667,17 @@ public class GuiChatTC extends GuiChat {
 		}
 	}	
 
-	private void attemptMKGuiDraw(int par1, int par2, float par3) {
-		
+	private void attemptMKControlClick(int par1, int par2, int par3) {
+		if(this.mkInChatGUI != null && this.mkControlClicked != null) {
+			Object[] oArgs = new Object[3];
+			oArgs[0] = par1;
+			oArgs[1] = par2;
+			oArgs[2] = par3;
+			try {
+				this.mkControlClicked.invoke(this.mkInChatGUI, oArgs);
+			} catch (Exception e) {
+				mc.getLogAgent().logWarningException("Attempt to send click event to Macro/Keybind control failed.",e);
+			}
+		}
 	}
 }
