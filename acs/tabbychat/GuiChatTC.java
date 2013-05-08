@@ -1,5 +1,7 @@
 package acs.tabbychat;
 
+import java.awt.Rectangle;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -16,6 +18,7 @@ import net.minecraft.src.GuiChat;
 import net.minecraft.src.GuiConfirmOpenLink;
 import net.minecraft.src.GuiScreen;
 import net.minecraft.src.GuiTextField;
+import net.minecraft.src.ILogAgent;
 import net.minecraft.src.Packet203AutoComplete;
 import net.minecraft.src.ScaledResolution;
 
@@ -37,6 +40,18 @@ public class GuiChatTC extends GuiChat {
     public int field_92018_d = 0;
     public float zLevel = 0.0F;
     public ScaledResolution sr;
+    // first attempt
+	private Object mkInChatLayout = null;
+	private Method mkOnTick = null;
+	private Method mkDraw = null;
+	private ArrayList mkLayouts = new ArrayList();
+	// second attempt
+	private Class mkGuiCustomGui = null;
+	private Method mkDrawControls = null;
+	private Method mkPostDrawControls = null;
+	private Method mkPostDrawScreen = null;
+	private Method mkDrawMiniButtonToolTips = null;
+    
 	public static GuiChatTC me;
 	public static final TabbyChat tc = TabbyChat.instance;
 	
@@ -350,6 +365,7 @@ public class GuiChatTC extends GuiChat {
 		// Draw chat tabs
 		for(GuiButton _button : (List<GuiButton>)this.buttonList) _button.drawButton(this.mc, cursorX, cursorY);
 		GL11.glPopMatrix();
+		this.attemptMacroKeybindGUITick(cursorX, cursorY, pointless);
 		this.fontRenderer.setUnicodeFlag(unicodeStore);
 	}
 	
@@ -539,5 +555,80 @@ public class GuiChatTC extends GuiChat {
 			return 0;
 		else
 			return (int) Math.ceil(lng / 100.0f);
+	}
+	
+	private void attemptMacroKeybindGUITick(int par1, int par2, float par3) {
+		ILogAgent mcLogger = mc.getLogAgent();
+		if(this.mkInChatLayout != null && this.mkInChatLayout.getClass() == String.class) {
+			mcLogger.logInfo("Skipping Macro/Keybind onTick call - reflection unsuccessful");
+			return;
+		} else if(this.mkInChatLayout == null || this.mkOnTick == null || this.mkDraw == null || this.mkLayouts == null) {
+			try {
+				// net.eq2online.macros.gui.designable.LayoutManager.getBoundLayout(String slotName, boolean canBeNull)
+				Class[] cArgs = new Class[2];
+				cArgs[0] = String.class;
+				cArgs[1] = boolean.class;
+				
+				Object[] oArgs = new Object[2];
+				oArgs[0] = new String("inchat");
+				oArgs[1] = false;
+				
+				// net.eq2online.macros.gui.designable.DesignableGuiLayout.draw(Rectangle bounds, int mouseX, int mouseY)
+				Class[] cArgs2 = new Class[3];
+				cArgs2[0] = Rectangle.class;
+				cArgs2[1] = int.class;
+				cArgs2[2] = int.class;
+				
+				Object[] oArgs2 = new Object[3];
+				oArgs2[0] = new Rectangle(0, 0, this.width, this.height-14);
+				oArgs2[1] = par1;
+				oArgs2[2] = par2;
+				
+				Class mkLayoutManager = Class.forName("net.eq2online.macros.gui.designable.LayoutManager");
+				if(mkLayoutManager != null) mcLogger.logInfo("[M/K TICK] LayoutManager Class found");
+				Class mkDesignableGuiLayout = Class.forName("net.eq2online.macros.gui.designable.DesignableGuiLayout");
+				if(mkDesignableGuiLayout != null) mcLogger.logInfo("[M/K TICK] DesignableGuiLayout Class found");
+				Method mkgetBoundLayout = mkLayoutManager.getDeclaredMethod("getBoundLayout", cArgs);
+				if(mkgetBoundLayout != null) mcLogger.logInfo("[M/K TICK] getBoundLayout Method found");
+				Object mkInChatLayoutObj = mkgetBoundLayout.invoke(null, oArgs);
+				if(mkInChatLayoutObj != null) mcLogger.logInfo("[M/K TICK] inChatLayout Object found");
+				Method mkOnTick = mkDesignableGuiLayout.getDeclaredMethod("onTick", (Class[])null);
+				if(mkOnTick != null) mcLogger.logInfo("[M/K TICK] inChatLayout.onTick Method found");
+				Method mkLayoutDraw = mkDesignableGuiLayout.getDeclaredMethod("draw", cArgs2);
+				if(mkLayoutDraw != null) mcLogger.logInfo("[M/K TICK] inChatLayout.draw Method found");
+				mkOnTick.invoke(mkInChatLayoutObj, (Object[])null);
+				mcLogger.logInfo("[M/K TICK] inChatLayout.onTick Method executed");
+				mkLayoutDraw.invoke(mkInChatLayoutObj, oArgs2);
+				mcLogger.logInfo("[M/K TICK] inChatLayout.draw Method executed");
+				this.mkInChatLayout = mkInChatLayoutObj;
+				this.mkOnTick = mkOnTick;
+				this.mkDraw = mkLayoutDraw;
+			} catch (Exception e) {
+				mcLogger.logInfo("Error: Capture of M/K onTick Method unsuccessful");
+				this.mkInChatLayout = new String();
+				e.printStackTrace();
+				mcLogger.logWarning(e.toString());
+			}
+		} else {
+			try {
+				Object[] oArgs2 = new Object[3];
+				oArgs2[0] = new Rectangle(0, 0, this.width, this.height-14);
+				oArgs2[1] = par1;
+				oArgs2[2] = par2;
+				
+				this.mkOnTick.invoke(this.mkInChatLayout, (Object[])null);
+				mcLogger.logInfo("[M/K TICK] onTick Method executed");
+				this.mkDraw.invoke(this.mkInChatLayout, oArgs2);
+				mcLogger.logInfo("[M/K TICK] draw Method executed");
+			} catch (Exception e) {
+				mcLogger.logInfo("WHAT? onTick Method execution FAILURE");
+				e.printStackTrace();
+				mcLogger.logWarning(e.toString());
+			}
+		}
+	}	
+
+	private void attemptMKGuiDraw(int par1, int par2, float par3) {
+		
 	}
 }

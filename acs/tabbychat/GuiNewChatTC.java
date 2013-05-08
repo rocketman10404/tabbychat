@@ -1,5 +1,7 @@
 package acs.tabbychat;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -10,6 +12,7 @@ import org.lwjgl.opengl.GL11;
 import net.minecraft.client.Minecraft;
 import net.minecraft.src.GuiChat;
 import net.minecraft.src.GuiNewChat;
+import net.minecraft.src.ILogAgent;
 import net.minecraft.src.MathHelper;
 import net.minecraft.src.ScaledResolution;
 import net.minecraft.src.ChatLine;
@@ -30,7 +33,6 @@ public class GuiNewChatTC extends GuiNewChat {
 	private int scrollOffset = 0;
 	private boolean chatScrolled = false;
 	protected boolean saveNeeded = true;
-	
 	public static final GuiNewChatTC me = new GuiNewChatTC();
 	private final static TabbyChat tc = TabbyChat.instance;
 	
@@ -157,7 +159,6 @@ public class GuiNewChatTC extends GuiNewChat {
 		}
 		if(TabbyChat.instance.enabled() && !this.getChatOpen())
 			TabbyChat.instance.pollForUnread(this, -visLineCounter * 9, currentTick);
-		
 		this.mc.fontRenderer.setUnicodeFlag(unicodeStore);
 	}
 
