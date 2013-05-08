@@ -632,7 +632,7 @@ public class TabbyChat {
 		try {
 			if (generalSettings.groupSpam.getValue() && activeTabs.size() > 0) {
 				if (toTabs.contains(activeTabs.get(0)))
-					this.lastChat = this.channelMap.get(activeTabs.get(0)).chatLog.subList(0, filteredChatLine.size());
+					this.lastChat = new ArrayList(this.channelMap.get(activeTabs.get(0)).chatLog.subList(0, filteredChatLine.size()));
 				else
 					this.lastChat = this.withTimeStamp(filteredChatLine);
 			} else
