@@ -573,46 +573,44 @@ public class TabbyChat {
 		String cleanedChat = StringUtils.stripControlCodes(coloredChat);
 		if (generalSettings.saveChatLog.getValue()) TabbyChatUtils.logChat(this.withTimeStamp(cleanedChat));
 		
-		if (!skip) {
-			Matcher findChannelClean = this.chatChannelPatternClean.matcher(cleanedChat);
-			Matcher findChannelDirty = this.chatChannelPatternDirty.matcher(coloredChat);
-			String cName = null;
-			boolean dirtyValid = (!serverSettings.delimColorBool.getValue() && !serverSettings.delimFormatBool.getValue()) ? true : findChannelDirty.find();
-			if (findChannelClean.find() && dirtyValid) {
-				cName = findChannelClean.group(1);
-				ret += this.addToChannel(cName, filteredChatLine);
-				toTabs.add(cName);
-			} else if(this.chatPMtoMePattern != null){
-				Matcher findPMtoMe = this.chatPMtoMePattern.matcher(cleanedChat);
-				if (findPMtoMe.find()) {					
-					for(int i=1;i<=findPMtoMe.groupCount();i++) {
-						if(findPMtoMe.group(i) != null) {
-							cName = findPMtoMe.group(i);
+		Matcher findChannelClean = this.chatChannelPatternClean.matcher(cleanedChat);
+		Matcher findChannelDirty = this.chatChannelPatternDirty.matcher(coloredChat);
+		String cName = null;
+		boolean dirtyValid = (!serverSettings.delimColorBool.getValue() && !serverSettings.delimFormatBool.getValue()) ? true : findChannelDirty.find();
+		if (findChannelClean.find() && dirtyValid) {
+			cName = findChannelClean.group(1);
+			ret += this.addToChannel(cName, filteredChatLine);
+			toTabs.add(cName);
+		} else if(this.chatPMtoMePattern != null && !skip){
+			Matcher findPMtoMe = this.chatPMtoMePattern.matcher(cleanedChat);
+			if (findPMtoMe.find()) {					
+				for(int i=1;i<=findPMtoMe.groupCount();i++) {
+					if(findPMtoMe.group(i) != null) {
+						cName = findPMtoMe.group(i);
+						if(!this.channelMap.containsKey(cName)) {
+							ChatChannel newPM = new ChatChannel(cName);
+							newPM.cmdPrefix = "/msg "+cName;
+							this.channelMap.put(cName, newPM);
+						}
+						ret += this.addToChannel(cName, filteredChatLine);							
+						toTabs.add(cName);
+						break;
+					}
+				}
+			} else if(this.chatPMfromMePattern != null) {
+				Matcher findPMfromMe = this.chatPMfromMePattern.matcher(cleanedChat);
+				if (findPMfromMe.find()) {						
+					for(int i=1;i<=findPMfromMe.groupCount();i++) {
+						if(findPMfromMe.group(i) != null) {
+							cName = findPMfromMe.group(i);
 							if(!this.channelMap.containsKey(cName)) {
 								ChatChannel newPM = new ChatChannel(cName);
 								newPM.cmdPrefix = "/msg "+cName;
 								this.channelMap.put(cName, newPM);
 							}
-							ret += this.addToChannel(cName, filteredChatLine);							
+							ret += this.addToChannel(cName, filteredChatLine);
 							toTabs.add(cName);
 							break;
-						}
-					}
-				} else if(this.chatPMfromMePattern != null) {
-					Matcher findPMfromMe = this.chatPMfromMePattern.matcher(cleanedChat);
-					if (findPMfromMe.find()) {						
-						for(int i=1;i<=findPMfromMe.groupCount();i++) {
-							if(findPMfromMe.group(i) != null) {
-								cName = findPMfromMe.group(i);
-								if(!this.channelMap.containsKey(cName)) {
-									ChatChannel newPM = new ChatChannel(cName);
-									newPM.cmdPrefix = "/msg "+cName;
-									this.channelMap.put(cName, newPM);
-								}
-								ret += this.addToChannel(cName, filteredChatLine);
-								toTabs.add(cName);
-								break;
-							}
 						}
 					}
 				}
