@@ -1,5 +1,7 @@
 package acs.tabbychat;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -28,6 +30,12 @@ public class GuiChatTC extends GuiChat {
 	private int playerNameIndex = 0;			// field_73903_n
 	private List foundPlayerNames = new ArrayList();	// field_73904_o
 	private URI clickedURI = null;
+	// Compatibility with Emoticons mod
+	private Object emoteObject = null;
+	private Method emoteActionPerformed = null;
+	private Method emoteInitGui = null;
+	private Method emoteDrawScreen = null;
+	
 	public GuiTextField inputField;
 	public List<GuiTextField> inputList = new ArrayList<GuiTextField>(3);
 	public ChatScrollBar scrollBar;
@@ -41,14 +49,16 @@ public class GuiChatTC extends GuiChat {
 	public static final TabbyChat tc = TabbyChat.instance;
 	
 	public GuiChatTC() {
+		super();
 		this.mc = Minecraft.getMinecraft();
 		this.fontRenderer = this.mc.fontRenderer;
 		me = this;
 		this.sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
+		this.attemptEmoticonsLoad();
 	}
 
 	public GuiChatTC(String par1Str) {
-		super();
+		this();
 		this.defaultInputFieldText = par1Str;
 	}
 	
@@ -98,6 +108,19 @@ public class GuiChatTC extends GuiChat {
 			} else {
 				String thePrefix = tc.channelMap.get(activeTabs.get(0)).cmdPrefix.trim();
 				if(thePrefix.length() > 0) this.inputField.setText(tc.channelMap.get(activeTabs.get(0)).cmdPrefix.trim() + " ");
+			}
+		}
+		// Initialize Emoticons screen if present
+		if(this.emoteObject != null && this.emoteInitGui != null) {
+			Object[] oArgs = new Object[1];
+			oArgs[0] = this.buttonList;
+			try {
+				this.emoteInitGui.invoke(this.emoteObject, oArgs);
+			} catch (Exception e) {
+				this.emoteObject = null;
+				this.emoteInitGui = null;
+				this.emoteDrawScreen = null;
+				this.emoteActionPerformed = null;
 			}
 		}
 	}
@@ -351,6 +374,22 @@ public class GuiChatTC extends GuiChat {
 		for(GuiButton _button : (List<GuiButton>)this.buttonList) _button.drawButton(this.mc, cursorX, cursorY);
 		GL11.glPopMatrix();
 		this.fontRenderer.setUnicodeFlag(unicodeStore);
+		// Attempt Emoticons drawScreen if present - may need to be relocated inside push/pop
+		if(this.emoteObject != null && this.emoteDrawScreen != null) {
+			Object[] oArgs = new Object[4];
+			oArgs[0] = cursorX;
+			oArgs[1] = cursorY;
+			oArgs[2] = pointless;
+			oArgs[3] = (GuiScreen)this;
+			try {
+				this.emoteDrawScreen.invoke(this.emoteObject, oArgs);
+			} catch (Exception e) {
+				this.emoteObject = null;
+				this.emoteDrawScreen = null;
+				this.emoteInitGui = null;
+				this.emoteActionPerformed = null;
+			}
+		}
 	}
 	
 	public @Override void func_73894_a(String[] par1ArrayOfStr) {
@@ -408,6 +447,19 @@ public class GuiChatTC extends GuiChat {
 				_button.channel.unread = false;
 			}
 			tc.resetDisplayedChat();
+		}
+		// Attempt Emoticons actionPerformed if present
+		if(this.emoteObject != null && this.emoteActionPerformed != null) {
+			Object[] oArgs = new Object[1];
+			oArgs[0] = par1GuiButton;
+			try {
+				this.emoteActionPerformed.invoke(this.emoteObject, oArgs);
+			} catch (Exception e) {
+				this.emoteObject = null;
+				this.emoteDrawScreen = null;
+				this.emoteInitGui = null;
+				this.emoteActionPerformed = null;
+			}
 		}
 	}
 
@@ -539,5 +591,29 @@ public class GuiChatTC extends GuiChat {
 			return 0;
 		else
 			return (int) Math.ceil(lng / 100.0f);
+	}
+	
+	private void attemptEmoticonsLoad() {
+		try {
+			// Load new Emoticons object
+			Class EmoticonsClass = Class.forName("mudbill.Emoticons");
+			Constructor EmoticonsConstruct = EmoticonsClass.getConstructor((Class[])null);
+			this.emoteObject = EmoticonsConstruct.newInstance((Object[])null);
+			// Assign Emoticons actionPerformed Method
+			Class[] cArgsAP = new Class[1];
+			cArgsAP[0] = GuiButton.class;
+			this.emoteActionPerformed = EmoticonsClass.getDeclaredMethod("actionPerformed", cArgsAP);
+			// Assign Emoticons initGui Method;
+			Class[] cArgsIG = new Class[0];
+			cArgsIG[0] = List.class;
+			this.emoteInitGui = EmoticonsClass.getDeclaredMethod("initGui", cArgsIG);
+			// Assign Emoticons drawScreen Method;
+			Class[] cArgsDS = new Class[4];
+			cArgsDS[0] = int.class;
+			cArgsDS[1] = int.class;
+			cArgsDS[2] = float.class;
+			cArgsDS[3] = GuiScreen.class;
+			this.emoteDrawScreen = EmoticonsClass.getDeclaredMethod("drawScreen", cArgsDS);
+		} catch (Exception e) {	}
 	}
 }
