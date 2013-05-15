@@ -20,6 +20,7 @@ import net.minecraft.src.GuiConfirmOpenLink;
 import net.minecraft.src.GuiScreen;
 import net.minecraft.src.GuiTextField;
 import net.minecraft.src.ILogAgent;
+import net.minecraft.src.LogAgent;
 import net.minecraft.src.Packet203AutoComplete;
 import net.minecraft.src.ScaledResolution;
 
@@ -32,6 +33,14 @@ public class GuiChatTC extends GuiChat {
 	private int playerNameIndex = 0;			// field_73903_n
 	private List foundPlayerNames = new ArrayList();	// field_73904_o
 	private URI clickedURI = null;
+	
+	// Compatibility with Emoticons mod
+	private Object emoteObject = null;
+	private Method emoteActionPerformed = null;
+	private Method emoteInitGui = null;
+	private Method emoteDrawScreen = null;
+	private int emoteOffsetX = 0;
+	
 	public GuiTextField inputField;
 	public List<GuiTextField> inputList = new ArrayList<GuiTextField>(3);
 	public ChatScrollBar scrollBar;
@@ -59,14 +68,16 @@ public class GuiChatTC extends GuiChat {
 	public static final TabbyChat tc = TabbyChat.instance;
 	
 	public GuiChatTC() {
+		super();
 		this.mc = Minecraft.getMinecraft();
 		this.fontRenderer = this.mc.fontRenderer;
 		me = this;
 		this.sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
+		this.attemptEmoticonsLoad();
 	}
 
 	public GuiChatTC(String par1Str) {
-		super();
+		this();
 		this.defaultInputFieldText = par1Str;
 	}
 	
@@ -116,6 +127,19 @@ public class GuiChatTC extends GuiChat {
 			} else {
 				String thePrefix = tc.channelMap.get(activeTabs.get(0)).cmdPrefix.trim();
 				if(thePrefix.length() > 0) this.inputField.setText(tc.channelMap.get(activeTabs.get(0)).cmdPrefix.trim() + " ");
+			}
+		}
+		// Initialize Emoticons screen if present
+		if(this.emoteObject != null && this.emoteInitGui != null) {
+			Object[] oArgs = new Object[1];
+			oArgs[0] = this.buttonList;
+			try {
+				this.emoteInitGui.invoke(this.emoteObject, oArgs);
+			} catch (Exception e) {
+				this.emoteObject = null;
+				this.emoteInitGui = null;
+				this.emoteDrawScreen = null;
+				this.emoteActionPerformed = null;
 			}
 		}
 	}
@@ -242,16 +266,25 @@ public class GuiChatTC extends GuiChat {
 		
 		// Replicating GuiScreen's mouseClicked method since 'super' won't work
 		for(GuiButton _guibutton : (List<GuiButton>)this.buttonList) {
-			if(_guibutton.mousePressed(this.mc, _x, _y)) {
-				if(_button == 0) {
+			if(ChatButton.class.isInstance(_guibutton) || _guibutton.id <= 2) {
+				if(_guibutton.mousePressed(this.mc, _x, _y)) {
+					if(_button == 0) {
+						this.selectedButton = _guibutton;
+						this.mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
+						this.actionPerformed(_guibutton);
+						return;
+					} else if (_button == 1) {
+						ChatButton _cb = (ChatButton)_guibutton;
+						if(_cb.channel == tc.channelMap.get("*")) return;
+						this.mc.displayGuiScreen(new ChatChannelGUI(_cb.channel));
+						return;
+					}
+				}
+			} else {
+				if(_guibutton.mousePressed(this.mc, _x-this.emoteOffsetX, _y) && _button == 0) {
 					this.selectedButton = _guibutton;
 					this.mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
 					this.actionPerformed(_guibutton);
-					return;
-				} else if (_button == 1) {
-					ChatButton _cb = (ChatButton)_guibutton;
-					if(_cb.channel == tc.channelMap.get("*")) return;
-					this.mc.displayGuiScreen(new ChatChannelGUI(_cb.channel));
 					return;
 				}
 			}
@@ -369,10 +402,36 @@ public class GuiChatTC extends GuiChat {
 		GL11.glTranslatef(0.0f, scaleOffset, 1.0f);
 		GL11.glScalef(scaleSetting, scaleSetting, 1.0f);
 		// Draw chat tabs
-		for(GuiButton _button : (List<GuiButton>)this.buttonList) _button.drawButton(this.mc, cursorX, cursorY);
+		for(GuiButton _button : (List<GuiButton>)this.buttonList) {
+			if(ChatButton.class.isInstance(_button)) _button.drawButton(this.mc, cursorX, cursorY);
+			else if(_button.id == 0 || _button.id == 2) _button.drawButton(this.mc, cursorX, cursorY);
+		}
 		GL11.glPopMatrix();
 		this.attemptMacroKeybindGUITick(cursorX, cursorY, pointless);
 		this.fontRenderer.setUnicodeFlag(unicodeStore);
+		// Attempt Emoticons drawScreen if present - need to translate for alternate resolutions
+		this.emoteOffsetX = Math.max(this.width - 427, 0);
+		GL11.glPushMatrix();
+		GL11.glTranslatef((float)this.emoteOffsetX, 0.0f, 0.0f);
+		if(this.emoteObject != null && this.emoteDrawScreen != null) {
+			Object[] oArgs = new Object[4];
+			oArgs[0] = cursorX+this.emoteOffsetX;
+			oArgs[1] = cursorY;
+			oArgs[2] = pointless;
+			oArgs[3] = (GuiScreen)this;
+			try {
+				this.emoteDrawScreen.invoke(this.emoteObject, oArgs);
+				for(GuiButton _button : (List<GuiButton>)this.buttonList) {
+					if(!ChatButton.class.isInstance(_button) && _button.id > 2) _button.drawButton(this.mc, cursorX-this.emoteOffsetX, cursorY);
+				}
+			} catch (Exception e) {
+				this.emoteObject = null;
+				this.emoteDrawScreen = null;
+				this.emoteInitGui = null;
+				this.emoteActionPerformed = null;
+			}
+		}
+		GL11.glPopMatrix();
 	}
 	
 	public @Override void func_73894_a(String[] par1ArrayOfStr) {
@@ -394,6 +453,22 @@ public class GuiChatTC extends GuiChat {
 	}
 	
 	public void actionPerformed(GuiButton par1GuiButton) {
+		// Attempt Emoticons actionPerformed if present
+		if(this.emoteObject != null && this.emoteActionPerformed != null) {
+			Object[] oArgs = new Object[3];
+			oArgs[0] = par1GuiButton;
+			oArgs[1] = this.buttonList;
+			oArgs[2] = this.inputField;
+			try {
+				this.emoteActionPerformed.invoke(this.emoteObject, oArgs);
+			} catch (Exception e) {
+				this.emoteObject = null;
+				this.emoteDrawScreen = null;
+				this.emoteInitGui = null;
+				this.emoteActionPerformed = null;
+			}
+		}
+		if(!ChatButton.class.isInstance(par1GuiButton)) return;
 		ChatButton _button = (ChatButton)par1GuiButton;
 		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) && tc.channelMap.get("*") == _button.channel) {
 			this.mc.displayGuiScreen(TabbyChat.generalSettings);
@@ -434,11 +509,19 @@ public class GuiChatTC extends GuiChat {
 	}
 
 	public void drawChatTabs() {
+		// Store non-TabbyChat buttons in external list
+		List<GuiButton> tmpBin = new ArrayList();
+		for(GuiButton _button : (List<GuiButton>)this.buttonList) {
+			if(!ChatButton.class.isInstance(_button)) tmpBin.add(_button);
+		}
+		// Re-create buttonList of tab buttons
 		this.buttonList.clear();
 		tc.updateButtonLocations();
 		for (ChatChannel _chan : tc.channelMap.values()) {
 			this.buttonList.add(_chan.tab);
-		}		
+		}
+		// Add external buttons back on button list
+		this.buttonList.addAll(tmpBin);
 	}
 
 	public int getFocusedFieldInd() {
@@ -679,5 +762,31 @@ public class GuiChatTC extends GuiChat {
 				mc.getLogAgent().logWarningException("Attempt to send click event to Macro/Keybind control failed.",e);
 			}
 		}
+	}
+
+	private void attemptEmoticonsLoad() {
+		try {
+			// Load new Emoticons object
+			Class EmoticonsClass = Class.forName("mudbill.Emoticons");
+			Constructor EmoticonsConstruct = EmoticonsClass.getConstructor((Class[])null);
+			this.emoteObject = EmoticonsConstruct.newInstance((Object[])null);
+			// Assign Emoticons actionPerformed Method
+			Class[] cArgsAP = new Class[3];
+			cArgsAP[0] = GuiButton.class;
+			cArgsAP[1] = List.class;
+			cArgsAP[2] = GuiTextField.class;
+			this.emoteActionPerformed = EmoticonsClass.getDeclaredMethod("actionPerformed", cArgsAP);
+			// Assign Emoticons initGui Method;
+			Class[] cArgsIG = new Class[1];
+			cArgsIG[0] = List.class;
+			this.emoteInitGui = EmoticonsClass.getDeclaredMethod("initGui", cArgsIG);
+			// Assign Emoticons drawScreen Method;
+			Class[] cArgsDS = new Class[4];
+			cArgsDS[0] = int.class;
+			cArgsDS[1] = int.class;
+			cArgsDS[2] = float.class;
+			cArgsDS[3] = GuiScreen.class;
+			this.emoteDrawScreen = EmoticonsClass.getDeclaredMethod("drawScreen", cArgsDS);
+		} catch (Exception e) {	}
 	}
 }

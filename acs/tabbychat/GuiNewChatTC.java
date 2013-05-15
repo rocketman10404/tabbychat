@@ -180,10 +180,13 @@ public class GuiNewChatTC extends GuiNewChat {
 	public void func_96129_a(String _msg, int id, int tick, boolean backupFlag) {
 		boolean chatOpen = this.getChatOpen();
 		boolean isLineOne = true;
+		boolean optionalDeletion = false;
 		List<TCChatLine> multiLineChat = new ArrayList<TCChatLine>();
 		// Delete message if requested
-		if(id != 0)
+		if(id != 0) {
+			optionalDeletion = true;
 			this.deleteChatLine(id);
+		}			
 		// Split message by available chatbox space
 		int maxWidth = MathHelper.floor_float((float)this.func_96126_f() / this.func_96131_h());
 		if(TabbyChat.instance.enabled()) {
@@ -208,7 +211,7 @@ public class GuiNewChatTC extends GuiNewChat {
 		}
 		
 		// Add chatlines to appropriate lists
-		if(TabbyChat.instance.enabled()) {
+		if(TabbyChat.instance.enabled() && !optionalDeletion) {
 			int ret = TabbyChat.instance.processChat(multiLineChat);
 		} else {
 			int _len = multiLineChat.size();
@@ -313,6 +316,8 @@ public class GuiNewChatTC extends GuiNewChat {
 	}
 	
 	public @Override void deleteChatLine(int _id) {
+		ChatLine chatLineRemove = null;
+		ChatLine backupLineRemove = null;
 		Iterator _iter = this.chatLines.iterator();
 		ChatLine _cl;
 		do {
@@ -324,12 +329,17 @@ public class GuiNewChatTC extends GuiNewChat {
 					}
 					_cl = (ChatLine)_iter.next();
 				} while(_cl.getChatLineID() != _id);
-				_iter.remove();
-				return;
+				backupLineRemove = _cl;
+				break;
 			}
 			_cl = (ChatLine)_iter.next();
 		} while(_cl.getChatLineID() != _id);
-		_iter.remove();
+		chatLineRemove = _cl;
+		
+		if(chatLineRemove != null && chatLineRemove.getChatLineID() == _id) {
+			this.chatLines.remove(chatLineRemove);
+		}
+		if(backupLineRemove != null && backupLineRemove.getChatLineID() == _id) this.backupLines.remove(backupLineRemove);
 	}
 	
 	public int getHeightSetting() {
