@@ -2,6 +2,7 @@ package acs.tabbychat;
 
 import java.awt.Rectangle;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
@@ -19,8 +20,6 @@ import net.minecraft.src.GuiChat;
 import net.minecraft.src.GuiConfirmOpenLink;
 import net.minecraft.src.GuiScreen;
 import net.minecraft.src.GuiTextField;
-import net.minecraft.src.ILogAgent;
-import net.minecraft.src.LogAgent;
 import net.minecraft.src.Packet203AutoComplete;
 import net.minecraft.src.ScaledResolution;
 
@@ -28,10 +27,10 @@ public class GuiChatTC extends GuiChat {
 	public String historyBuffer = "";
 	public String defaultInputFieldText = "";
 	public int sentHistoryCursor = -1;
-	private boolean playerNamesFound = false;	// field_73897_d
-	private boolean waitingOnPlayerNames = false;  // field_73905_m
-	private int playerNameIndex = 0;			// field_73903_n
-	private List foundPlayerNames = new ArrayList();	// field_73904_o
+	private boolean playerNamesFound = false;
+	private boolean waitingOnPlayerNames = false;
+	private int playerNameIndex = 0;
+	private List foundPlayerNames = new ArrayList();
 	private URI clickedURI = null;
 	
 	// Compatibility with Emoticons mod
@@ -41,6 +40,12 @@ public class GuiChatTC extends GuiChat {
 	private Method emoteDrawScreen = null;
 	private int emoteOffsetX = 0;
 	
+    // Compatibility with Macro/Keybind mod
+	private Object mkInChatLayout = null;
+	private Object mkInChatGUI = null;
+	private Method mkDraw = null;
+	private Method mkControlClicked = null;
+	
 	public GuiTextField inputField;
 	public List<GuiTextField> inputList = new ArrayList<GuiTextField>(3);
 	public ChatScrollBar scrollBar;
@@ -49,21 +54,7 @@ public class GuiChatTC extends GuiChat {
     public long field_85043_c = 0L;
     public int field_92018_d = 0;
     public float zLevel = 0.0F;
-    public ScaledResolution sr;
-    // first attempt
-	private Object mkInChatLayout = null;
-	private Object mkInChatGUI = null;
-	private Method mkOnTick = null;
-	private Method mkDraw = null;
-	private Method mkControlClicked = null;
-
-	// second attempt
-	private Class mkGuiCustomGui = null;
-	private Method mkDrawControls = null;
-	private Method mkPostDrawControls = null;
-	private Method mkPostDrawScreen = null;
-	private Method mkDrawMiniButtonToolTips = null;
-    
+    public ScaledResolution sr;    
 	public static GuiChatTC me;
 	public static final TabbyChat tc = TabbyChat.instance;
 	
@@ -74,6 +65,7 @@ public class GuiChatTC extends GuiChat {
 		me = this;
 		this.sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
 		this.attemptEmoticonsLoad();
+		this.attemptMacroKeybindLoad();
 	}
 
 	public GuiChatTC(String par1Str) {
@@ -262,7 +254,7 @@ public class GuiChatTC extends GuiChat {
 		}
 		
 		// Pass click info to Macro/Keybind mod if present
-		this.attemptMKControlClick(_x, _y, _button);		
+		if(this.attemptMKControlClick(_x, _y, _button)) return;
 		
 		// Replicating GuiScreen's mouseClicked method since 'super' won't work
 		for(GuiButton _guibutton : (List<GuiButton>)this.buttonList) {
@@ -407,9 +399,13 @@ public class GuiChatTC extends GuiChat {
 			else if(_button.id == 0 || _button.id == 2) _button.drawButton(this.mc, cursorX, cursorY);
 		}
 		GL11.glPopMatrix();
-		this.attemptMacroKeybindGUITick(cursorX, cursorY, pointless);
+		
+// Attempt Macro/Keybind drawScreen if present
+		this.attemptMKdrawScreen(cursorX, cursorY, pointless);
+		
 		this.fontRenderer.setUnicodeFlag(unicodeStore);
-		// Attempt Emoticons drawScreen if present - need to translate for alternate resolutions
+		
+// Attempt Emoticons drawScreen if present - need to translate for alternate resolutions
 		this.emoteOffsetX = Math.max(this.width - 427, 0);
 		GL11.glPushMatrix();
 		GL11.glTranslatef((float)this.emoteOffsetX, 0.0f, 0.0f);
@@ -646,141 +642,108 @@ public class GuiChatTC extends GuiChat {
 			return (int) Math.ceil(lng / 100.0f);
 	}
 	
-	private void attemptMacroKeybindGUITick(int par1, int par2, float par3) {
-		ILogAgent mcLogger = mc.getLogAgent();
-		if(this.mkInChatLayout != null && this.mkInChatLayout.getClass() == String.class) {
-			mcLogger.logInfo("Skipping Macro/Keybind onTick call - reflection unsuccessful");
-			return;
-		} else if(this.mkInChatLayout == null || this.mkOnTick == null || this.mkDraw == null) {
+	private void attemptMacroKeybindLoad() {
+		try {
+// net.eq2online.macros.gui.designable.LayoutManager.getBoundLayout(String slotName, boolean canBeNull)
+			Class[] cArgs = new Class[2];
+			cArgs[0] = String.class;
+			cArgs[1] = boolean.class;
+
+			Object[] oArgs = new Object[2];
+			oArgs[0] = new String("inchat");
+			oArgs[1] = false;
+
+// net.eq2online.macros.gui.designable.DesignableGuiLayout.draw(Rectangle bounds, int mouseX, int mouseY)
+			Class[] cArgs2 = new Class[3];
+			cArgs2[0] = Rectangle.class;
+			cArgs2[1] = int.class;
+			cArgs2[2] = int.class;
+
+// net.eq2online.macros.gui.screens.GuiCustomGui.controlClicked(int mouseX, int mouseY, int button)
+			Class[] cArgs3 = new Class[3];
+			cArgs3[0] = int.class;
+			cArgs3[1] = int.class;
+			cArgs3[2] = int.class;
+
+			Class mkLayoutManager = Class.forName("net.eq2online.macros.gui.designable.LayoutManager");
+			Class mkDesignableGuiLayout = Class.forName("net.eq2online.macros.gui.designable.DesignableGuiLayout");
+			Class mkGuiCustomGui = Class.forName("net.eq2online.macros.gui.screens.GuiCustomGui");
+			Method mkgetBoundLayout = mkLayoutManager.getDeclaredMethod("getBoundLayout", cArgs);
+			this.mkInChatLayout = mkgetBoundLayout.invoke(null, oArgs);
+
+			Class[] cArgsTmp = new Class[2];
+			cArgsTmp[0] = mkDesignableGuiLayout;
+			cArgsTmp[1] = GuiScreen.class;
+			Constructor mkChatGuiConstruct = mkGuiCustomGui.getConstructor(cArgsTmp);
+
+			Object[] oArgsTmp = new Object[2];
+			oArgsTmp[0] = this.mkInChatLayout;
+			oArgsTmp[1] = null;				
+			this.mkInChatGUI = mkChatGuiConstruct.newInstance(oArgsTmp);		
+			this.mkDraw = mkDesignableGuiLayout.getDeclaredMethod("draw", cArgs2);
+			this.mkControlClicked = mkGuiCustomGui.getDeclaredMethod("controlClicked", cArgs3);
+			this.mkControlClicked.setAccessible(true);			
+		} catch (Exception e) {
+			this.mkInChatGUI = null;
+			this.mkInChatLayout = null;
+			this.mkControlClicked = null;
+			this.mkDraw = null;
+		}
+	}
+	
+	private void attemptMKdrawScreen(int par1, int par2, float par3) {
+		if(this.mkInChatLayout != null && this.mkDraw != null) {
 			try {
-				// net.eq2online.macros.gui.designable.LayoutManager.getBoundLayout(String slotName, boolean canBeNull)
-				Class[] cArgs = new Class[2];
-				cArgs[0] = String.class;
-				cArgs[1] = boolean.class;
-				
-				Object[] oArgs = new Object[2];
-				oArgs[0] = new String("inchat");
-				oArgs[1] = false;
-				
-				// net.eq2online.macros.gui.designable.DesignableGuiLayout.draw(Rectangle bounds, int mouseX, int mouseY)
-				Class[] cArgs2 = new Class[3];
-				cArgs2[0] = Rectangle.class;
-				cArgs2[1] = int.class;
-				cArgs2[2] = int.class;
-				
-				Object[] oArgs2 = new Object[3];
-				oArgs2[0] = new Rectangle(0, 0, this.width, this.height-14);
-				oArgs2[1] = par1;
-				oArgs2[2] = par2;
-				
-				// net.eq2online.macros.gui.screens.GuiCustomGui.controlClicked(int mouseX, int mouseY, int button)
-				Class[] cArgs3 = new Class[3];
-				cArgs3[0] = int.class;
-				cArgs3[1] = int.class;
-				cArgs3[2] = int.class;
-				
-				Class mkLayoutManager = Class.forName("net.eq2online.macros.gui.designable.LayoutManager");
-				if(mkLayoutManager != null) mcLogger.logInfo("[M/K TICK] LayoutManager Class found");
-				
-				Class mkDesignableGuiLayout = Class.forName("net.eq2online.macros.gui.designable.DesignableGuiLayout");
-				if(mkDesignableGuiLayout != null) mcLogger.logInfo("[M/K TICK] DesignableGuiLayout Class found");
-				
-				Class mkGuiCustomGui = Class.forName("net.eq2online.macros.gui.screens.GuiCustomGui");
-				if(mkGuiCustomGui != null) mcLogger.logInfo("[M/K TICK] GuiCustomGui Class found");
-				
-				Method mkgetBoundLayout = mkLayoutManager.getDeclaredMethod("getBoundLayout", cArgs);
-				if(mkgetBoundLayout != null) mcLogger.logInfo("[M/K TICK] getBoundLayout Method found");
-				
-				Object mkInChatLayoutObj = mkgetBoundLayout.invoke(null, oArgs);
-				if(mkInChatLayoutObj != null) mcLogger.logInfo("[M/K TICK] inChatLayout Object found");
-				
-				Class[] cArgsTmp = new Class[2];
-				cArgsTmp[0] = mkDesignableGuiLayout;
-				cArgsTmp[1] = GuiScreen.class;
-				Constructor mkChatGuiConstruct = mkGuiCustomGui.getConstructor(cArgsTmp);
-				if(mkChatGuiConstruct != null) mcLogger.logInfo("[M/K TICK] GuiCustomGui constructor found");
-				
-				Object[] oArgsTmp = new Object[2];
-				oArgsTmp[0] = mkInChatLayoutObj;
-				oArgsTmp[1] = null;				
-				Object mkChatGUI = mkChatGuiConstruct.newInstance(oArgsTmp);
-				if(mkChatGUI != null) mcLogger.logInfo("[M/K TICK] GuiCustomGui object instantiated");
-				
-				Method mkOnTick = mkDesignableGuiLayout.getDeclaredMethod("onTick", (Class[])null);				
-				if(mkOnTick != null) mcLogger.logInfo("[M/K TICK] inChatLayout.onTick Method found");
-				
-				Method mkLayoutDraw = mkDesignableGuiLayout.getDeclaredMethod("draw", cArgs2);
-				if(mkLayoutDraw != null) mcLogger.logInfo("[M/K TICK] inChatLayout.draw Method found");
-				
-				Method mkControl = mkGuiCustomGui.getDeclaredMethod("controlClicked", cArgs3);
-				if(mkControl != null) mcLogger.logInfo("[M/K TICK] controlClicked Method found");
-				
-				mkOnTick.invoke(mkInChatLayoutObj, (Object[])null);
-				mcLogger.logInfo("[M/K TICK] inChatLayout.onTick Method executed");
-				
-				mkLayoutDraw.invoke(mkInChatLayoutObj, oArgs2);
-				mcLogger.logInfo("[M/K TICK] inChatLayout.draw Method executed");
-				
-				this.mkInChatLayout = mkInChatLayoutObj;
-				this.mkInChatGUI = mkChatGUI;
-				this.mkOnTick = mkOnTick;
-				this.mkDraw = mkLayoutDraw;
-				this.mkControlClicked = mkControl;
-				this.mkControlClicked.setAccessible(true);
+				Object[] oArgs = new Object[3];
+				oArgs[0] = new Rectangle(0, 0, this.width, this.height-14);
+				oArgs[1] = par1;
+				oArgs[2] = par2;
+				this.mkDraw.invoke(this.mkInChatLayout, oArgs);
 			} catch (Exception e) {
-				mcLogger.logInfo("Error: Capture of M/K onTick Method unsuccessful");
-				this.mkInChatLayout = new String();
-				e.printStackTrace();
-				mcLogger.logWarning(e.toString());
-			}
-		} else {
-			try {
-				Object[] oArgs2 = new Object[3];
-				oArgs2[0] = new Rectangle(0, 0, this.width, this.height-14);
-				oArgs2[1] = par1;
-				oArgs2[2] = par2;
-				
-				this.mkOnTick.invoke(this.mkInChatLayout, (Object[])null);
-				this.mkDraw.invoke(this.mkInChatLayout, oArgs2);
-			} catch (Exception e) {
-				mcLogger.logInfo("WHAT? onTick Method execution FAILURE");
-				e.printStackTrace();
-				mcLogger.logWarning(e.toString());
+				this.mkInChatLayout = null;
+				this.mkDraw = null;
 			}
 		}
-	}	
+	}
 
-	private void attemptMKControlClick(int par1, int par2, int par3) {
+	private boolean attemptMKControlClick(int par1, int par2, int par3) {
+		boolean clicked = false;
 		if(this.mkInChatGUI != null && this.mkControlClicked != null) {
 			Object[] oArgs = new Object[3];
 			oArgs[0] = par1;
 			oArgs[1] = par2;
 			oArgs[2] = par3;
 			try {
-				this.mkControlClicked.invoke(this.mkInChatGUI, oArgs);
+				Class mkGuiCustomGui = Class.forName("net.eq2online.macros.gui.screens.GuiCustomGui");
+				Field fBBox = mkGuiCustomGui.getDeclaredField("boundingBox");
+				fBBox.setAccessible(true);
+				fBBox.set(this.mkInChatGUI, new Rectangle(0, 0, this.width, this.height-14));
+				clicked = ((Boolean)this.mkControlClicked.invoke(this.mkInChatGUI, oArgs)).booleanValue();
 			} catch (Exception e) {
-				mc.getLogAgent().logWarningException("Attempt to send click event to Macro/Keybind control failed.",e);
+				this.mkInChatGUI = null;
+				this.mkControlClicked = null;
 			}
 		}
+		return clicked;
 	}
 
 	private void attemptEmoticonsLoad() {
 		try {
-			// Load new Emoticons object
+// Load new Emoticons object
 			Class EmoticonsClass = Class.forName("mudbill.Emoticons");
 			Constructor EmoticonsConstruct = EmoticonsClass.getConstructor((Class[])null);
 			this.emoteObject = EmoticonsConstruct.newInstance((Object[])null);
-			// Assign Emoticons actionPerformed Method
+// Assign Emoticons actionPerformed Method
 			Class[] cArgsAP = new Class[3];
 			cArgsAP[0] = GuiButton.class;
 			cArgsAP[1] = List.class;
 			cArgsAP[2] = GuiTextField.class;
 			this.emoteActionPerformed = EmoticonsClass.getDeclaredMethod("actionPerformed", cArgsAP);
-			// Assign Emoticons initGui Method;
+// Assign Emoticons initGui Method;
 			Class[] cArgsIG = new Class[1];
 			cArgsIG[0] = List.class;
 			this.emoteInitGui = EmoticonsClass.getDeclaredMethod("initGui", cArgsIG);
-			// Assign Emoticons drawScreen Method;
+// Assign Emoticons drawScreen Method;
 			Class[] cArgsDS = new Class[4];
 			cArgsDS[0] = int.class;
 			cArgsDS[1] = int.class;
