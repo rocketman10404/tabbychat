@@ -94,9 +94,10 @@ public class ChatChannel implements Serializable {
 	}
 	
 	public void trimLog() {
-		int maxChats = Integer.parseInt(TabbyChat.advancedSettings.chatScrollHistory.getValue()) + 5;
-		if(TabbyChat.instance != null && this.chatLog.size() >= maxChats) {
-			this.chatLog.subList(this.chatLog.size()-11, this.chatLog.size()-1).clear();
+		if(TabbyChat.instance == null || TabbyChat.instance.serverDataLock.availablePermits() < 1) return;
+		int maxChats = TabbyChat.instance.enabled() ? Integer.parseInt(TabbyChat.advancedSettings.chatScrollHistory.getValue()) : 100;
+		while(this.chatLog.size() > maxChats) {
+			this.chatLog.remove(this.chatLog.size()-1);
 		}
 	}
 

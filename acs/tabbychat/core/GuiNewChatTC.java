@@ -225,19 +225,16 @@ public class GuiNewChatTC extends GuiNewChat {
 		}
 		
 		// Trim lists to size as needed
+		if(TabbyChat.instance.serverDataLock.availablePermits() < 1) return;
 		int maxChats = TabbyChat.instance.enabled() ? Integer.parseInt(TabbyChat.advancedSettings.chatScrollHistory.getValue()) : 100;
-		int chatLineSize = this.chatLines.size();
-		if(chatLineSize >= maxChats + 5) {
-			chatLineSize = this.chatLines.size();
-			int cmdLineSize = this.backupLines.size();
-			if(chatLineSize >= maxChats + 5)
-				this.chatLines.subList(chatLineSize-11, chatLineSize-1).clear();
-			if(!backupFlag) {
-				if(cmdLineSize >= maxChats + 5)
-					this.backupLines.subList(cmdLineSize-11, cmdLineSize-1).clear();
+		while(this.chatLines.size() > maxChats) {
+			this.chatLines.remove(this.chatLines.size()-1);
+		}
+		if(!backupFlag) {
+			while(this.backupLines.size() > maxChats) {
+				this.backupLines.remove(this.backupLines.size()-1);
 			}
-		}		
-		
+		}
 	}
 
 	public @Override void func_96132_b() {

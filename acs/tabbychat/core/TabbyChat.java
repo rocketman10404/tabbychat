@@ -71,7 +71,7 @@ public class TabbyChat {
 	public static TCSettingsServer serverSettings;
 	public static TCSettingsFilters filterSettings;
 	public static TCSettingsAdvanced advancedSettings;
-	private Semaphore serverDataLock = new Semaphore(0, true);
+	protected Semaphore serverDataLock = new Semaphore(0, true);
 	private final ReentrantReadWriteLock lastChatLock = new ReentrantReadWriteLock(true);
 	private final Lock lastChatReadLock = lastChatLock.readLock();
 	private final Lock lastChatWriteLock = lastChatLock.writeLock();
