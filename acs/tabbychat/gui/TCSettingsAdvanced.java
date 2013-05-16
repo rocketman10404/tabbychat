@@ -1,6 +1,7 @@
 package acs.tabbychat.gui;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -179,8 +180,9 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		
 		try {
 			FileOutputStream fOutStream = new FileOutputStream(this.settingsFile);
-			settingsTable.store(fOutStream, "Advanced settings");
-			fOutStream.close();
+			BufferedOutputStream bOutStream = new BufferedOutputStream(fOutStream);
+			settingsTable.store(bOutStream, "Advanced settings");
+			bOutStream.close();
 		} catch (Exception e) {
 			TabbyChat.printErr("Unable to write to advanced settings file : '" + e.getLocalizedMessage() + "' : " + e.toString());
 		}

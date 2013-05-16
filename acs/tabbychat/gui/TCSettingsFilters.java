@@ -1,6 +1,7 @@
 package acs.tabbychat.gui;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -527,8 +528,9 @@ public class TCSettingsFilters extends TCSettingsGUI {
 
 		try {
 			FileOutputStream fOutStream = new FileOutputStream(settingsFile);
-			settingsTable.store(fOutStream, "Custom filters");
-			fOutStream.close();
+			BufferedOutputStream bOutStream = new BufferedOutputStream(fOutStream);
+			settingsTable.store(bOutStream, "Custom filters");
+			bOutStream.close();
 		} catch (Exception e) {
 			TabbyChat.printErr("Unable to write to filter settings file : '" + e.getLocalizedMessage() + "' : " + e.toString());
 		}

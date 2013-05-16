@@ -2,6 +2,7 @@ package acs.tabbychat.gui;
 
 import java.util.List;
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -193,8 +194,9 @@ public class TCSettingsServer extends TCSettingsGUI {
 		
 		try {
 			FileOutputStream fOutStream = new FileOutputStream(settingsFile);
-			settingsTable.store(fOutStream, "Server config");
-			fOutStream.close();
+			BufferedOutputStream bOutStream = new BufferedOutputStream(fOutStream);
+			settingsTable.store(bOutStream, "Server config");
+			bOutStream.close();
 		} catch (Exception e) {
 			TabbyChat.printErr("Unable to write to server config file : '" + e.getLocalizedMessage() + "' : " + e.toString());
 		}

@@ -1,6 +1,7 @@
 package acs.tabbychat.gui;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -10,6 +11,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 import acs.tabbychat.core.TabbyChat;
+import acs.tabbychat.settings.ColorCodeEnum;
 import acs.tabbychat.settings.TCSettingBool;
 import acs.tabbychat.settings.TCSettingEnum;
 import acs.tabbychat.settings.TimeStampEnum;
@@ -29,11 +31,13 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 	private static final int timeStampStyleID = 9104;
 	private static final int groupSpamID = 9105;
 	private static final int unreadFlashingID = 9106;
+	private static final int timeStampColorID = 9107;
 	
 	public TCSettingBool tabbyChatEnable = new TCSettingBool(true, "TabbyChat Enabled", tabbyChatEnableID);
 	public TCSettingBool saveChatLog = new TCSettingBool(false, "Log chat to file", saveChatLogID);
 	public TCSettingBool timeStampEnable = new TCSettingBool(false, "Timestamp chat", timeStampEnableID);
 	public TCSettingEnum timeStampStyle = new TCSettingEnum(TimeStampEnum.MILITARY, "\u00A7oTimestamp Style\u00A7r", timeStampStyleID);
+	public TCSettingEnum timeStampColor = new TCSettingEnum(ColorCodeEnum.DEFAULT, "\u00A7oTimestamp Color\u00A7r", timeStampColorID);
 	public TCSettingBool groupSpam = new TCSettingBool(false, "Consolidate spammed chat", groupSpamID);
 	public TCSettingBool unreadFlashing = new TCSettingBool(true, "Default unread notification flashing", unreadFlashingID);
 	
@@ -96,12 +100,17 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 		this.timeStampStyle.setLabelLoc(this.timeStampStyle.xPosition - 10 - mc.fontRenderer.getStringWidth(this.timeStampStyle.description));
 		this.buttonList.add(this.timeStampStyle);
 		
-		this.groupSpam.setButtonLoc(col1x, this.rowY(5));
+		this.timeStampColor.setButtonDims(80, 11);
+		this.timeStampColor.setButtonLoc(effRight - 80, this.rowY(5));
+		this.timeStampColor.setLabelLoc(this.timeStampColor.xPosition - 10 - mc.fontRenderer.getStringWidth(this.timeStampColor.description));
+		this.buttonList.add(this.timeStampColor);
+		
+		this.groupSpam.setButtonLoc(col1x, this.rowY(6));
 		this.groupSpam.setLabelLoc(col1x + 19);
 		this.groupSpam.buttonColor = buttonColor;
 		this.buttonList.add(this.groupSpam);
 		
-		this.unreadFlashing.setButtonLoc(col1x, this.rowY(6));
+		this.unreadFlashing.setButtonLoc(col1x, this.rowY(7));
 		this.unreadFlashing.setLabelLoc(col1x + 19);
 		this.unreadFlashing.buttonColor = buttonColor;
 		this.buttonList.add(this.unreadFlashing);
@@ -131,8 +140,13 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 		this.timeStampStyle.setCleanValue(TabbyChatUtils.parseTimestamp(settingsTable.get("timeStampStyle")));
 		this.groupSpam.setCleanValue(settingsTable.get("groupSpam"));
 		this.unreadFlashing.setCleanValue(settingsTable.get("unreadFlashing"));
+		this.timeStampColor.setCleanValue(TabbyChatUtils.parseColor(settingsTable.get("timeStampColor")));
 
-		this.timeStamp.applyPattern(((TimeStampEnum)this.timeStampStyle.getValue()).toCode());
+		StringBuilder tsPattern = new StringBuilder();
+		tsPattern.append("'").append(((ColorCodeEnum)this.timeStampColor.getValue()).toCode()).append("'");
+		tsPattern.append(((TimeStampEnum)this.timeStampStyle.getValue()).toCode());
+		tsPattern.append("'\u00A7r'");
+		this.timeStamp.applyPattern(tsPattern.toString());
 		this.resetTempVars();
 		return;
 	}
@@ -144,6 +158,7 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 		this.timeStampStyle.reset();
 		this.groupSpam.reset();
 		this.unreadFlashing.reset();
+		this.timeStampColor.reset();
 	}
 
 	protected void saveSettingsFile() { 
@@ -157,11 +172,13 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 		settingsTable.put("timeStampStyle", this.timeStampStyle.getValue().name());
 		settingsTable.put("groupSpam", this.groupSpam.getValue().toString());
 		settingsTable.put("unreadFlashing", this.unreadFlashing.getValue().toString());
+		settingsTable.put("timeStampColor", this.timeStampColor.getValue().name());
 		
 		try {
 			FileOutputStream fOutStream = new FileOutputStream(this.settingsFile);
-			settingsTable.store(fOutStream, "General settings");
-			fOutStream.close();
+			BufferedOutputStream bOutStream = new BufferedOutputStream(fOutStream);
+			settingsTable.store(bOutStream, "General settings");
+			bOutStream.close();
 		} catch (Exception e) {
 			TabbyChat.printErr("Unable to write to general settings file : '" + e.getLocalizedMessage() + "' : " + e.toString());
 		}
@@ -174,10 +191,16 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 		this.timeStampStyle.save();
 		this.groupSpam.save();
 		this.unreadFlashing.save();
-		this.timeStamp.applyPattern(((TimeStampEnum)this.timeStampStyle.getValue()).toCode());
+		this.timeStampColor.save();
+		StringBuilder tsPattern = new StringBuilder();
+		tsPattern.append("'").append(((ColorCodeEnum)this.timeStampColor.getValue()).toCode()).append("'");
+		tsPattern.append(((TimeStampEnum)this.timeStampStyle.getValue()).toCode());
+		tsPattern.append("'\u00A7r'");
+		this.timeStamp.applyPattern(tsPattern.toString());
 	}
 	
 	public void validateButtonStates() {
 		this.timeStampStyle.enabled = this.timeStampEnable.getTempValue();
+		this.timeStampColor.enabled = this.timeStampEnable.getTempValue();
 	}
 }
