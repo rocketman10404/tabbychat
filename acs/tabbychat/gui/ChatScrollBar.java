@@ -42,7 +42,7 @@ public class ChatScrollBar {
 		if (Mouse.getEventButton() == 0 && Mouse.isButtonDown(0)) {
 			adjX = Mouse.getEventX() * this.gc.width / this.mc.displayWidth;
 			adjY = this.gc.height - Mouse.getEventY() * this.gc.height / this.mc.displayHeight - 1;
-			if (Math.abs(adjX - this.barX) <= barWidth/2 && adjY <= this.barMaxY && adjY >= this.barMinY)
+			if (Math.abs(adjX - this.barX) <= barWidth && adjY <= this.barMaxY && adjY >= this.barMinY)
 				this.scrolling = true;
 			else
 				this.scrolling = false;
@@ -58,27 +58,29 @@ public class ChatScrollBar {
 		int maxlines = TabbyChat.gnc.getHeightSetting() / 9;
 		int clines = Math.min(TabbyChat.gnc.GetChatHeight(), maxlines);
 
-		barHeight = MathHelper.floor_float((float)8 * TabbyChat.gnc.getScaleSetting());
+		barHeight = MathHelper.floor_float((float)5 * TabbyChat.gnc.getScaleSetting());
 		barWidth = MathHelper.floor_float((float)5 * TabbyChat.gnc.getScaleSetting());
 
-		this.barX = 4 + this.offsetX + (int)(TabbyChat.gnc.getWidthSetting() * TabbyChat.gnc.getScaleSetting());
-				
-		this.barMaxY = this.gc.height - 34 + this.offsetY;
-		//this.barMinY = this.barMaxY + 2 - MathHelper.floor_float((float)((clines - 1) * 9) * TabbyChat.gnc.getScaleSetting());
-		this.barMinY = this.barMaxY + 2 - MathHelper.floor_float((TabbyChat.instance.gnc.chatHeight - 9) * TabbyChat.gnc.getScaleSetting());
+		this.barX = 5 + this.offsetX + (int)(TabbyChat.gnc.getWidthSetting() * TabbyChat.gnc.getScaleSetting());
+		this.barBottomY = this.gc.height - 28 + this.offsetY;
+		this.barTopY = this.barBottomY - MathHelper.floor_float((TabbyChat.instance.gnc.chatHeight+9) * TabbyChat.gnc.getScaleSetting());
 		
-		this.barTopY = this.barMinY + barHeight/2;
-		this.barBottomY = this.barMaxY - barHeight/2;
-		this.scrollBarCenter = Math.round(this.mouseLoc*this.barTopY + (1.0f-this.mouseLoc)*this.barBottomY);
+		this.barMaxY = this.barBottomY - barHeight/2 - 1;
+		this.barMinY = this.barTopY + barHeight/2 + 1;
+		this.scrollBarCenter = Math.round(this.mouseLoc*this.barMinY + (1.0f-this.mouseLoc)*this.barMaxY);
 	}
 	
 	public void drawScrollBar() {
 		this.update();
-		int minX = this.barX - (barWidth-1)/2;
+		int minX = this.barX + 1;
 		int maxlines = TabbyChat.gnc.getHeightSetting() / 9;
-		if (TabbyChat.gnc.GetChatHeight() > maxlines)
-			gc.drawRect(minX, this.scrollBarCenter - barHeight/2, minX + barWidth, this.scrollBarCenter + barHeight/2, 0x55ffffff);
-		gc.drawRect(this.barX, this.barMinY, this.barX+1, this.barMaxY, 0x99ffffff);
+		float chatOpacity = this.mc.gameSettings.chatOpacity * 0.9f + 0.1f;
+		int currentOpacity = (int)((float)180 * chatOpacity);
+		if (TabbyChat.gnc.GetChatHeight() > maxlines) {
+			gc.drawRect(this.barX, this.barTopY, this.barX+7, this.barBottomY, currentOpacity / 2 << 24);
+			gc.drawRect(minX, this.scrollBarCenter - barHeight/2, minX + barWidth, this.scrollBarCenter + barHeight/2, 0xffffff + (currentOpacity / 2 << 24));
+			gc.drawRect(minX + 1, this.scrollBarCenter - barHeight/2 - 1, minX + barWidth - 1, this.scrollBarCenter + barHeight/2 + 1, 0xffffff + (currentOpacity / 2 << 24));
+		}
 	}
 	
 	public void scrollBarMouseWheel() {
@@ -90,7 +92,7 @@ public class ChatScrollBar {
 		else
 			this.mouseLoc = 0f;
 		   
-		this.scrollBarCenter = Math.round(this.mouseLoc*this.barTopY + (1.0f-this.mouseLoc)*this.barBottomY);
+		this.scrollBarCenter = Math.round(this.mouseLoc*this.barMinY + (1.0f-this.mouseLoc)*this.barMaxY);
 	}
 	
 	public void scrollBarMouseDrag(int _absY) {
@@ -101,23 +103,22 @@ public class ChatScrollBar {
 			return;
 		}
 		
-		if (_absY < this.barTopY)
+		if (_absY < this.barMinY)
 			this.mouseLoc = 1.0f;
-		else if (_absY > this.barBottomY)
+		else if (_absY > this.barMaxY)
 			this.mouseLoc = 0.0f;
 		else
-			this.mouseLoc = ((float)(this.barBottomY - _absY))/(this.barBottomY - this.barTopY);
+			this.mouseLoc = ((float)(this.barMaxY - _absY))/(this.barMaxY - this.barMinY);
  
-		float moveInc = 1.0f / (blines - 19);
-		float settleInc = 1.0f / (blines - 20);
+		float moveInc = 1.0f / (blines - maxlines);
 		
 		int moveLines = (int) Math.floor(this.mouseLoc / moveInc);
 		if (moveLines > blines - maxlines)
 			moveLines = blines - maxlines;
 		
 		TabbyChat.gnc.setVisChatLines(moveLines);
-		this.mouseLoc = settleInc * moveLines;
-		this.scrollBarCenter = Math.round(this.mouseLoc*this.barTopY + (1.0f-this.mouseLoc)*this.barBottomY);		
+		this.mouseLoc = moveInc * moveLines;
+		this.scrollBarCenter = Math.round(this.mouseLoc*this.barMinY + (1.0f-this.mouseLoc)*this.barMaxY);		
 		this.lastY = _absY;	
 	}
 	
