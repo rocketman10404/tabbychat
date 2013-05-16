@@ -6,9 +6,11 @@ import java.util.List;
 
 import org.lwjgl.opengl.GL11;
 
+import acs.tabbychat.core.GuiChatTC;
 import acs.tabbychat.core.TabbyChat;
 import acs.tabbychat.gui.ChatButton;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.src.GuiButton;
 import net.minecraft.src.GuiScreen;
 import net.minecraft.src.GuiTextField;
@@ -73,13 +75,13 @@ public class EmoticonsCompat {
 		}
 	}
 	
-	public static void drawScreen(int par1, int par2, float par3, GuiScreen par4, List buttonList) {
+	public static void drawScreen(int par1, int par2, float par3, GuiChatTC par4, List buttonList) {
 		if(!present) return;
 		Object[] args = new Object[4];
 		args[0] = par1;
 		args[1] = par2;
 		args[2] = par3;
-		args[3] = par4;
+		args[3] = (GuiScreen)par4;
 		emoteOffsetX = Math.max(par4.width - 427, 0);
 		GL11.glPushMatrix();
 		GL11.glTranslatef((float)emoteOffsetX, 0.0f, 0.0f);
