@@ -6,11 +6,11 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.src.GuiIngame;
-import acs.tabbychat.GuiChatTC;
-import acs.tabbychat.GuiNewChatTC;
-import acs.tabbychat.TCChatLine;
-import acs.tabbychat.TabbyChat;
-import acs.tabbychat.TabbyChatUtils;
+import acs.tabbychat.core.GuiChatTC;
+import acs.tabbychat.core.GuiNewChatTC;
+import acs.tabbychat.core.TCChatLine;
+import acs.tabbychat.core.TabbyChat;
+import acs.tabbychat.util.TabbyChatUtils;
 
 public class mod_TabbyChat extends BaseMod {
 	public GuiChatTC gc;

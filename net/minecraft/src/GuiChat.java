@@ -10,12 +10,12 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
-import acs.tabbychat.ChatChannel;
-import acs.tabbychat.GuiChatTC;
-import acs.tabbychat.TabbyChat;
-import acs.tabbychat.TabbyChatUtils;
-import acs.tabbychat.ChatScrollBar;
-import acs.tabbychat.ChatButton;
+import acs.tabbychat.core.ChatChannel;
+import acs.tabbychat.core.GuiChatTC;
+import acs.tabbychat.core.TabbyChat;
+import acs.tabbychat.gui.ChatButton;
+import acs.tabbychat.gui.ChatScrollBar;
+import acs.tabbychat.util.TabbyChatUtils;
 
 public class GuiChat extends GuiScreen {
 

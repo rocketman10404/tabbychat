@@ -8,10 +8,10 @@ import java.util.ListIterator;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL11;
 
-import acs.tabbychat.GuiNewChatTC;
-import acs.tabbychat.TabbyChat;
-import acs.tabbychat.ChatChannel;
-import acs.tabbychat.TimeStampEnum;
+import acs.tabbychat.core.ChatChannel;
+import acs.tabbychat.core.GuiNewChatTC;
+import acs.tabbychat.core.TabbyChat;
+import acs.tabbychat.settings.TimeStampEnum;
 
 public class GuiNewChat extends Gui {
 	private final Minecraft mc;
