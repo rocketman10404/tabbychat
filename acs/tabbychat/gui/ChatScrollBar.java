@@ -28,6 +28,11 @@ public class ChatScrollBar {
 	public ChatScrollBar(GuiChat _gc) {
 		mc = Minecraft.getMinecraft();
 		gc = _gc;
+		
+		if(TabbyChat.generalSettings.timeStampEnable.getValue()) {
+			String maxTime = ((TimeStampEnum)TabbyChat.generalSettings.timeStampStyle.getValue()).maxTime;
+			this.offsetX = MathHelper.floor_float(mc.fontRenderer.getStringWidth(maxTime) * TabbyChat.gnc.getScaleSetting());
+		}
 	}
 	
 	public void handleMouse() {
@@ -51,17 +56,16 @@ public class ChatScrollBar {
 
 	private void update() {
 		int maxlines = TabbyChat.gnc.getHeightSetting() / 9;
-		int clines = (TabbyChat.gnc.GetChatHeight() < maxlines) ? TabbyChat.gnc.GetChatHeight() : maxlines;
-		int oX = 0;
-		if (TabbyChat.generalSettings.timeStampEnable.getValue())
-			oX = MathHelper.floor_float((float)mc.fontRenderer.getStringWidth(((TimeStampEnum)TabbyChat.generalSettings.timeStampStyle.getValue()).maxTime) * TabbyChat.gnc.getScaleSetting());
+		int clines = Math.min(TabbyChat.gnc.GetChatHeight(), maxlines);
+
 		barHeight = MathHelper.floor_float((float)8 * TabbyChat.gnc.getScaleSetting());
 		barWidth = MathHelper.floor_float((float)5 * TabbyChat.gnc.getScaleSetting());
 
-		this.barX = 4 + this.offsetX + oX + (int)(TabbyChat.gnc.getWidthSetting() * TabbyChat.gnc.getScaleSetting());
+		this.barX = 4 + this.offsetX + (int)(TabbyChat.gnc.getWidthSetting() * TabbyChat.gnc.getScaleSetting());
 				
 		this.barMaxY = this.gc.height - 34 + this.offsetY;
-		this.barMinY = this.barMaxY + 2 - MathHelper.floor_float((float)((clines - 1) * 9) * TabbyChat.gnc.getScaleSetting());		
+		//this.barMinY = this.barMaxY + 2 - MathHelper.floor_float((float)((clines - 1) * 9) * TabbyChat.gnc.getScaleSetting());
+		this.barMinY = this.barMaxY + 2 - MathHelper.floor_float((TabbyChat.instance.gnc.chatHeight - 9) * TabbyChat.gnc.getScaleSetting());
 		
 		this.barTopY = this.barMinY + barHeight/2;
 		this.barBottomY = this.barMaxY - barHeight/2;

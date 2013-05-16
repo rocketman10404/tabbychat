@@ -359,7 +359,7 @@ public class TabbyChat {
 			_opacity = (int)(255.0D * var10);
 			_opacity = (int)((float)_opacity * var6);
 			if (_opacity <= 3) return;
-			this.updateButtonLocations();
+			this.updateButtonLocations(this.gnc.sr);
 
 			for (ChatChannel chan : this.channelMap.values()) {
 				if (chan.unread && chan.notificationsOn)
@@ -622,32 +622,14 @@ public class TabbyChat {
 		}
 	}
 	
-	public void updateButtonLocations() {
+	public void updateButtonLocations(ScaledResolution sr) {
  		int xOff = 0;
- 		int yOff = 0; 
- 		ScaledResolution sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
- 		
+ 		int yOff = 0; 	
  		
  		int maxlines = gnc.getHeightSetting() / 9;
- 		int clines = (gnc.GetChatHeight() < maxlines) ? gnc.GetChatHeight() : maxlines;
+ 		int clines = Math.min(gnc.GetChatHeight(), maxlines);
  		int vert = sr.getScaledHeight() - gnc.chatHeight - 51;;
  		int horiz = 5;
- 		int n = this.channelMap.size();
- 		
-/* 		try {
- 			if (TabbyChatUtils.is(mc.ingameGUI.getChatGUI(), "GuiNewChatWrapper")) {
- 				Class aHudCls = Class.forName("advancedhud.ahuditem.DefaultHudItems");
- 				Field aHudFld = aHudCls.getField("chat");
- 				Object aHudObj = aHudFld.get(null);
- 				aHudCls = Class.forName("advancedhud.ahuditem.HudItem");
- 				int dVert = mc.currentScreen.height - 22 - 6 * 18;
- 				xOff = aHudCls.getField("posX").getInt(aHudObj) - 3;
- 				yOff = aHudCls.getField("posY").getInt(aHudObj) - dVert;
- 				horiz += xOff;
- 				vert -= yOff;
- 				if (gnc.getChatOpen()) ((GuiChatTC)mc.currentScreen).scrollBar.setOffset(xOff, yOff);
- 			}
- 		} catch (Throwable e) {}*/
  		
  		int i = 0;
  		for (ChatChannel chan : this.channelMap.values()) {

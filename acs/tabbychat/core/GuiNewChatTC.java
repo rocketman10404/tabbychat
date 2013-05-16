@@ -28,7 +28,7 @@ public class GuiNewChatTC extends GuiNewChat {
 	public final Minecraft mc;
 	public ScaledResolution sr;
 	protected int chatWidth = 320;
-	protected int chatHeight = 0;
+	public int chatHeight = 0;
 	protected List<String> sentMessages = new ArrayList<String>();
 	protected CopyOnWriteArrayList<TCChatLine> backupLines = new CopyOnWriteArrayList();
 	protected CopyOnWriteArrayList<TCChatLine> chatLines = new CopyOnWriteArrayList();
@@ -108,23 +108,23 @@ public class GuiNewChatTC extends GuiNewChat {
 			
 			int lineAge;
 			int currentOpacity;
-			int _size = this.chatLines.size();
 			// Display valid chat lines
-			for(lineCounter = 0; lineCounter + this.scrollOffset  < _size && lineCounter < maxDisplayedLines; ++lineCounter) {
-				_size = this.chatLines.size();
+			for(lineCounter = 0; lineCounter + this.scrollOffset  < this.chatLines.size() && lineCounter < maxDisplayedLines; ++lineCounter) {
 				this.chatHeight = lineCounter * 9;
 				TCChatLine _line = this.chatLines.get(lineCounter + this.scrollOffset);
 				if(_line == null) continue;
 				lineAge = currentTick - _line.getUpdatedCounter(); 
 				if(lineAge < fadeTicks || chatOpen) {
-					double agePercent = (double)currentTick / (double)fadeTicks;
-					agePercent = 10.0D * (1.0D - agePercent);
-					agePercent = Math.min(0.0D, agePercent);
-					agePercent = Math.max(1.0D, agePercent);
-					agePercent *= agePercent;
-					currentOpacity = (int)(255.0D * agePercent);
-					if (chatOpen)
+					if(!chatOpen) {
+						double agePercent = (double)currentTick / (double)fadeTicks;
+						agePercent = 10.0D * (1.0D - agePercent);
+						agePercent = Math.min(0.0D, agePercent);
+						agePercent = Math.max(1.0D, agePercent);
+						agePercent *= agePercent;
+						currentOpacity = (int)(255.0D * agePercent);
+					} else {
 						currentOpacity = 255;
+					}
 					currentOpacity = (int)((float)currentOpacity * chatOpacity);
 					++validLinesDisplayed;
 					if(currentOpacity > 3) {
