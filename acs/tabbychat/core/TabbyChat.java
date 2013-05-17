@@ -95,7 +95,7 @@ public class TabbyChat {
 	
 	private static String getNewestVersion() {
 		try {
-			HttpURLConnection conn = (HttpURLConnection) new URL("http://goo.gl/LkiHT").openConnection();
+			HttpURLConnection conn = (HttpURLConnection) new URL("http://tabbychat.dyndns-web.com/tabbychat/tabbychat_ver.txt").openConnection();
 			BufferedReader buffer = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 			String newestVersion = buffer.readLine();
 			buffer.close();
