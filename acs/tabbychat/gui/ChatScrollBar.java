@@ -31,7 +31,12 @@ public class ChatScrollBar {
 		
 		if(TabbyChat.generalSettings.timeStampEnable.getValue()) {
 			String maxTime = ((TimeStampEnum)TabbyChat.generalSettings.timeStampStyle.getValue()).maxTime;
+			boolean oldVal = mc.fontRenderer.getUnicodeFlag();
+			if(TabbyChat.advancedSettings.forceUnicode.getValue()) {
+				mc.fontRenderer.setUnicodeFlag(true);
+			}
 			this.offsetX = MathHelper.floor_float(mc.fontRenderer.getStringWidth(maxTime) * TabbyChat.gnc.getScaleSetting());
+			mc.fontRenderer.setUnicodeFlag(oldVal);
 		}
 	}
 	
