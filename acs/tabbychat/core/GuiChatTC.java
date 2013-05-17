@@ -183,7 +183,8 @@ public class GuiChatTC extends GuiChat {
 			if(this.inputList.get(i).getVisible()) inputHeight += 12;
 		}
 		// Draw text fields and background
-		drawRect(2, this.height-2-inputHeight, this.width-2, this.height-2, Integer.MIN_VALUE);
+		int bgWidth = (MacroKeybindCompat.present) ? this.width - 24 : this.width - 2; 
+		drawRect(2, this.height-2-inputHeight, bgWidth, this.height-2, Integer.MIN_VALUE);
 		for(GuiTextField field : this.inputList) {
 			if(field.getVisible()) field.drawTextBox();
 		}
@@ -191,6 +192,7 @@ public class GuiChatTC extends GuiChat {
 		if(tc.enabled()) {
 			String requiredSends = ((Integer)this.getCurrentSends()).toString();
 			int sendsX = this.sr.getScaledWidth() - 12;
+			if(MacroKeybindCompat.present) sendsX -= 22; 
 			this.fontRenderer.drawStringWithShadow(requiredSends, sendsX, this.height-inputHeight, 0x707070);
 		}
 		// Draw chat tabs (add to buttonlist) & scroll bar if necessary
@@ -320,7 +322,8 @@ public class GuiChatTC extends GuiChat {
 		}
 		
 		this.sentHistoryCursor = tc.gnc.getSentMessages().size();
-		this.inputField = new GuiTextField(this.fontRenderer, 4, this.height - 12, this.width - 4, 12);
+		int textFieldWidth = (MacroKeybindCompat.present) ? this.width - 26 : this.width - 4; 
+		this.inputField = new GuiTextField(this.fontRenderer, 4, this.height - 12, textFieldWidth, 12);
 		this.inputField.setMaxStringLength(500);
 		this.inputField.setEnableBackgroundDrawing(false);
 		this.inputField.setFocused(true);
@@ -331,7 +334,7 @@ public class GuiChatTC extends GuiChat {
 		
 		GuiTextField placeholder;
 		for(int i=1; i<3; i++) {
-			placeholder = new GuiTextField(this.fontRenderer, 4, this.height - 12*(i+1), this.width, 12);
+			placeholder = new GuiTextField(this.fontRenderer, 4, this.height - 12*(i+1), textFieldWidth, 12);
 			placeholder.setMaxStringLength(500);
 			placeholder.setEnableBackgroundDrawing(false);
 			placeholder.setFocused(false);
