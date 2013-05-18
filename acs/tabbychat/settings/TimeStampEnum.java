@@ -3,7 +3,7 @@ package acs.tabbychat.settings;
 public enum TimeStampEnum {
 
 	MILITARY("[HHmm]","[2359]", "\\[[0-9]{4}\\]"),
-	MILITARYWITHCOLON("[HH:mm]","[23:59]", "\\[[0-9]{2}:[0-9]{2}\\["),
+	MILITARYWITHCOLON("[HH:mm]","[23:59]", "\\[[0-9]{2}:[0-9]{2}\\]"),
 	STANDARD("[hh:mm]","[12:00]", "\\[[0-9]{2}:[0-9]{2}\\]"),
 	STANDARDWITHMARKER("[hh:mma]","[12:00PM]", "\\[[0-9]{2}:[0-9]{2}(AM|PM)\\]"),
 	MILITARYSECONDS("[HH:mm:ss]", "[23:59:01]", "\\[[0-9]{2}:[0-9]{2}:[0-9]{2}\\]"),

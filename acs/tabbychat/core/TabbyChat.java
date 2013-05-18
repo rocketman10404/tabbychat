@@ -95,7 +95,7 @@ public class TabbyChat {
 	
 	private static String getNewestVersion() {
 		try {
-			HttpURLConnection conn = (HttpURLConnection) new URL("http://tabbychat.dyndns-web.com/tabbychat/tabbychat_ver.txt").openConnection();
+			HttpURLConnection conn = (HttpURLConnection) new URL("http://tabbychat.port0.org/tabbychat/current_version.php?mc=1.5.2").openConnection();
 			BufferedReader buffer = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 			String newestVersion = buffer.readLine();
 			buffer.close();
@@ -566,7 +566,7 @@ public class TabbyChat {
 			if(lastChat.get(i).getChatLineString() == null || theChan.chatLog.get(i).getChatLineString() == null) continue;
 			newChat = newChat + lastChat.get(i).getChatLineString();
 			if (generalSettings.timeStampEnable.getValue()) {
-				oldChat = theChan.chatLog.get(i).getChatLineString().replaceAll("^"+((TimeStampEnum)generalSettings.timeStampStyle.getValue()).regEx, "") + oldChat;
+				oldChat = theChan.chatLog.get(i).getChatLineString().replaceAll("^(\u00A7.)?"+((TimeStampEnum)generalSettings.timeStampStyle.getValue()).regEx+"(\u00A7r)?", "") + oldChat;
 			} else {
 				oldChat = theChan.chatLog.get(i).getChatLineString() + oldChat;
 			}
