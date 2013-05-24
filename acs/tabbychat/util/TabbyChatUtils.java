@@ -4,6 +4,7 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.File;
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import acs.tabbychat.core.ChatChannel;
+import acs.tabbychat.core.GuiNewChatTC;
 import acs.tabbychat.core.TabbyChat;
 import acs.tabbychat.settings.ChannelDelimEnum;
 import acs.tabbychat.settings.ColorCodeEnum;
@@ -24,6 +26,8 @@ import acs.tabbychat.threads.BackgroundChatThread;
 import net.minecraft.client.Minecraft;
 
 import net.minecraft.src.Gui;
+import net.minecraft.src.GuiIngame;
+import net.minecraft.src.GuiNewChat;
 
 public class TabbyChatUtils extends Thread {
 	
@@ -31,7 +35,7 @@ public class TabbyChatUtils extends Thread {
 	private static File logDir = new File(Minecraft.getMinecraftDir(), "TabbyChatLogs");
 	private static File logFile;
 	private static SimpleDateFormat logNameFormat = new SimpleDateFormat("'TabbyChatLog_'MM-dd-yyyy'.txt'");
-	public static String version = "1.7.07";
+	public static String version = "1.7.08";
 	
 	private TabbyChatUtils() {}
 	
@@ -197,5 +201,33 @@ public class TabbyChatUtils extends Thread {
 			returnMap.put(arrayCopy[i], currentMap.get(arrayCopy[i]));
 		}
 		return returnMap;
+	}
+
+	public static void hookIntoChat(GuiNewChatTC _gnc) {
+		if(Minecraft.getMinecraft().ingameGUI.getChatGUI().getClass() != GuiNewChatTC.class) {
+			try {
+				Class IngameGui = GuiIngame.class;
+				Field persistantGuiField = IngameGui.getDeclaredFields()[3];
+				persistantGuiField.setAccessible(true);
+				persistantGuiField.set(Minecraft.getMinecraft().ingameGUI, _gnc);
+				
+				int tmp = 0;
+				for(Field fields : GuiNewChat.class.getDeclaredFields()) {
+					if(fields.getType() == List.class) {
+						fields.setAccessible(true);
+						if(tmp == 1) {
+							_gnc.backupLines = (List)fields.get(_gnc);
+						} else if(tmp == 2) {
+							_gnc.chatLines = (List)fields.get(_gnc);
+							break;
+						}
+						tmp++;
+					}
+				}
+				
+			} catch (Exception e) {
+				TabbyChat.printException("Error loading chat hook.",e);
+			}
+		}
 	}
 }

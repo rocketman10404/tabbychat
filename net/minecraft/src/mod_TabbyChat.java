@@ -38,10 +38,7 @@ public class mod_TabbyChat extends BaseMod {
 				List<ChatLine> missedChats = (ArrayList<ChatLine>)chatLineField.get(mc.ingameGUI.getChatGUI());
 				
 				// Replace pointer to GuiNewChat
-				Class IngameGui = GuiIngame.class;
-				Field persistantGuiField = IngameGui.getDeclaredFields()[3];  // persistantChatGui
-				persistantGuiField.setAccessible(true);
-				persistantGuiField.set(mc.ingameGUI, GuiNewChatTC.me);
+				TabbyChatUtils.hookIntoChat(GuiNewChatTC.me);
 				
 				// Convert missed ChatLines to TCChatLines
 				if(missedChats.size() > 0) {

@@ -1,16 +1,15 @@
 package acs.tabbychat.core;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.lwjgl.opengl.GL11;
 
 import acs.tabbychat.settings.TimeStampEnum;
+import acs.tabbychat.util.TabbyChatUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.src.GuiChat;
 import net.minecraft.src.GuiNewChat;
@@ -30,16 +29,20 @@ public class GuiNewChatTC extends GuiNewChat {
 	protected int chatWidth = 320;
 	public int chatHeight = 0;
 	protected List<String> sentMessages = new ArrayList<String>();
-	protected CopyOnWriteArrayList<TCChatLine> backupLines = new CopyOnWriteArrayList();
-	protected CopyOnWriteArrayList<TCChatLine> chatLines = new CopyOnWriteArrayList();
+	public List<TCChatLine> chatLines;
+	public List<TCChatLine> backupLines;
+	private static final ReentrantReadWriteLock chatListLock = new ReentrantReadWriteLock(true);
+	private static final Lock chatReadLock = chatListLock.readLock();
+	private static final Lock chatWriteLock = chatListLock.writeLock();
 	private int scrollOffset = 0;
 	private boolean chatScrolled = false;
 	protected boolean saveNeeded = true;
-	public static final GuiNewChatTC me = new GuiNewChatTC();
+	public static GuiNewChatTC me = new GuiNewChatTC();
 	private final static TabbyChat tc = TabbyChat.instance;
 	
 	public GuiNewChatTC() {
-		this(Minecraft.getMinecraft());		
+		this(Minecraft.getMinecraft());
+		TabbyChatUtils.hookIntoChat(this);
 	}
 	
 	public GuiNewChatTC(Minecraft par1Minecraft) {
@@ -49,14 +52,27 @@ public class GuiNewChatTC extends GuiNewChat {
 	}
 	
 	public void addChatLines(int _pos, List<TCChatLine> _add) {
-		for(int i=_add.size()-1;i>=0;i--)
-			this.chatLines.add(_pos,_add.get(i));
+		chatReadLock.lock();
+		try {
+			for(int i=_add.size()-1;i>=0;i--) {
+				this.chatLines.add(_pos,_add.get(i));
+				this.backupLines.add(_pos, _add.get(i));
+			}
+		} finally {
+			chatReadLock.unlock();
+		}
 	}
 
 	public void addChatLines(List<TCChatLine> _add) {
-
-		for(int i=0; i<_add.size();i++)
-			this.chatLines.add(_add.get(i));
+		chatReadLock.lock();
+		try {
+			for(int i=0; i<_add.size();i++)	{
+				this.chatLines.add(_add.get(i));
+				this.backupLines.add(_add.get(i));
+			}
+		} finally {
+			chatReadLock.unlock();
+		}
 	}
 	
 	public @Override void addToSentMessages(String _msg) {
@@ -75,40 +91,60 @@ public class GuiNewChatTC extends GuiNewChat {
 
 	public void clearChatLines() {
 		this.resetScroll();
-		this.chatLines.clear();
+		chatWriteLock.lock();
+		try {
+			this.chatLines.clear();
+		} finally {
+			chatWriteLock.unlock();
+		}
 	}
 
 	public @Override void clearChatMessages() {
-		this.chatLines.clear();
-		this.backupLines.clear();
+		chatWriteLock.lock();
+		try {
+			this.chatLines.clear();
+			this.backupLines.clear();
+		} finally {
+			chatWriteLock.unlock();
+		}
 		this.sentMessages.clear();
 	}
 	
 	public @Override void deleteChatLine(int _id) {
 		ChatLine chatLineRemove = null;
 		ChatLine backupLineRemove = null;
-		Iterator _iter = this.chatLines.iterator();
-		ChatLine _cl;
-		do {
-			if(!_iter.hasNext()) {
-				_iter = this.backupLines.iterator();
-				do {
-					if(!_iter.hasNext()) {
-						return;
-					}
-					_cl = (ChatLine)_iter.next();
-				} while(_cl.getChatLineID() != _id);
-				backupLineRemove = _cl;
-				break;
-			}
-			_cl = (ChatLine)_iter.next();
-		} while(_cl.getChatLineID() != _id);
-		chatLineRemove = _cl;
-		
-		if(chatLineRemove != null && chatLineRemove.getChatLineID() == _id) {
-			this.chatLines.remove(chatLineRemove);
+		chatReadLock.lock();
+		try {
+			Iterator _iter = this.chatLines.iterator();
+			ChatLine _cl;
+			do {
+				if(!_iter.hasNext()) {
+					_iter = this.backupLines.iterator();
+					do {
+						if(!_iter.hasNext()) {
+							return;
+						}
+						_cl = (ChatLine)_iter.next();
+					} while(_cl.getChatLineID() != _id);
+					backupLineRemove = _cl;
+					break;
+				}
+				_cl = (ChatLine)_iter.next();
+			} while(_cl.getChatLineID() != _id);
+			chatLineRemove = _cl;
+		} finally {
+			chatReadLock.unlock();
 		}
-		if(backupLineRemove != null && backupLineRemove.getChatLineID() == _id) this.backupLines.remove(backupLineRemove);
+		
+		chatWriteLock.lock();
+		try {		
+			if(chatLineRemove != null && chatLineRemove.getChatLineID() == _id) {
+				this.chatLines.remove(chatLineRemove);
+			}
+			if(backupLineRemove != null && backupLineRemove.getChatLineID() == _id) this.backupLines.remove(backupLineRemove);
+		} finally {
+			chatWriteLock.unlock();
+		}
 	}
 
 	public @Override void drawChat(int currentTick) {
@@ -131,15 +167,21 @@ public class GuiNewChatTC extends GuiNewChat {
 			int maxDisplayedLines = 0;
 			boolean chatOpen = false;
 			int validLinesDisplayed = 0;
-			int numLinesTotal = this.chatLines.size();
 			float chatOpacity = this.mc.gameSettings.chatOpacity * 0.9f + 0.1f;
 			float chatScaling = this.func_96131_h();
 			int timeStampOffset = 0;;
 			int fadeTicks = 200;
-			if (numLinesTotal > 0) {
-				chatOpen = this.getChatOpen();
-			}
 			
+			int numLinesTotal = 0;
+			chatReadLock.lock();
+			try {
+				numLinesTotal = this.chatLines.size();
+			} finally {
+				chatReadLock.unlock();
+			}
+			if(numLinesTotal == 0) return;
+			
+			chatOpen = this.getChatOpen();			
 			if(TabbyChat.instance.enabled()) {
 				if(TabbyChat.generalSettings.timeStampEnable.getValue())
 					timeStampOffset = mc.fontRenderer.getStringWidth(((TimeStampEnum)TabbyChat.generalSettings.timeStampStyle.getValue()).maxTime);
@@ -171,10 +213,18 @@ public class GuiNewChatTC extends GuiNewChat {
 			
 			int lineAge;
 			int currentOpacity;
+			TCChatLine _line = null;
 			// Display valid chat lines
-			for(lineCounter = 0; lineCounter + this.scrollOffset  < this.chatLines.size() && lineCounter < maxDisplayedLines; ++lineCounter) {
+
+			for(lineCounter = 0; lineCounter + this.scrollOffset  < numLinesTotal && lineCounter < maxDisplayedLines; ++lineCounter) {
 				this.chatHeight = lineCounter * 9;
-				TCChatLine _line = this.chatLines.get(lineCounter + this.scrollOffset);
+				_line = null;
+				chatReadLock.lock();
+				try {
+					_line = this.chatLines.get(lineCounter + this.scrollOffset);
+				} finally {
+					chatReadLock.unlock();
+				}
 				if(_line == null) continue;
 				lineAge = currentTick - _line.getUpdatedCounter(); 
 				if(lineAge < fadeTicks || chatOpen) {
@@ -205,6 +255,7 @@ public class GuiNewChatTC extends GuiNewChat {
 					}
 				}
 			}
+
 			// Draw the vanilla scroll bar
 			if(chatOpen && !TabbyChat.instance.enabled()) {
 				int fontHeight = this.mc.fontRenderer.FONT_HEIGHT;
@@ -230,6 +281,7 @@ public class GuiNewChatTC extends GuiNewChat {
 	public @Override ChatClickData func_73766_a(int clickX, int clickY) {
 		if(!this.getChatOpen()) return null;
 		else {
+			ChatClickData returnMe = null;
 			ScaledResolution _sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
 			int scaleFactor = _sr.getScaleFactor();
 			float scaleSetting = this.func_96131_h();
@@ -238,14 +290,21 @@ public class GuiNewChatTC extends GuiNewChat {
 			clickXRel = MathHelper.floor_float((float)clickXRel / scaleSetting);
 			clickYRel = MathHelper.floor_float((float)clickYRel / scaleSetting);
 			if(clickXRel >= 0 && clickYRel >= 0) {
-				int displayedLines = Math.min(this.getHeightSetting() / 9, this.chatLines.size());
-				if(clickXRel <= MathHelper.floor_float((float)this.chatWidth / scaleSetting)
-						&& clickYRel < this.mc.fontRenderer.FONT_HEIGHT * displayedLines + displayedLines) {
-					int lineIndex = clickYRel / this.mc.fontRenderer.FONT_HEIGHT + this.scrollOffset;
-					if(lineIndex >= displayedLines + this.scrollOffset || this.chatLines.get(lineIndex) == null) return null;
-					else return new ChatClickData(this.mc.fontRenderer, this.chatLines.get(lineIndex), clickXRel, clickYRel - (lineIndex - this.scrollOffset) * this.mc.fontRenderer.FONT_HEIGHT + lineIndex);
-				} else return null;
-			} else return null;
+				chatReadLock.lock();
+				try {
+					int displayedLines = Math.min(this.getHeightSetting() / 9, this.chatLines.size());
+					if(clickXRel <= MathHelper.floor_float((float)this.chatWidth / scaleSetting)
+							&& clickYRel < this.mc.fontRenderer.FONT_HEIGHT * displayedLines + displayedLines) {
+						int lineIndex = clickYRel / this.mc.fontRenderer.FONT_HEIGHT + this.scrollOffset;
+						if(lineIndex < displayedLines + this.scrollOffset && this.chatLines.get(lineIndex) != null) {
+							returnMe = new ChatClickData(this.mc.fontRenderer, this.chatLines.get(lineIndex), clickXRel, clickYRel - (lineIndex - this.scrollOffset) * this.mc.fontRenderer.FONT_HEIGHT + lineIndex); 
+						}
+					}
+				} finally {
+					chatReadLock.unlock();
+				}				
+			}
+			return returnMe;
 		}
 	}
 
@@ -287,39 +346,78 @@ public class GuiNewChatTC extends GuiNewChat {
 			int ret = TabbyChat.instance.processChat(multiLineChat);
 		} else {
 			int _len = multiLineChat.size();
-			for(int i=0; i<_len; i++) {
-				this.chatLines.add(0, multiLineChat.get(i));
-				if (!backupFlag)
-					this.backupLines.add(0, multiLineChat.get(i));
+			chatWriteLock.lock();
+			try {
+				for(int i=0; i<_len; i++) {
+					this.chatLines.add(0, multiLineChat.get(i));
+					if (!backupFlag)
+						this.backupLines.add(0, multiLineChat.get(i));
+				}
+			} finally {
+				chatWriteLock.unlock();
 			}
 		}
 		
 		// Trim lists to size as needed
 		if(TabbyChat.instance.serverDataLock.availablePermits() < 1) return;
 		int maxChats = TabbyChat.instance.enabled() ? Integer.parseInt(TabbyChat.advancedSettings.chatScrollHistory.getValue()) : 100;
-		while(this.chatLines.size() > maxChats) {
-			this.chatLines.remove(this.chatLines.size()-1);
+		int numChats = 0;
+		chatReadLock.lock();
+		try {
+			numChats = this.chatLines.size();
+		} finally {
+			chatReadLock.unlock();
 		}
-		if(!backupFlag) {
-			while(this.backupLines.size() > maxChats) {
-				this.backupLines.remove(this.backupLines.size()-1);
+		if(numChats <= maxChats) return;
+		
+		chatWriteLock.lock();
+		try {
+			while(this.chatLines.size() > maxChats) {
+				this.chatLines.remove(this.chatLines.size()-1);
 			}
+			if(!backupFlag) {
+				while(this.backupLines.size() > maxChats) {
+					this.backupLines.remove(this.backupLines.size()-1);
+				}
+			}
+		} finally {
+			chatWriteLock.unlock();
 		}
 	}
 
 	public @Override void func_96132_b() {
 		// Chat settings have changed
-		this.chatLines.clear();
-		this.resetScroll();
+		int backupChats = 0;
+		chatWriteLock.lock();
+		try {
+			this.chatLines.clear();
+			backupChats = this.backupLines.size();
+		} finally {
+			chatWriteLock.unlock();
+		}
 		
-		for(int i=this.backupLines.size()-1; i>=0; --i) {
-			ChatLine _cl = this.backupLines.get(i);
-			this.func_96129_a(_cl.getChatLineString(), _cl.getChatLineID(), _cl.getUpdatedCounter(), true);
+		this.resetScroll();
+		for(int i=backupChats-1; i>=0; --i) {
+			chatReadLock.lock();
+			ChatLine _cl = null;
+			try {
+				_cl = this.backupLines.get(i);
+			} finally {
+				chatReadLock.unlock();
+			}
+			if(_cl != null) this.func_96129_a(_cl.getChatLineString(), _cl.getChatLineID(), _cl.getUpdatedCounter(), true);
 		}
 	}
 	
 	public int GetChatHeight() {
-		return this.chatLines.size();
+		int theSize = 0;
+		chatReadLock.lock();
+		try {
+			theSize = this.chatLines.size();
+		} finally {
+			chatReadLock.unlock();
+		}
+		return theSize;
 	}
 	
 	public @Override boolean getChatOpen() {
@@ -346,36 +444,37 @@ public class GuiNewChatTC extends GuiNewChat {
 		return this.chatWidth;
 	}
 
-	public int lastUpdate() {
-		return ((ChatLine)this.chatLines.get(this.chatLines.size()-1)).getUpdatedCounter();
-	}
-
 	public void mergeChatLines(List<TCChatLine> _new) {
-		List<TCChatLine> _current = this.chatLines;
-		if (_new == null || _new.size() <= 0) return;
+		chatWriteLock.lock();
+		try {
+			List<TCChatLine> _current = this.chatLines;
+			if (_new == null || _new.size() <= 0) return;
 
-		int _c = 0;
-		int _n = 0;
-		int dt = 0;
-		int max = _new.size();
-		while (_n < max && _c < _current.size()) {
-			dt = _new.get(_n).getUpdatedCounter() - _current.get(_c).getUpdatedCounter();
-			if (dt > 0) {
-				_current.add(_c, _new.get(_n));
-				_n++;
-			} else if (dt == 0) {
-				if (_current.get(_c).equals(_new.get(_n)) || _current.get(_c).getChatLineString().equals(_new.get(_n).getChatLineString())) {
-					_c++;
+			int _c = 0;
+			int _n = 0;
+			int dt = 0;
+			int max = _new.size();
+			while (_n < max && _c < _current.size()) {
+				dt = _new.get(_n).getUpdatedCounter() - _current.get(_c).getUpdatedCounter();
+				if (dt > 0) {
+					_current.add(_c, _new.get(_n));
 					_n++;
+				} else if (dt == 0) {
+					if (_current.get(_c).equals(_new.get(_n)) || _current.get(_c).getChatLineString().equals(_new.get(_n).getChatLineString())) {
+						_c++;
+						_n++;
+					} else
+						_c++;
 				} else
 					_c++;
-			} else
-				_c++;
-		}
+			}
 
-		while (_n < max) {
-			_current.add(_current.size(), _new.get(_n));
-			_n++;
+			while (_n < max) {
+				_current.add(_current.size(), _new.get(_n));
+				_n++;
+			}
+		} finally {
+			chatWriteLock.unlock();
 		}
 	}
 
@@ -406,7 +505,13 @@ public class GuiNewChatTC extends GuiNewChat {
 			maxLineDisplay = this.func_96127_i();
 		
 		this.scrollOffset += _lines;
-		int numLines = this.chatLines.size();
+		int numLines = 0;
+		chatReadLock.lock();
+		try {
+			numLines = this.chatLines.size();
+		} finally {
+			chatReadLock.unlock();
+		}
 		this.scrollOffset = Math.min(this.scrollOffset, numLines - maxLineDisplay);
 		if(this.scrollOffset <= 0) {
 			this.scrollOffset = 0;
@@ -415,8 +520,15 @@ public class GuiNewChatTC extends GuiNewChat {
 	}
 
 	public void setChatLines(int _pos, List<TCChatLine> _add) {
-		for (int i=0; i < _add.size(); i++)
-			this.chatLines.set(_pos+i, _add.get(i));
+		chatWriteLock.lock();
+		try {
+			for (int i=0; i < _add.size(); i++) {
+				this.chatLines.set(_pos+i, _add.get(i));
+				this.backupLines.set(_pos+i, _add.get(i));
+			}
+		} finally {
+			chatWriteLock.unlock();
+		}
 
 	}
 

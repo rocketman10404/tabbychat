@@ -75,12 +75,11 @@ public class TabbyChat {
 	private final ReentrantReadWriteLock lastChatLock = new ReentrantReadWriteLock(true);
 	private final Lock lastChatReadLock = lastChatLock.readLock();
 	private final Lock lastChatWriteLock = lastChatLock.writeLock();
-	public static final GuiNewChatTC gnc = GuiNewChatTC.me;
+	public static GuiNewChatTC gnc = GuiNewChatTC.me;
 	public static final TabbyChat instance = new TabbyChat();
 	
 	private TabbyChat() {
 		mc = Minecraft.getMinecraft();
-
 		generalSettings = new TCSettingsGeneral(this);
 		serverSettings = new TCSettingsServer(this);
 		filterSettings = new TCSettingsFilters(this);
@@ -109,6 +108,11 @@ public class TabbyChat {
 	public static void printErr(String err) {
 		System.err.println("[TabbyChat] "+err);
 		mc.getLogAgent().logWarning("[TABBYCHAT] "+err);
+	}
+	
+	public static void printException(String err, Exception e) {
+		System.err.println("[TabbyChat] "+err);
+		mc.getLogAgent().logWarningException("[TABBYCHAT] "+err, e);
 	}
 	
 	public int addToChannel(String _name, List<TCChatLine> thisChat) {
