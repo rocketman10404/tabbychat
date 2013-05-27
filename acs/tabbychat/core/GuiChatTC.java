@@ -15,6 +15,7 @@ import org.lwjgl.opengl.GL11;
 
 import acs.tabbychat.compat.EmoticonsCompat;
 import acs.tabbychat.compat.MacroKeybindCompat;
+import acs.tabbychat.gui.ChatBox;
 import acs.tabbychat.gui.ChatButton;
 import acs.tabbychat.gui.ChatChannelGUI;
 import acs.tabbychat.gui.ChatScrollBar;
@@ -164,7 +165,8 @@ public class GuiChatTC extends GuiChat {
 		}
 		// Re-create buttonList of tab buttons
 		this.buttonList.clear();
-		tc.updateButtonLocations(this.sr);
+		//tc.updateButtonLocations(this.sr);
+		ChatBox.updateTabs(TabbyChat.instance.channelMap, this.sr);
 		for (ChatChannel _chan : tc.channelMap.values()) {
 			this.buttonList.add(_chan.tab);
 		}

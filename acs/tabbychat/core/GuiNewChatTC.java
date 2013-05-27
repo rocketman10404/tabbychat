@@ -150,6 +150,8 @@ public class GuiNewChatTC extends GuiNewChat {
 	}
 
 	public @Override void drawChat(int currentTick) {
+		
+		// Save channel data if at main menu or disconnect screen, use flag so it's only saved once
 		if(mc.currentScreen != null) {
 			if(this.mc.currentScreen instanceof GuiDisconnected || this.mc.currentScreen instanceof GuiIngameMenu) {
 				if(this.saveNeeded) tc.storeChannelData();
@@ -158,6 +160,7 @@ public class GuiNewChatTC extends GuiNewChat {
 				this.saveNeeded = true;
 			}
 		}
+		
 		boolean unicodeStore = this.mc.fontRenderer.getUnicodeFlag();
 		int lineCounter = 0;
 		int visLineCounter = 0;
@@ -182,8 +185,8 @@ public class GuiNewChatTC extends GuiNewChat {
 				chatReadLock.unlock();
 			}
 			if(numLinesTotal == 0) return;
+			chatOpen = this.getChatOpen();
 			
-			chatOpen = this.getChatOpen();			
 			if(TabbyChat.instance.enabled()) {
 				if(TabbyChat.generalSettings.timeStampEnable.getValue())
 					timeStampOffset = mc.fontRenderer.getStringWidth(((TimeStampEnum)TabbyChat.generalSettings.timeStampStyle.getValue()).maxTime);
@@ -210,14 +213,14 @@ public class GuiNewChatTC extends GuiNewChat {
 			}
 			
 			GL11.glPushMatrix();
-			GL11.glTranslatef(ChatBox.current.x, ChatBox.current.y + ChatBox.current.height, 0.0f);
+			GL11.glTranslatef((float)ChatBox.current.x, 48.0f + (float)(ChatBox.current.y + ChatBox.current.height), 0.0f);
 			GL11.glScalef(chatScaling, chatScaling, 1.0f);
 			
 			int lineAge;
-			int currentOpacity;
+			int currentOpacity = 0;
 			TCChatLine _line = null;
+			
 			// Display valid chat lines
-
 			for(lineCounter = 0; lineCounter + this.scrollOffset  < numLinesTotal && lineCounter < maxDisplayedLines; ++lineCounter) {
 				this.chatHeight = lineCounter * 9;
 				_line = null;
@@ -256,26 +259,10 @@ public class GuiNewChatTC extends GuiNewChat {
 						} else this.mc.fontRenderer.drawStringWithShadow(_chat, xOrigin, yOrigin-8, 0xffffff + (currentOpacity << 24));
 					}
 				}
-			}			
-
-			// Draw the vanilla scroll bar
-			if(chatOpen && !TabbyChat.instance.enabled()) {
-				int fontHeight = this.mc.fontRenderer.FONT_HEIGHT;
-				GL11.glTranslatef(-3.0F, 0.0F, 0.0F);
-				int allLineHeight = numLinesTotal * fontHeight + numLinesTotal;
-				int allValidHeight = validLinesDisplayed * fontHeight + validLinesDisplayed;
-				if(allLineHeight != allValidHeight) {
-					int scrollPos = this.scrollOffset * allValidHeight / numLinesTotal;
-					int scrollMax = allValidHeight * allValidHeight / allLineHeight;
-					int scrollOpacity = (scrollPos > 0) ? 170 : 96;
-					int scrollBarColor = this.chatScrolled ? 0xCC3333 : 0x3333AA;
-					drawRect(0, -scrollPos, 2, -scrollPos - scrollMax, scrollBarColor + (scrollOpacity << 24));
-					drawRect(2, -scrollPos, 1, -scrollPos - scrollMax, 0xCCCCCC + (scrollOpacity << 24));
-				}
 			}
+			ChatBox.setChatSize(this.chatWidth+timeStampOffset, this.chatHeight+9);
+			ChatBox.drawChatBoxBorder((Gui)this, chatOpen, currentOpacity);
 			GL11.glPopMatrix();
-			ChatBox.setChatSize(this.chatWidth, this.chatHeight);
-			ChatBox.drawChatBoxBorder((Gui)this);
 		}
 		if(TabbyChat.instance.enabled() && !this.getChatOpen())
 			TabbyChat.instance.pollForUnread(this, -visLineCounter * 9, currentTick);

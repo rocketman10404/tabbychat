@@ -19,10 +19,8 @@ public class ChatScrollBar {
 	private int barMinY = 0;
 	private int barMaxY = 0;
 	private int lastY = 0;
-	private int offsetX = 0;
-	private int offsetY = 0;
-	private static int barHeight = 8;
-	private static int barWidth = 5;
+	protected static int barHeight = 8;
+	protected static int barWidth = 5;
 	private boolean scrolling = false;
 	
 	public ChatScrollBar(GuiChat _gc) {
@@ -35,7 +33,7 @@ public class ChatScrollBar {
 			if(TabbyChat.advancedSettings.forceUnicode.getValue()) {
 				mc.fontRenderer.setUnicodeFlag(true);
 			}
-			this.offsetX = MathHelper.floor_float(mc.fontRenderer.getStringWidth(maxTime) * TabbyChat.gnc.getScaleSetting());
+			//this.offsetX = MathHelper.floor_float(mc.fontRenderer.getStringWidth(maxTime) * TabbyChat.gnc.getScaleSetting());
 			mc.fontRenderer.setUnicodeFlag(oldVal);
 		}
 	}
@@ -66,8 +64,9 @@ public class ChatScrollBar {
 		barHeight = MathHelper.floor_float((float)5 * TabbyChat.gnc.getScaleSetting());
 		barWidth = MathHelper.floor_float((float)5 * TabbyChat.gnc.getScaleSetting());
 
-		this.barX = 5 + this.offsetX + (int)(TabbyChat.gnc.getWidthSetting() * TabbyChat.gnc.getScaleSetting());
-		this.barBottomY = this.gc.height - 28 + this.offsetY;
+		//this.barX = ChatBox.current.x + this.offsetX + (int)(TabbyChat.gnc.getWidthSetting() * TabbyChat.gnc.getScaleSetting());
+		this.barX = ChatBox.current.x + ChatBox.current.width;
+		this.barBottomY = this.gc.height + ChatBox.current.y + ChatBox.current.height;
 		this.barTopY = this.barBottomY - MathHelper.floor_float((TabbyChat.instance.gnc.chatHeight+9) * TabbyChat.gnc.getScaleSetting());
 		
 		this.barMaxY = this.barBottomY - barHeight/2 - 1;
@@ -82,7 +81,7 @@ public class ChatScrollBar {
 		float chatOpacity = this.mc.gameSettings.chatOpacity * 0.9f + 0.1f;
 		int currentOpacity = (int)((float)180 * chatOpacity);
 		if (TabbyChat.gnc.GetChatHeight() > maxlines) {
-			gc.drawRect(this.barX, this.barTopY, this.barX+7, this.barBottomY, currentOpacity / 2 << 24);
+			gc.drawRect(this.barX, this.barTopY, this.barX+this.barWidth+2, this.barBottomY, 0x000000 + (currentOpacity << 24));
 			gc.drawRect(minX, this.scrollBarCenter - barHeight/2, minX + barWidth, this.scrollBarCenter + barHeight/2, 0xffffff + (currentOpacity / 2 << 24));
 			gc.drawRect(minX + 1, this.scrollBarCenter - barHeight/2 - 1, minX + barWidth - 1, this.scrollBarCenter + barHeight/2 + 1, 0xffffff + (currentOpacity / 2 << 24));
 		}
@@ -128,8 +127,8 @@ public class ChatScrollBar {
 	}
 	
 	public void setOffset(int _x, int _y) {
-		this.offsetX = _x;
-		this.offsetY = _y;
+		//this.offsetX = _x;
+		//this.offsetY = _y;
 		int maxlines = TabbyChat.gnc.getHeightSetting() / 9;
 		int clines = (TabbyChat.gnc.GetChatHeight() < maxlines) ? TabbyChat.gnc.GetChatHeight() : maxlines;
 		this.barX = 324 + _x;
