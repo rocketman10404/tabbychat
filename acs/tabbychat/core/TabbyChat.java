@@ -38,6 +38,7 @@ import java.util.Calendar;
 import java.text.SimpleDateFormat;
 import org.lwjgl.input.Keyboard;
 
+import acs.tabbychat.gui.ChatBox;
 import acs.tabbychat.gui.ChatButton;
 import acs.tabbychat.gui.TCSettingsAdvanced;
 import acs.tabbychat.gui.TCSettingsFilters;
@@ -632,14 +633,14 @@ public class TabbyChat {
  		
  		int maxlines = gnc.getHeightSetting() / 9;
  		int clines = Math.min(gnc.GetChatHeight(), maxlines);
- 		int vert = sr.getScaledHeight() - gnc.chatHeight - 51;;
- 		int horiz = 5;
+ 		int vert = sr.getScaledHeight() - gnc.chatHeight - 51;
+ 		int horiz = ChatBox.current.x;
  		
  		int i = 0;
  		for (ChatChannel chan : this.channelMap.values()) {
  			chan.tab.width(mc.fontRenderer.getStringWidth(chan.getDisplayTitle()) + 8);
  			
- 			if (horiz + chan.tab.width() > gnc.chatWidth - 5) {
+ 			if (horiz + chan.tab.width() > ChatBox.current.width - 5) {
  				vert = vert - chan.tab.height();
  				horiz = 5;
  			}

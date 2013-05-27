@@ -8,9 +8,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.lwjgl.opengl.GL11;
 
+import acs.tabbychat.gui.ChatBox;
 import acs.tabbychat.settings.TimeStampEnum;
 import acs.tabbychat.util.TabbyChatUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.src.Gui;
 import net.minecraft.src.GuiChat;
 import net.minecraft.src.GuiNewChat;
 import net.minecraft.src.ILogAgent;
@@ -208,7 +210,7 @@ public class GuiNewChatTC extends GuiNewChat {
 			}
 			
 			GL11.glPushMatrix();
-			GL11.glTranslatef(2.0f, 20.0f, 0.0f);
+			GL11.glTranslatef(ChatBox.current.x, ChatBox.current.y + ChatBox.current.height, 0.0f);
 			GL11.glScalef(chatScaling, chatScaling, 1.0f);
 			
 			int lineAge;
@@ -242,7 +244,7 @@ public class GuiNewChatTC extends GuiNewChat {
 					++validLinesDisplayed;
 					if(currentOpacity > 3) {
 						visLineCounter++;
-						byte xOrigin = 3;
+						byte xOrigin = 0;
 						int yOrigin = -lineCounter * 9;
 						drawRect(xOrigin, yOrigin-9, xOrigin + this.chatWidth + timeStampOffset, yOrigin, currentOpacity / 2 << 24);
 						GL11.glEnable(GL11.GL_BLEND);
@@ -254,7 +256,7 @@ public class GuiNewChatTC extends GuiNewChat {
 						} else this.mc.fontRenderer.drawStringWithShadow(_chat, xOrigin, yOrigin-8, 0xffffff + (currentOpacity << 24));
 					}
 				}
-			}
+			}			
 
 			// Draw the vanilla scroll bar
 			if(chatOpen && !TabbyChat.instance.enabled()) {
@@ -272,6 +274,8 @@ public class GuiNewChatTC extends GuiNewChat {
 				}
 			}
 			GL11.glPopMatrix();
+			ChatBox.setChatSize(this.chatWidth, this.chatHeight);
+			ChatBox.drawChatBoxBorder((Gui)this);
 		}
 		if(TabbyChat.instance.enabled() && !this.getChatOpen())
 			TabbyChat.instance.pollForUnread(this, -visLineCounter * 9, currentTick);
