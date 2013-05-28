@@ -74,7 +74,6 @@ public class TCSettingsGUI extends net.minecraft.src.GuiScreen {
 	}
 	
 	public void drawScreen(int x, int y, float f) {
-		boolean unicodeStore = mc.fontRenderer.getUnicodeFlag();
 		if(TabbyChat.generalSettings.tabbyChatEnable.getValue() && tc.advancedSettings.forceUnicode.getValue()) mc.fontRenderer.setUnicodeFlag(true);
 		int iMargin = (this.line_height - mc.fontRenderer.FONT_HEIGHT)/2;
 		int effLeft = (this.width - this.displayWidth)/2;
@@ -104,7 +103,7 @@ public class TCSettingsGUI extends net.minecraft.src.GuiScreen {
 		for (int i = 0; i < this.buttonList.size(); i++) {
 			((GuiButton)this.buttonList.get(i)).drawButton(mc, x, y);
 		}
-		mc.fontRenderer.setUnicodeFlag(unicodeStore);
+		mc.fontRenderer.setUnicodeFlag(TabbyChat.defaultUnicode);
 	}
 	
 	public void initGui() {

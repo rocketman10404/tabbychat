@@ -68,6 +68,7 @@ public class TabbyChat {
 	private volatile List<TCChatLine> lastChat = new ArrayList();
 	public LinkedHashMap<String, ChatChannel> channelMap = new LinkedHashMap();
 	public int nextID = 3600;
+	public static boolean defaultUnicode;
 	public static TCSettingsGeneral generalSettings;
 	public static TCSettingsServer serverSettings;
 	public static TCSettingsFilters filterSettings;
@@ -85,6 +86,7 @@ public class TabbyChat {
 		serverSettings = new TCSettingsServer(this);
 		filterSettings = new TCSettingsFilters(this);
 		advancedSettings = new TCSettingsAdvanced(this);
+		defaultUnicode = mc.fontRenderer.getUnicodeFlag();
 		generalSettings.loadSettingsFile();
 		advancedSettings.loadSettingsFile();
 		if (!this.enabled()) this.disable();

@@ -175,7 +175,6 @@ public class GuiChatTC extends GuiChat {
 	}
 	
     public @Override void drawScreen(int cursorX, int cursorY, float pointless) {
-		boolean unicodeStore = this.fontRenderer.getUnicodeFlag();
 		if (tc.enabled() && TabbyChat.advancedSettings.forceUnicode.getValue()) this.fontRenderer.setUnicodeFlag(true);
 		this.width = this.sr.getScaledWidth();
 		this.height = this.sr.getScaledHeight();
@@ -212,7 +211,7 @@ public class GuiChatTC extends GuiChat {
 			else if(_button.id == 0 || _button.id == 2) _button.drawButton(this.mc, cursorX, cursorY);
 		}
 		GL11.glPopMatrix();
-		this.fontRenderer.setUnicodeFlag(unicodeStore);
+		this.fontRenderer.setUnicodeFlag(TabbyChat.defaultUnicode);
 		
 // Attempt Macro/Keybind drawScreen if present
 		MacroKeybindCompat.drawScreen(cursorX, cursorY, this);		
@@ -294,6 +293,21 @@ public class GuiChatTC extends GuiChat {
 	}
 	
 	public @Override void handleMouseInput() {
+		// Allow chatbox dragging
+	    int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
+	    int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
+		if(ChatBox.dragging) {
+			ChatBox.handleMouseDrag(mx, my);
+			if(!Mouse.isButtonDown(0)) ChatBox.dragging = false;
+			return;
+		}
+	    
+		if(Mouse.getEventButton() == 0 && Mouse.isButtonDown(0) &&
+				mx > ChatBox.current.x && mx < ChatBox.current.x + ChatBox.current.width &&
+				my > this.height + ChatBox.current.y && my < this.height + ChatBox.current.y + ChatBox.tabTrayHeight) {
+			ChatBox.startDragging(mx, my);
+		}
+		
 		int wheelDelta = Mouse.getEventDWheel();
 		if(wheelDelta != 0) {
 			wheelDelta = Math.min(1, wheelDelta);
@@ -303,6 +317,7 @@ public class GuiChatTC extends GuiChat {
 			tc.gnc.scroll(wheelDelta);
 			if(tc.enabled()) this.scrollBar.scrollBarMouseWheel();
 		} else if(tc.enabled()) this.scrollBar.handleMouse();
+		
 		if(mc.currentScreen.getClass() != GuiChat.class) super.handleMouseInput();
 	}
 	
@@ -315,11 +330,8 @@ public class GuiChatTC extends GuiChat {
 		this.height = this.sr.getScaledHeight();
 		tc.checkServer();
 		if(tc.enabled()) {
-			//this.drawChatTabs();
 			if(this.scrollBar == null) this.scrollBar = new ChatScrollBar(this);
-			//this.scrollBar.drawScrollBar();
 		} else if(!Minecraft.getMinecraft().isSingleplayer()) {
-			//tc.updateButtonLocations(this.sr);
 			this.buttonList.add(tc.channelMap.get("*").tab);
 		}
 		
@@ -443,7 +455,7 @@ public class GuiChatTC extends GuiChat {
 			this.insertCharsAtCursor(Character.toString(_char));
 	}
 
-	public @Override void mouseClicked(int _x, int _y, int _button) {
+	public @Override void mouseClicked(int _x, int _y, int _button) {		
 		if(_button == 0 && this.mc.gameSettings.chatLinks) {
 			ChatClickData ccd = tc.gnc.func_73766_a(Mouse.getX(), Mouse.getY());
 			if(ccd != null) {
@@ -507,6 +519,10 @@ public class GuiChatTC extends GuiChat {
             this.selectedButton = null;
         }
     }
+	
+	public @Override void onGuiClosed() {
+		ChatBox.dragging = false;
+	}
 
 	public void removeCharsAtCursor(int _del) {
 		StringBuilder msg = new StringBuilder();

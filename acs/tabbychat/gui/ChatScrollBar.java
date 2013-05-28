@@ -67,7 +67,7 @@ public class ChatScrollBar {
 		//this.barX = ChatBox.current.x + this.offsetX + (int)(TabbyChat.gnc.getWidthSetting() * TabbyChat.gnc.getScaleSetting());
 		this.barX = ChatBox.current.x + ChatBox.current.width;
 		this.barBottomY = this.gc.height + ChatBox.current.y + ChatBox.current.height;
-		this.barTopY = this.barBottomY - MathHelper.floor_float((TabbyChat.instance.gnc.chatHeight+9) * TabbyChat.gnc.getScaleSetting());
+		this.barTopY = this.barBottomY - MathHelper.floor_float(TabbyChat.instance.gnc.chatHeight * TabbyChat.gnc.getScaleSetting());
 		
 		this.barMaxY = this.barBottomY - barHeight/2 - 1;
 		this.barMinY = this.barTopY + barHeight/2 + 1;
@@ -127,8 +127,6 @@ public class ChatScrollBar {
 	}
 	
 	public void setOffset(int _x, int _y) {
-		//this.offsetX = _x;
-		//this.offsetY = _y;
 		int maxlines = TabbyChat.gnc.getHeightSetting() / 9;
 		int clines = (TabbyChat.gnc.GetChatHeight() < maxlines) ? TabbyChat.gnc.GetChatHeight() : maxlines;
 		this.barX = 324 + _x;

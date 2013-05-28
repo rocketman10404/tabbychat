@@ -161,14 +161,11 @@ public class GuiNewChatTC extends GuiNewChat {
 			}
 		}
 		
-		boolean unicodeStore = this.mc.fontRenderer.getUnicodeFlag();
 		int lineCounter = 0;
 		int visLineCounter = 0;
 		if(TabbyChat.generalSettings.tabbyChatEnable.getValue() && TabbyChat.advancedSettings.forceUnicode.getValue()) this.mc.fontRenderer.setUnicodeFlag(true);
 		if(this.mc.gameSettings.chatVisibility != 2) {			
 			this.sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
-			this.chatHeight = 0;
-			this.chatWidth = 320;
 			int maxDisplayedLines = 0;
 			boolean chatOpen = false;
 			int validLinesDisplayed = 0;
@@ -222,7 +219,6 @@ public class GuiNewChatTC extends GuiNewChat {
 			
 			// Display valid chat lines
 			for(lineCounter = 0; lineCounter + this.scrollOffset  < numLinesTotal && lineCounter < maxDisplayedLines; ++lineCounter) {
-				this.chatHeight = lineCounter * 9;
 				_line = null;
 				chatReadLock.lock();
 				try {
@@ -234,10 +230,10 @@ public class GuiNewChatTC extends GuiNewChat {
 				lineAge = currentTick - _line.getUpdatedCounter(); 
 				if(lineAge < fadeTicks || chatOpen) {
 					if(!chatOpen) {
-						double agePercent = (double)currentTick / (double)fadeTicks;
+						double agePercent = (double)lineAge / (double)fadeTicks;
 						agePercent = 10.0D * (1.0D - agePercent);
-						agePercent = Math.min(0.0D, agePercent);
-						agePercent = Math.max(1.0D, agePercent);
+						if(agePercent < 0.0D) agePercent = 0.0D;
+						else if(agePercent > 1.0D) agePercent = 1.0D;
 						agePercent *= agePercent;
 						currentOpacity = (int)(255.0D * agePercent);
 					} else {
@@ -248,25 +244,26 @@ public class GuiNewChatTC extends GuiNewChat {
 					if(currentOpacity > 3) {
 						visLineCounter++;
 						byte xOrigin = 0;
-						int yOrigin = -lineCounter * 9;
-						drawRect(xOrigin, yOrigin-9, xOrigin + this.chatWidth + timeStampOffset, yOrigin, currentOpacity / 2 << 24);
+						int yOrigin = -visLineCounter * 9;
+						drawRect(xOrigin, yOrigin, xOrigin + this.chatWidth + timeStampOffset, yOrigin+9, currentOpacity / 2 << 24);
 						GL11.glEnable(GL11.GL_BLEND);
 						String _chat = _line.getChatLineString();
 						if(!this.mc.gameSettings.chatColours)
 							_chat = StringUtils.stripControlCodes(_chat);
 						if(_line.getUpdatedCounter() < 0) {
-							this.mc.fontRenderer.drawStringWithShadow(_chat, xOrigin, yOrigin-8, 0x888888 + (currentOpacity << 24));
-						} else this.mc.fontRenderer.drawStringWithShadow(_chat, xOrigin, yOrigin-8, 0xffffff + (currentOpacity << 24));
+							this.mc.fontRenderer.drawStringWithShadow(_chat, xOrigin, yOrigin+1, 0x888888 + (currentOpacity << 24));
+						} else this.mc.fontRenderer.drawStringWithShadow(_chat, xOrigin, yOrigin+1, 0xffffff + (currentOpacity << 24));
 					}
 				}
 			}
-			ChatBox.setChatSize(this.chatWidth+timeStampOffset, this.chatHeight+9);
+			this.chatHeight = visLineCounter * 9;
+			ChatBox.setChatSize(this.chatWidth+timeStampOffset, this.chatHeight);
 			ChatBox.drawChatBoxBorder((Gui)this, chatOpen, currentOpacity);
 			GL11.glPopMatrix();
 		}
 		if(TabbyChat.instance.enabled() && !this.getChatOpen())
 			TabbyChat.instance.pollForUnread(this, -visLineCounter * 9, currentTick);
-		this.mc.fontRenderer.setUnicodeFlag(unicodeStore);
+		this.mc.fontRenderer.setUnicodeFlag(TabbyChat.defaultUnicode);
 	}
 	
 	public @Override ChatClickData func_73766_a(int clickX, int clickY) {
