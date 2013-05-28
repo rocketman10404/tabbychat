@@ -22,19 +22,18 @@ public class ChatBox {
 	public static boolean dragging = false;
 	public static Point dragStart =  new Point(0,0);
 	
-	public static void addRowToTray() {
-		Minecraft mc = TabbyChat.mc;
-		ScaledResolution sr = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
-		
-		if(current.y > 20) {
-			current.y -= 20;
-			current.height += 20;
+	public static void addRowToTray(ScaledResolution sr) {
+		if(current.y - tabHeight > -sr.getScaledHeight()) {
+			current.y -= tabHeight;
+			current.height += tabHeight;
+		} else if(current.height + tabHeight > sr.getScaledHeight()) {
+			current.y = -sr.getScaledHeight() + 1;
+			current.height = sr.getScaledHeight() - 3;
 		} else {
-			int extra = 20 - current.y - 1;
-			current.y = 1;
-			current.height = Math.min(current.height + 20, sr.getScaledHeight() - 20);
+			current.y = -sr.getScaledHeight() + 1;
+			current.height += tabHeight;
 		}
-		tabTrayHeight += 20;
+		tabTrayHeight += tabHeight;
 	}
 	
 	public static void drawChatBoxBorder(Gui overlay, boolean chatOpen, int opacity) {
@@ -120,29 +119,40 @@ public class ChatBox {
 	public static void updateTabs(LinkedHashMap<String, ChatChannel> chanObjs, ScaledResolution sr) {
 		int tabWidth = 0;
 		int tabX = current.x;
+		int tabDx = 0;
+		int rows = 1;
+		
+		// Reset tab tray height
+		int moveY = tabTrayHeight - tabHeight;
+		tabTrayHeight = tabHeight;
+		current.height -= moveY;
+		current.y += moveY;
 		
 		for(ChatChannel chan : chanObjs.values()) {
 			tabWidth = TabbyChat.mc.fontRenderer.getStringWidth(chan.getDisplayTitle()) + 8;
-/*			if(tabX + tabWidth > current.width - 5) {
-				addRowToTray();
-				int delta = sr.getScaledHeight() + current.y + tabTrayHeight - tabHeight;
+			if(tabDx + tabWidth > current.width - 6 && tabWidth < current.width - 6) {
+				rows++;
+				if(tabHeight * rows > tabTrayHeight) {
+						addRowToTray(sr);
+				}
+				tabDx = 0;
 				for(ChatChannel chan2 : chanObjs.values()) {
 					if(chan2 == chan) break;
-					chan2.tab.yPosition = delta;
+					chan2.tab.yPosition = sr.getScaledHeight() + current.y + tabHeight;
 				}
-			}*/
+			}
 			
 			if(chan.tab == null) {
-				chan.setButtonObj(new ChatButton(chan.getID(), tabX, sr.getScaledHeight() + current.y, tabWidth, tabHeight, chan.getDisplayTitle()));
+				chan.setButtonObj(new ChatButton(chan.getID(), current.x+tabDx, sr.getScaledHeight()+current.y, tabWidth, tabHeight, chan.getDisplayTitle()));
 			} else {
 				chan.tab.id = chan.getID();
-				chan.tab.xPosition = tabX;
+				chan.tab.xPosition = current.x + tabDx;
 				chan.tab.yPosition = sr.getScaledHeight() + current.y;
 				chan.tab.width(tabWidth);
 				chan.tab.height(tabHeight);
 				chan.tab.displayString = chan.getDisplayTitle();
 			}
-			tabX = tabX + tabWidth + 1;
+			tabDx += tabWidth + 1;
 		}
 	}
 }
