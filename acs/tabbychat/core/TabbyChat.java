@@ -149,7 +149,7 @@ public class TabbyChat {
 			} else return 0;
 		}
 		
-		theChan.chatLog.add(0, newChat);
+		theChan.addChat(newChat);
 		theChan.trimLog();
 		if (theChan.active || this.channelMap.get("*").active)
 			return 1;
@@ -200,14 +200,14 @@ public class TabbyChat {
 			this.channelMap.put("*", new ChatChannel("*"));
 			this.channelMap.get("*").active = true;
 		}
-		synchronized(TabbyChat.class) {
-			this.serverDataLock.tryAcquire();
-			serverSettings.updateForServer();
-			this.reloadServerData();
-			this.reloadSettingsData(false);
-			if(serverSettings.server != null) this.loadPMPatterns();
-			this.serverDataLock.release();
-		}
+		
+		this.serverDataLock.tryAcquire();
+		serverSettings.updateForServer();
+		this.reloadServerData();
+		this.reloadSettingsData(false);
+		if(serverSettings.server != null) this.loadPMPatterns();
+		this.serverDataLock.release();
+
 		if (generalSettings.saveChatLog.getValue() && serverSettings.server != null) {
 			TabbyChatUtils.logChat("\nBEGIN CHAT LOGGING FOR "+serverSettings.serverName+"("+serverSettings.serverIP+") -- "+(new SimpleDateFormat()).format(Calendar.getInstance().getTime()));
 		}
@@ -230,7 +230,7 @@ public class TabbyChat {
 
 		for (ChatChannel chan : this.channelMap.values()) {
 			if (chan.active)
-				actives.add(chan.title);
+				actives.add(chan.getTitle());
 		}
 		return actives;
 	}
@@ -274,16 +274,16 @@ public class TabbyChat {
 			if(!this.channelMap.containsKey(chan.getKey())) {
 				_new = new ChatChannel(chan.getKey());
 				_new.chanID = chan.getValue().chanID;
-				this.channelMap.put(_new.title, _new);
+				this.channelMap.put(_new.getTitle(), _new);
 			} else {
 				_new = this.channelMap.get(chan.getKey());
 			}
-			_new.alias = chan.getValue().alias;
+			_new.setAlias(chan.getValue().getAlias());
 			_new.active = chan.getValue().active;
 			_new.notificationsOn = chan.getValue().notificationsOn;
 			_new.cmdPrefix = chan.getValue().cmdPrefix;
 			this.addToChannel(chan.getKey(), new TCChatLine(-1, "-- chat history from "+(new SimpleDateFormat()).format(chanDataFile.lastModified()), 0, true));
-			_new.importOldChat(chan.getValue().chatLog);
+			_new.importOldChat(chan.getValue());
 			oldIDs++;
 		}
 		ChatChannel.nextID = 3600 + oldIDs;
@@ -407,7 +407,7 @@ public class TabbyChat {
 				if (filterSettings.sendToAllTabs(i)) {
 					toTabs.clear();
 					for (ChatChannel chan : this.channelMap.values())
-						toTabs.add(chan.title);
+						toTabs.add(chan.getTitle());
 					skip = true;
 					continue;
 				} else {
@@ -505,7 +505,7 @@ public class TabbyChat {
 		try {
 			if (generalSettings.groupSpam.getValue() && activeTabs.size() > 0) {
 				if (toTabs.contains(activeTabs.get(0)))
-					this.lastChat = new ArrayList(this.channelMap.get(activeTabs.get(0)).chatLog.subList(0, filteredChatLine.size()));
+					this.lastChat = this.channelMap.get(activeTabs.get(0)).getChatLogSublistCopy(0, filteredChatLine.size());
 				else
 					this.lastChat = this.withTimeStamp(filteredChatLine);
 			} else
@@ -550,10 +550,10 @@ public class TabbyChat {
  		gnc.clearChatLines();
  		List<String> actives = this.getActive();
  		if (actives.size() < 1) return;
- 		gnc.addChatLines(this.channelMap.get(actives.get(0)).chatLog);
+ 		gnc.addChatLines(this.channelMap.get(actives.get(0)));
  		int n = actives.size();
  		for (int i = 1; i < n; i++) {
- 			gnc.mergeChatLines(this.channelMap.get(actives.get(i)).chatLog);
+ 			gnc.mergeChatLines(this.channelMap.get(actives.get(i)));
  		}
  	}
 
@@ -561,23 +561,21 @@ public class TabbyChat {
 		String oldChat = "";
 		String oldChat2 = "";
 		String newChat = "";
-
-		if (theChan.chatLog.size() < lastChat.size()) {
+		if (theChan.getChatLogSize() < lastChat.size()) {
 			theChan.hasSpam = false;
 			theChan.spamCount = 1;
 			return;
 		}
-		
 		int _size = lastChat.size();
 		for (int i=0; i<_size; i++) {
-			if(lastChat.get(i).getChatLineString() == null || theChan.chatLog.get(i).getChatLineString() == null) continue;
+			if(lastChat.get(i).getChatLineString() == null || theChan.getChatLine(i).getChatLineString() == null) continue;
 			newChat = newChat + lastChat.get(i).getChatLineString();
 			if (generalSettings.timeStampEnable.getValue()) {
-				oldChat = theChan.chatLog.get(i).getChatLineString().replaceAll("^(\u00A7.)?"+((TimeStampEnum)generalSettings.timeStampStyle.getValue()).regEx+"(\u00A7r)?", "") + oldChat;
+				oldChat = theChan.getChatLine(i).getChatLineString().replaceAll("^(\u00A7.)?"+((TimeStampEnum)generalSettings.timeStampStyle.getValue()).regEx+"(\u00A7r)?", "") + oldChat;
 			} else {
-				oldChat = theChan.chatLog.get(i).getChatLineString() + oldChat;
+				oldChat = theChan.getChatLine(i).getChatLineString() + oldChat;
 			}
-		}
+		}	
 		if (theChan.hasSpam) {
 			oldChat2 = oldChat.substring(0, oldChat.length() - 4 - Integer.toString(theChan.spamCount).length());
 			oldChat = oldChat2;
@@ -586,12 +584,12 @@ public class TabbyChat {
 			theChan.hasSpam = true;
 			theChan.spamCount++;
 			for (int i=1; i<_size; i++)
-				theChan.chatLog.set(i, this.withTimeStamp(lastChat.get(lastChat.size()-i-1)));
-			theChan.chatLog.set(0, new TCChatLine(lastChat.get(lastChat.size()-1).getUpdatedCounter(), this.withTimeStamp(lastChat.get(lastChat.size()-1).getChatLineString()) + " [" + theChan.spamCount + "x]", lastChat.get(lastChat.size()-1).getChatLineID()));
+				theChan.setChatLogLine(i, this.withTimeStamp(lastChat.get(lastChat.size()-i-1)));
+			theChan.setChatLogLine(0, new TCChatLine(lastChat.get(lastChat.size()-1).getUpdatedCounter(), this.withTimeStamp(lastChat.get(lastChat.size()-1).getChatLineString()) + " [" + theChan.spamCount + "x]", lastChat.get(lastChat.size()-1).getChatLineID()));
 		} else {
 			theChan.hasSpam = false;
 			theChan.spamCount = 1;
-		}
+		}	
 	}
 	
 	public void storeChannelData() {
@@ -664,7 +662,7 @@ public class TabbyChat {
 		List<String> dList = new ArrayList(serverSettings.defaultChanList);
 		int ind;
 		for (ChatChannel chan : this.channelMap.values()) {
-			ind = dList.indexOf(chan.title);
+			ind = dList.indexOf(chan.getTitle());
 			if (ind >= 0) dList.remove(ind);
 		}
 		

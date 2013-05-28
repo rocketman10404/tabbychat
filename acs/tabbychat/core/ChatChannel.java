@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
@@ -21,22 +21,25 @@ import net.minecraft.src.StringUtils;
 public class ChatChannel implements Serializable {
 	protected static int nextID = 3600;
 	private static final long serialVersionUID = 546162627943686174L;
-	public String title;
+	private String title;
 	public transient ChatButton tab;
-	public CopyOnWriteArrayList<TCChatLine> chatLog;
+	private ArrayList<TCChatLine> chatLog;
+	private final ReentrantReadWriteLock chatListLock = new ReentrantReadWriteLock(true);
+	private final Lock chatReadLock = this.chatListLock.readLock();
+	private final Lock chatWriteLock = this.chatListLock.writeLock();
 	protected int chanID = nextID + 1;
 	public boolean unread = false;
 	public boolean active = false;
 	protected boolean hasSpam = false;
 	protected int spamCount = 1;
 	public boolean notificationsOn = false;
-	public String alias;
+	private String alias;
 	public String cmdPrefix = "";
 	
 	public ChatChannel() {
 		this.chanID = nextID;
 		nextID++;
-		this.chatLog = new CopyOnWriteArrayList<TCChatLine>();
+		this.chatLog = new ArrayList<TCChatLine>();
 		this.notificationsOn = TabbyChat.generalSettings.unreadFlashing.getValue();
 	}
 	
@@ -46,18 +49,65 @@ public class ChatChannel implements Serializable {
 		this.title = _title;
 		this.alias = this.title;
 		this.tab.channel = this;
+		this.tab.width(TabbyChat.mc.fontRenderer.getStringWidth(this.alias + "<>")+8);
 	}
 	
 	public ChatChannel(String _title) {
 		this(3, 3, Minecraft.getMinecraft().fontRenderer.getStringWidth("<"+_title+">") + 8, 14, _title);
 	}
 	
+	public void addChat(TCChatLine newChat) {
+		this.chatWriteLock.lock();
+		try {
+			this.chatLog.add(0, newChat);
+		} finally {
+			this.chatWriteLock.unlock();
+		}
+	}
+	
 	public boolean doesButtonEqual(GuiButton btnObj) {
 		return (this.tab.id == btnObj.id);
 	}
 	
+	public String getAlias() {
+		return this.alias;
+	}
+	
 	public int getButtonEnd() {
 		return this.tab.xPosition + this.tab.width();
+	}
+	
+	public TCChatLine getChatLine(int index) {
+		TCChatLine retVal = null;
+		this.chatReadLock.lock();
+		try  {
+			retVal = this.chatLog.get(index);
+		} finally {
+			this.chatReadLock.unlock();
+		}
+		return retVal;
+	}
+	
+	public List<TCChatLine> getChatLogSublistCopy(int fromInd, int toInd) {
+		List<TCChatLine> retVal = null;
+		this.chatReadLock.lock();
+		try {
+			retVal = new ArrayList(this.chatLog.subList(fromInd, toInd));
+		} finally {
+			this.chatReadLock.unlock();
+		}
+		return retVal;
+	}
+	
+	public int getChatLogSize() {
+		int mySize = 0;
+		this.chatReadLock.lock();
+		try {
+			mySize = this.chatLog.size();
+		} finally {
+			this.chatReadLock.unlock();
+		}
+		return mySize;
 	}
 
 	public int getID() {
@@ -73,9 +123,18 @@ public class ChatChannel implements Serializable {
 			return this.alias;
 	}
 	
+	public String getTitle() {
+		return this.title;
+	}
+	
 	public void setButtonObj(ChatButton btnObj) {
 		this.tab = btnObj;
 		this.tab.channel = this;
+	}
+	
+	public void setAlias(String _alias) {
+		this.alias = _alias;
+		this.tab.width(TabbyChat.mc.fontRenderer.getStringWidth(_alias+"<>") + 8);
 	}
 	
 	public String toString() {
@@ -83,8 +142,12 @@ public class ChatChannel implements Serializable {
 	}
 
 	public void clear() {
-		this.chatLog.clear();
-		this.tab.clear();
+		this.chatWriteLock.lock();
+		try {
+			this.chatLog.clear();
+		} finally {
+			this.chatWriteLock.unlock();
+		}
 		this.tab = null;
 	}
 
@@ -93,11 +156,25 @@ public class ChatChannel implements Serializable {
 		this.tab.yPosition = _y;
 	}
 	
+	protected void setChatLogLine(int ind, TCChatLine newLine) {
+		this.chatReadLock.lock();
+		try {
+			this.chatLog.set(ind, newLine);
+		} finally {
+			this.chatReadLock.unlock();
+		}
+	}
+	
 	public void trimLog() {
 		if(TabbyChat.instance == null || TabbyChat.instance.serverDataLock.availablePermits() < 1) return;
 		int maxChats = TabbyChat.instance.enabled() ? Integer.parseInt(TabbyChat.advancedSettings.chatScrollHistory.getValue()) : 100;
-		while(this.chatLog.size() > maxChats) {
-			this.chatLog.remove(this.chatLog.size()-1);
+		this.chatWriteLock.lock();
+		try {
+			while(this.chatLog.size() > maxChats) {
+				this.chatLog.remove(this.chatLog.size()-1);
+			}
+		} finally {
+			this.chatWriteLock.unlock();
 		}
 	}
 
@@ -114,11 +191,16 @@ public class ChatChannel implements Serializable {
 		GL11.glPopMatrix();	
 	}
 	
-	protected void importOldChat(List<TCChatLine> oldList) {
-		if(oldList == null || oldList.isEmpty()) return;
-		for(TCChatLine oldChat : oldList) {
-			if(oldChat == null || oldChat.statusMsg) continue;
-			this.chatLog.add(new TCChatLine(-1, StringUtils.stripControlCodes(oldChat.getChatLineString()), 0));
+	protected void importOldChat(ChatChannel oldChan) {
+		if(oldChan == null || oldChan.chatLog.isEmpty()) return;
+		this.chatWriteLock.lock();
+		try {
+			for(TCChatLine oldChat : oldChan.chatLog) {
+				if(oldChat == null || oldChat.statusMsg) continue;
+				this.chatLog.add(new TCChatLine(-1, StringUtils.stripControlCodes(oldChat.getChatLineString()), 0));
+			}
+		} finally {
+			this.chatWriteLock.unlock();
 		}
 		this.trimLog();
 	}

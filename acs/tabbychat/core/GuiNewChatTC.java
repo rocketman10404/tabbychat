@@ -65,12 +65,12 @@ public class GuiNewChatTC extends GuiNewChat {
 		}
 	}
 
-	public void addChatLines(List<TCChatLine> _add) {
+	public void addChatLines(ChatChannel _addChan) {
 		chatReadLock.lock();
 		try {
-			for(int i=0; i<_add.size();i++)	{
-				this.chatLines.add(_add.get(i));
-				this.backupLines.add(_add.get(i));
+			for(int i=0; i<_addChan.getChatLogSize();i++)	{
+				this.chatLines.add(_addChan.getChatLine(i));
+				this.backupLines.add(_addChan.getChatLine(i));
 			}
 		} finally {
 			chatReadLock.unlock();
@@ -432,23 +432,23 @@ public class GuiNewChatTC extends GuiNewChat {
 		return this.chatWidth;
 	}
 
-	public void mergeChatLines(List<TCChatLine> _new) {
+	public void mergeChatLines(ChatChannel _new) {
+		int newSize = _new.getChatLogSize();
 		chatWriteLock.lock();
 		try {
 			List<TCChatLine> _current = this.chatLines;
-			if (_new == null || _new.size() <= 0) return;
+			if (_new == null || newSize <= 0) return;
 
 			int _c = 0;
 			int _n = 0;
 			int dt = 0;
-			int max = _new.size();
-			while (_n < max && _c < _current.size()) {
-				dt = _new.get(_n).getUpdatedCounter() - _current.get(_c).getUpdatedCounter();
+			while (_n < newSize && _c < _current.size()) {
+				dt = _new.getChatLine(_n).getUpdatedCounter() - _current.get(_c).getUpdatedCounter();
 				if (dt > 0) {
-					_current.add(_c, _new.get(_n));
+					_current.add(_c, _new.getChatLine(_n));
 					_n++;
 				} else if (dt == 0) {
-					if (_current.get(_c).equals(_new.get(_n)) || _current.get(_c).getChatLineString().equals(_new.get(_n).getChatLineString())) {
+					if (_current.get(_c).equals(_new.getChatLine(_n)) || _current.get(_c).getChatLineString().equals(_new.getChatLine(_n).getChatLineString())) {
 						_c++;
 						_n++;
 					} else
@@ -457,8 +457,8 @@ public class GuiNewChatTC extends GuiNewChat {
 					_c++;
 			}
 
-			while (_n < max) {
-				_current.add(_current.size(), _new.get(_n));
+			while (_n < newSize) {
+				_current.add(_current.size(), _new.getChatLine(_n));
 				_n++;
 			}
 		} finally {

@@ -39,18 +39,18 @@ public class ChatChannelGUI extends GuiScreen {
 		this.channel = _c;
 		this.notificationsOn.setValue(_c.notificationsOn);
 		this.alias.setCharLimit(20);
-		this.alias.setValue(_c.alias);
+		this.alias.setValue(_c.getAlias());
 		this.cmdPrefix.setCharLimit(100);
 		this.cmdPrefix.setValue(_c.cmdPrefix);
 		this.resetTempVars();
-		this.title = _c.title;
+		this.title = _c.getTitle();
 	}
 	
 	public void actionPerformed(GuiButton _button) {
 		switch(_button.id) {
 		case saveButton:
 			this.channel.notificationsOn = this.notificationsOn.getTempValue();
-			this.channel.alias = this.alias.getTempValue().trim();
+			this.channel.setAlias(this.alias.getTempValue().trim());
 			this.channel.cmdPrefix = this.cmdPrefix.getTempValue().trim();
 			TabbyChat.instance.storeChannelData();
 		case cancelButton:
@@ -138,7 +138,7 @@ public class ChatChannelGUI extends GuiScreen {
 		int numTabs = TabbyChat.instance.channelMap.size();
 		Iterator _chanPtr = TabbyChat.instance.channelMap.keySet().iterator();
 		while(_chanPtr.hasNext()) {
-			if(this.channel.title.equals(_chanPtr.next())) break;
+			if(this.channel.getTitle().equals(_chanPtr.next())) break;
 			position++;
 		}		
 	}

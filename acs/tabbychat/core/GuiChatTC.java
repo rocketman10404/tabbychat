@@ -78,11 +78,12 @@ public class GuiChatTC extends GuiChat {
 			return;
 		}
 		if (!tc.enabled()) return;
-		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {						
-			tc.channelMap.remove(_button.channel.title);
+		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+			this.buttonList.remove(_button);
+			tc.channelMap.remove(_button.channel.getTitle());
 		} else if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
 			if (!_button.channel.active) {
-				tc.gnc.mergeChatLines(_button.channel.chatLog);
+				tc.gnc.mergeChatLines(_button.channel);
 				_button.channel.unread = false;
 			}
 			_button.channel.active = !_button.channel.active;
@@ -158,7 +159,7 @@ public class GuiChatTC extends GuiChat {
 	}
 	
 	public void drawChatTabs() {
-		// Store non-TabbyChat buttons in external list
+/*		// Store non-TabbyChat buttons in external list
 		List<GuiButton> tmpBin = new ArrayList();
 		for(GuiButton _button : (List<GuiButton>)this.buttonList) {
 			if(!ChatButton.class.isInstance(_button)) tmpBin.add(_button);
@@ -171,7 +172,17 @@ public class GuiChatTC extends GuiChat {
 			this.buttonList.add(_chan.tab);
 		}
 		// Add external buttons back on button list
-		this.buttonList.addAll(tmpBin);
+		this.buttonList.addAll(tmpBin);*/
+		
+		ChatBox.updateTabs(TabbyChat.instance.channelMap, this.sr);
+/*		List<ChatChannel> allChans = (ArrayList)TabbyChat.instance.channelMap.values();
+		List<GuiButton> tempButtons = new ArrayList(this.buttonList);
+		for(ChatChannel chan : allChans) {
+			tempButtons.remove(chan.tab);
+		}
+		if(!tempButtons.isEmpty()) {
+			this.buttonList.removeAll(tempButtons);
+		}*/
 	}
 	
     public @Override void drawScreen(int cursorX, int cursorY, float pointless) {
@@ -331,6 +342,9 @@ public class GuiChatTC extends GuiChat {
 		tc.checkServer();
 		if(tc.enabled()) {
 			if(this.scrollBar == null) this.scrollBar = new ChatScrollBar(this);
+			for(ChatChannel chan : TabbyChat.instance.channelMap.values()) {
+				this.buttonList.add(chan.tab);
+			}
 		} else if(!Minecraft.getMinecraft().isSingleplayer()) {
 			this.buttonList.add(tc.channelMap.get("*").tab);
 		}
