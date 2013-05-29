@@ -80,8 +80,8 @@ public class ChatScrollBar {
 		int maxlines = TabbyChat.gnc.getHeightSetting() / 9;
 		float chatOpacity = this.mc.gameSettings.chatOpacity * 0.9f + 0.1f;
 		int currentOpacity = (int)((float)180 * chatOpacity);
+		gc.drawRect(this.barX, this.barTopY, this.barX+this.barWidth+2, this.barBottomY, currentOpacity << 24);
 		if (TabbyChat.gnc.GetChatHeight() > maxlines) {
-			gc.drawRect(this.barX, this.barTopY, this.barX+this.barWidth+2, this.barBottomY, 0x000000 + (currentOpacity << 24));
 			gc.drawRect(minX, this.scrollBarCenter - barHeight/2, minX + barWidth, this.scrollBarCenter + barHeight/2, 0xffffff + (currentOpacity / 2 << 24));
 			gc.drawRect(minX + 1, this.scrollBarCenter - barHeight/2 - 1, minX + barWidth - 1, this.scrollBarCenter + barHeight/2 + 1, 0xffffff + (currentOpacity / 2 << 24));
 		}

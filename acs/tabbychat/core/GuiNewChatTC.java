@@ -188,21 +188,14 @@ public class GuiNewChatTC extends GuiNewChat {
 				if(TabbyChat.generalSettings.timeStampEnable.getValue())
 					timeStampOffset = mc.fontRenderer.getStringWidth(((TimeStampEnum)TabbyChat.generalSettings.timeStampStyle.getValue()).maxTime);
 				if(TabbyChat.advancedSettings.customChatBoxSize.getValue()) {
-					float scaleFactor;
-					if(chatOpen)
-						scaleFactor = TabbyChat.advancedSettings.chatBoxFocHeight.getValue() / 100.0f;
-					else
-						scaleFactor = TabbyChat.advancedSettings.chatBoxUnfocHeight.getValue() / 100.0f;
-					maxDisplayedLines = (int)Math.floor((float)(this.sr.getScaledHeight() - 51) * scaleFactor / 9.0f);
-					
-					int curWidth = this.sr.getScaledWidth() - 14 - timeStampOffset;
-					float screenWidthScale = TabbyChat.advancedSettings.chatBoxWidth.getValue() / 100.0f;
-					this.chatWidth = MathHelper.ceiling_float_int(screenWidthScale * curWidth / chatScaling);
+					float scaleFactor = 1.0f;
+					maxDisplayedLines = Math.round(ChatBox.getChatHeight() / 9.0f);
+					if(!chatOpen) maxDisplayedLines = Math.round(maxDisplayedLines * TabbyChat.advancedSettings.chatBoxUnfocHeight.getValue() / 100.0f);
+					this.chatWidth = ChatBox.getChatWidth() - timeStampOffset;
 				} else {
 					maxDisplayedLines = this.func_96127_i();
 					this.chatWidth = MathHelper.ceiling_float_int((float)this.func_96126_f() / chatScaling);
 				}
-				this.chatWidth -= 7;
 				fadeTicks = TabbyChat.advancedSettings.chatFadeTicks.getValue().intValue();
 			} else {
 				maxDisplayedLines = this.func_96127_i();
@@ -257,8 +250,9 @@ public class GuiNewChatTC extends GuiNewChat {
 				}
 			}
 			this.chatHeight = visLineCounter * 9;
-			ChatBox.setChatSize(this.chatWidth+timeStampOffset, this.chatHeight);
-			ChatBox.drawChatBoxBorder((Gui)this, chatOpen, currentOpacity);
+			if(chatOpen) ChatBox.setChatSize(ChatBox.getChatWidth(), this.chatHeight);
+			else ChatBox.setUnfocusedHeight(this.chatHeight);
+			ChatBox.drawChatBoxBorder((Gui)this, chatOpen, (visLineCounter > 1 ? 255 : currentOpacity));
 			GL11.glPopMatrix();
 		}
 		if(TabbyChat.instance.enabled() && !this.getChatOpen())
@@ -414,8 +408,7 @@ public class GuiNewChatTC extends GuiNewChat {
 	
 	public int getHeightSetting() {
 		if (TabbyChat.instance.enabled() && TabbyChat.advancedSettings.customChatBoxSize.getValue()) {
-			float scaleFactor = TabbyChat.advancedSettings.chatBoxFocHeight.getValue() / 100.0f;
-			return (int)Math.floor((float)(this.sr.getScaledHeight() - 51) * scaleFactor);
+			return ChatBox.getChatHeight();
 		} else
 			return func_96130_b(this.mc.gameSettings.chatHeightFocused);
 	}
@@ -426,10 +419,6 @@ public class GuiNewChatTC extends GuiNewChat {
 
 	public @Override List getSentMessages() {
 		return this.sentMessages;
-	}
-
-	public int getWidthSetting() {
-		return this.chatWidth;
 	}
 
 	public void mergeChatLines(ChatChannel _new) {
@@ -483,12 +472,9 @@ public class GuiNewChatTC extends GuiNewChat {
 	public @Override void scroll(int _lines) {
 		int maxLineDisplay;
 		if(TabbyChat.instance.enabled() && TabbyChat.advancedSettings.customChatBoxSize.getValue()) {
-			float scaleFactor;
-			if(this.getChatOpen())
-				scaleFactor = TabbyChat.advancedSettings.chatBoxFocHeight.getValue() / 100.0f;
-			else
-				scaleFactor = TabbyChat.advancedSettings.chatBoxUnfocHeight.getValue() / 100.0f;
-			maxLineDisplay = (int)Math.floor((float)(this.sr.getScaledHeight() - 51)*scaleFactor / 9.0f);
+			float scaleFactor = 1.0f;
+			maxLineDisplay = Math.round(ChatBox.getChatHeight() / 9.0f);
+			if(!this.getChatOpen()) maxLineDisplay = Math.round(maxLineDisplay * TabbyChat.advancedSettings.chatBoxUnfocHeight.getValue() / 100.0f);
 		} else
 			maxLineDisplay = this.func_96127_i();
 		

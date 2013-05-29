@@ -5,22 +5,29 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.LinkedHashMap;
 
+import org.lwjgl.input.Mouse;
+
 import acs.tabbychat.core.ChatChannel;
 import acs.tabbychat.core.TabbyChat;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.src.Gui;
+import net.minecraft.src.GuiScreen;
 import net.minecraft.src.ScaledResolution;
 
 public class ChatBox {
 	public static Rectangle current = new Rectangle(2, -216, 320, 180);
 	public static Rectangle desired = new Rectangle(current);
-	public static int absMinX = 2;
-	public static int absMinY = -36;
+	private static int absMinX = 0;
+	private static int absMinY = -36;
+	private static int absMinW = 100;
+	private static int absMinH = 23;
 	public static int tabHeight = 14;
 	public static int tabTrayHeight = 14;
+	public static int unfocusedHeight = 180;
 	public static boolean dragging = false;
 	public static Point dragStart =  new Point(0,0);
+	public static boolean resizing = false;
 	
 	public static void addRowToTray(ScaledResolution sr) {
 		if(current.y - tabHeight > -sr.getScaledHeight()) {
@@ -39,6 +46,7 @@ public class ChatBox {
 	public static void drawChatBoxBorder(Gui overlay, boolean chatOpen, int opacity) {
 		int borderColor = 0x000000 + (2*opacity/3 << 24);
 		int trayColor = 0x000000 + (opacity/3 << 24);
+		int handleColor = resizeHovered() ? 0xffffa0 + (2*opacity/3 << 24) : borderColor;
 		
 		if(chatOpen) {
 			// Draw border around entire chat area
@@ -52,11 +60,16 @@ public class ChatBox {
 			
 			// Add shading to tab tray
 			overlay.drawRect(0, -current.height, current.width+ChatScrollBar.barWidth+2, -current.height+tabTrayHeight, trayColor);
+			
+			// Draw handle for mouse drag
+			overlay.drawRect(current.width+ChatScrollBar.barWidth-5, -current.height+2, current.width+ChatScrollBar.barWidth, -current.height+3, handleColor);
+			overlay.drawRect(current.width+ChatScrollBar.barWidth-1, -current.height+3, current.width+ChatScrollBar.barWidth, -current.height+7, handleColor);
+			
 		} else {
 			// Draw border around unfocused chatbox
-			overlay.drawRect(-1, -current.height+tabTrayHeight, current.width+1, -current.height+tabTrayHeight+1, borderColor);
-			overlay.drawRect(-1, -current.height+tabTrayHeight+1, 0, 0, borderColor);
-			overlay.drawRect(current.width, -current.height+tabTrayHeight+1, current.width+1, 0, borderColor);
+			overlay.drawRect(-1, -unfocusedHeight+tabTrayHeight, current.width+1, -unfocusedHeight+tabTrayHeight+1, borderColor);
+			overlay.drawRect(-1, -unfocusedHeight+tabTrayHeight+1, 0, 0, borderColor);
+			overlay.drawRect(current.width, -unfocusedHeight+tabTrayHeight+1, current.width+1, 0, borderColor);
 			overlay.drawRect(-1, 0, current.width+1, 1, borderColor);	
 			
 		}
@@ -66,12 +79,13 @@ public class ChatBox {
 		return current.height - tabTrayHeight - 1;
 	}
 	
-	public static void handleMouseDrag(int _curX, int _curY) {
+	public static int getChatWidth() {
+		return current.width;
+	}
+	
+	public static void handleMouseDrag(int _curX, int _curY, ScaledResolution sr) {
 		if(!dragging) return;
-		if(Math.abs(_curX - dragStart.x) < 3 && Math.abs(_curY - dragStart.y) < 3 ) return;
-		
-		Minecraft mc = TabbyChat.mc;
-		ScaledResolution sr = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
+		if(Math.abs(_curX - dragStart.x) < 3 && Math.abs(_curY - dragStart.y) < 3) return;
 		
 		desired.x = current.x + _curX - dragStart.x;
 		desired.y = current.y + _curY - dragStart.y;
@@ -88,6 +102,48 @@ public class ChatBox {
 		dragStart.setLocation(_curX, _curY);
 	}
 	
+	public static void handleMouseResize(int _curX, int _curY, ScaledResolution sr) {
+		if(!resizing) return;
+		if(Math.abs(_curX - dragStart.x) < 3 && Math.abs(_curY - dragStart.y) < 3) return;
+		
+		desired.width = current.width + _curX - dragStart.x;
+		desired.height = current.height - _curY + dragStart.y;
+		desired.y = current.y + _curY - dragStart.y;
+	
+		if(desired.x + desired.width + ChatScrollBar.barWidth + 3 > sr.getScaledWidth()) {
+			current.width = sr.getScaledWidth() - current.x - ChatScrollBar.barWidth - 3;
+		} else {
+			current.width = Math.max(desired.width, absMinW);
+		}
+	
+		if(desired.y < -sr.getScaledHeight() + 1) {
+			current.height += current.y + sr.getScaledHeight() - 1;
+			current.y = -sr.getScaledHeight() + 1;
+		} else {
+			current.y -= Math.max(desired.height, absMinH) - current.height;
+			current.height = Math.max(desired.height, absMinH);
+		}
+		
+		dragStart.setLocation(_curX, _curY);
+	}
+	
+	public static boolean resizeHovered() {
+		boolean resizeHovered = false;
+		boolean chatOpen = TabbyChat.gnc.getChatOpen();
+		
+		// Check for mouse cursor over resize handle
+		GuiScreen theScreen = TabbyChat.mc.currentScreen;
+		if(chatOpen && theScreen != null) {
+		    int mx = Mouse.getX() * theScreen.width / TabbyChat.mc.displayWidth;
+		    int my =  -Mouse.getY() * theScreen.height / TabbyChat.mc.displayHeight - 1;
+		    if(mx > current.x+current.width+ChatScrollBar.barWidth-6 && mx < current.x+current.width+ChatScrollBar.barWidth+2 &&
+		    		my < current.y+8 && my > current.y) {
+		    	resizeHovered = true;
+		    }
+		}
+		return resizeHovered;
+	}
+	
 	public static void setChatSize(int width, int height) {
 		Minecraft mc = TabbyChat.mc;
 		ScaledResolution sr = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
@@ -96,7 +152,7 @@ public class ChatBox {
 		// Enforce min allowable width for chatbox
 		width = Math.max(100, width);		
 		// Enforce max allowable width for chatbox
-		if(width + current.x > sr.getScaledWidth()) width = sr.getScaledWidth() - current.x;
+		if(width + current.x + ChatScrollBar.barWidth + 3 > sr.getScaledWidth()) width = sr.getScaledWidth() - current.x - ChatScrollBar.barWidth - 3;
 		
 		// Enforce min allowable height for chat area of chatbox
 		height = Math.max(9, height);
@@ -111,9 +167,28 @@ public class ChatBox {
 		current.setSize(width, height + tabTrayHeight + 1);
 	}
 	
+	public static void setUnfocusedHeight(int uHeight) {
+		uHeight = Math.max(9, uHeight);
+		unfocusedHeight = uHeight + tabTrayHeight + 1;
+	}
+	
 	public static void startDragging(int atX, int atY) {
 		dragging = true;
+		resizing = false;
 		dragStart = new Point(atX, atY);
+	}
+	
+	public static void startResizing(int atX, int atY) {
+		dragging = false;
+		resizing = true;
+		dragStart = new Point(atX, atY);
+	}
+	
+	public static boolean tabTrayHovered(int mx, int my) {
+		boolean chatOpen = TabbyChat.gnc.getChatOpen();
+		GuiScreen theScreen = TabbyChat.mc.currentScreen;
+		if(!chatOpen || theScreen == null) return false;
+		return (mx > current.x && mx < current.x + current.width &&	my > theScreen.height + current.y && my < theScreen.height + current.y + tabTrayHeight);
 	}
 
 	public static void updateTabs(LinkedHashMap<String, ChatChannel> chanObjs, ScaledResolution sr) {

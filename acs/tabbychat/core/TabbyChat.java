@@ -366,7 +366,7 @@ public class TabbyChat {
 			_opacity = (int)(255.0D * var10);
 			_opacity = (int)((float)_opacity * var6);
 			if (_opacity <= 3) return;
-			this.updateButtonLocations(this.gnc.sr);
+			ChatBox.updateTabs(this.channelMap, gnc.sr);
 
 			for (ChatChannel chan : this.channelMap.values()) {
 				if (chan.unread && chan.notificationsOn)
@@ -626,36 +626,6 @@ public class TabbyChat {
 			printErr("Unable to write channel data to file : '" + e.getLocalizedMessage() + "' : " + e.toString());
 		}
 	}
-	
-	public void updateButtonLocations(ScaledResolution sr) {
- 		int xOff = 0;
- 		int yOff = 0; 	
- 		
- 		int maxlines = gnc.getHeightSetting() / 9;
- 		int clines = Math.min(gnc.GetChatHeight(), maxlines);
- 		int vert = sr.getScaledHeight() - gnc.chatHeight - 51;
- 		int horiz = ChatBox.current.x;
- 		
- 		int i = 0;
- 		for (ChatChannel chan : this.channelMap.values()) {
- 			chan.tab.width(mc.fontRenderer.getStringWidth(chan.getDisplayTitle()) + 8);
- 			
- 			if (horiz + chan.tab.width() > ChatBox.current.width - 5) {
- 				vert = vert - chan.tab.height();
- 				horiz = 5;
- 			}
- 			chan.setButtonLoc(horiz, vert);
- 			if (chan.tab == null) {
- 				chan.setButtonObj(new ChatButton(chan.getID(), horiz, vert, chan.tab.width(), chan.tab.height(), chan.getDisplayTitle()));
- 			} else {
- 				chan.tab.id = chan.getID();
- 				chan.tab.xPosition = horiz;
- 				chan.tab.yPosition = vert;
- 				chan.tab.displayString = chan.getDisplayTitle();
- 			}			
- 			horiz = chan.getButtonEnd() + 1;
- 		}
- 	}
 	
 	protected void updateDefaults() {
 		if (!this.generalSettings.tabbyChatEnable.getValue()) return;
