@@ -9,6 +9,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.lwjgl.opengl.GL11;
 
 import acs.tabbychat.gui.ChatBox;
+import acs.tabbychat.gui.ChatScrollBar;
 import acs.tabbychat.settings.TimeStampEnum;
 import acs.tabbychat.util.TabbyChatUtils;
 import net.minecraft.client.Minecraft;
@@ -181,8 +182,8 @@ public class GuiNewChatTC extends GuiNewChat {
 			} finally {
 				chatReadLock.unlock();
 			}
-			if(numLinesTotal == 0) return;
 			chatOpen = this.getChatOpen();
+			if(numLinesTotal == 0 && !chatOpen) return;
 			
 			if(TabbyChat.instance.enabled()) {
 				if(TabbyChat.generalSettings.timeStampEnable.getValue())
@@ -250,9 +251,20 @@ public class GuiNewChatTC extends GuiNewChat {
 				}
 			}
 			this.chatHeight = visLineCounter * 9;
-			if(chatOpen) ChatBox.setChatSize(ChatBox.getChatWidth(), this.chatHeight);
-			else ChatBox.setUnfocusedHeight(this.chatHeight);
-			ChatBox.drawChatBoxBorder((Gui)this, chatOpen, (visLineCounter > 1 ? 255 : currentOpacity));
+			if(tc.enabled()) {
+				if(chatOpen) {
+					if(maxDisplayedLines < numLinesTotal) ChatBox.setChatSize(ChatBox.getChatWidth(), this.chatHeight);
+					else if(maxDisplayedLines > numLinesTotal) {
+						drawRect(0, -this.chatHeight, ChatBox.getChatWidth(), -ChatBox.getChatHeight(), (int)(255 * chatOpacity) / 2 << 24);
+					}
+					ChatScrollBar.drawScrollBar();
+					ChatBox.drawChatBoxBorder((Gui)this, true, (int)(255 * chatOpacity));
+				} else {
+					ChatBox.setUnfocusedHeight(this.chatHeight);
+					ChatBox.drawChatBoxBorder((Gui)this, false, currentOpacity);
+				}
+			}
+
 			GL11.glPopMatrix();
 		}
 		if(TabbyChat.instance.enabled() && !this.getChatOpen())

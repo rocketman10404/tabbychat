@@ -209,7 +209,7 @@ public class GuiChatTC extends GuiChat {
 		}
 		// Draw chat tabs (add to buttonlist) & scroll bar if necessary
 		if(!this.mc.isSingleplayer()) this.drawChatTabs();
-		if(tc.enabled()) this.scrollBar.drawScrollBar();
+		//if(tc.enabled()) this.scrollBar.drawScrollBar();
 		// Determine appropriate scaling for chat tab size and location
 		float scaleSetting = tc.gnc.getScaleSetting();
 		GL11.glPushMatrix();
