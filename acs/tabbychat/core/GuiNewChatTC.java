@@ -315,7 +315,7 @@ public class GuiNewChatTC extends GuiNewChat {
 		// Split message by available chatbox space
 		int maxWidth = MathHelper.floor_float((float)this.func_96126_f() / this.func_96131_h());
 		if(TabbyChat.instance.enabled()) {
-			TabbyChat.instance.checkServer();
+			if(!backupFlag) TabbyChat.instance.checkServer();
 			if(TabbyChat.advancedSettings.customChatBoxSize.getValue())
 				maxWidth = this.chatWidth;
 		}
@@ -336,7 +336,7 @@ public class GuiNewChatTC extends GuiNewChat {
 		}
 		
 		// Add chatlines to appropriate lists
-		if(TabbyChat.instance.enabled() && !optionalDeletion) {
+		if(TabbyChat.instance.enabled() && !optionalDeletion && !backupFlag) {
 			int ret = TabbyChat.instance.processChat(multiLineChat);
 		} else {
 			int _len = multiLineChat.size();
