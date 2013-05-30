@@ -28,7 +28,7 @@ public class ChatBox {
 	public static boolean dragging = false;
 	public static Point dragStart =  new Point(0,0);
 	public static boolean resizing = false;
-	public static boolean anchoredTop = true;
+	public static boolean anchoredTop = false;
 	
 	public static void addRowToTray(ScaledResolution sr) {
 		if(current.y - tabHeight > -sr.getScaledHeight()) {
@@ -118,9 +118,18 @@ public class ChatBox {
 		else if(desired.x + current.width + ChatScrollBar.barWidth + 3 > scaledWidth) current.x = scaledWidth - current.width - ChatScrollBar.barWidth - 3;
 		else current.x = desired.x;
 		
-		if(desired.y < -scaledHeight + 1) current.y = -scaledHeight + 1;
-		else if(desired.y + current.height + 1 >= absMinY) {
+		if(desired.y < -scaledHeight + 1) {
+			current.y = -scaledHeight + 1;
+			if(!anchoredTop) {
+				anchoredTop = true;
+				dragging = false;
+			}
+		} else if(desired.y + current.height + 1 >= absMinY) {
 			current.y = absMinY - current.height - 1;
+			if(anchoredTop) {
+				anchoredTop = false;
+				dragging = false;
+			}
 		} else current.y = desired.y;		
 				
 		dragStart.setLocation(_curX, _curY);
@@ -135,8 +144,13 @@ public class ChatBox {
 		int scaledHeight = (int)((sr.getScaledHeight() + current.y + current.height) / scaleSetting - current.y - current.height);
 		
 		desired.width = current.width + _curX - dragStart.x;
-		desired.height = current.height - _curY + dragStart.y;
-		desired.y = current.y + _curY - dragStart.y;
+		if(!anchoredTop) {
+			desired.height = current.height - _curY + dragStart.y;
+			desired.y = current.y + _curY - dragStart.y;
+		} else {
+			desired.y = current.y;
+			desired.height = current.height + _curY - dragStart.y;
+		}
 	
 		if(desired.x + desired.width + ChatScrollBar.barWidth + 3 > scaledWidth) {
 			current.width = scaledWidth - current.x - ChatScrollBar.barWidth - 3;
@@ -148,7 +162,7 @@ public class ChatBox {
 			current.height += current.y + scaledHeight - 1;
 			current.y = -scaledHeight + 1;
 		} else {
-			current.y -= Math.max(desired.height, absMinH) - current.height;
+			if(!anchoredTop) current.y -= Math.max(desired.height, absMinH) - current.height;
 			current.height = Math.max(desired.height, absMinH);
 		}
 		
@@ -201,7 +215,7 @@ public class ChatBox {
 			height = scaledHeight + absMinY - 3 - tabTrayHeight;
 			current.y = -scaledHeight + 1;
 		} else {
-			current.y = Math.max(bottomY - height - tabTrayHeight - 1, -scaledHeight + 1);
+			if(!anchoredTop) current.y = Math.max(bottomY - height - tabTrayHeight - 1, -scaledHeight + 1);
 		}
 		
 		current.setSize(width, height + tabTrayHeight + 1);
