@@ -311,7 +311,8 @@ public class GuiChatTC extends GuiChat {
 			wheelDelta = Math.max(-1, wheelDelta);
 			if(!isShiftKeyDown()) wheelDelta *= 7;
 			
-			tc.gnc.scroll(wheelDelta);
+			if(ChatBox.anchoredTop) tc.gnc.scroll(-wheelDelta);
+			else tc.gnc.scroll(wheelDelta);
 			if(tc.enabled()) this.scrollBar.scrollBarMouseWheel();
 		} else if(tc.enabled()) this.scrollBar.handleMouse();
 		

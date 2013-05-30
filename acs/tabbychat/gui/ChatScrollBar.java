@@ -35,44 +35,49 @@ public class ChatScrollBar {
 			if(TabbyChat.advancedSettings.forceUnicode.getValue()) {
 				mc.fontRenderer.setUnicodeFlag(true);
 			}
-			//this.offsetX = MathHelper.floor_float(mc.fontRenderer.getStringWidth(maxTime) * TabbyChat.gnc.getScaleSetting());
 			mc.fontRenderer.setUnicodeFlag(oldVal);
 		}
 	}
 	
 	public static void handleMouse() {
 		int adjX = 0;
-		int adjY = 0;
+		int adjY = -Mouse.getEventY() * gc.height / mc.displayHeight - 1;
 		
 		if (Mouse.getEventButton() == 0 && Mouse.isButtonDown(0)) {
 			adjX = Mouse.getEventX() * gc.width / mc.displayWidth;
-			adjY = gc.height - Mouse.getEventY() * gc.height / mc.displayHeight - 1;
-			if (Math.abs(adjX - barX) <= barWidth && adjY <= barMaxY && adjY >= barMinY)
+			int offsetX = barX + ChatBox.current.x;
+			int offsetY = ChatBox.current.y + ChatBox.current.height;
+			if (adjX - offsetX > 0 && adjX - offsetX <= barWidth && adjY <= barMaxY + offsetY && adjY >= barMinY + offsetY) {
 				scrolling = true;
-			else
+			} else {
 				scrolling = false;
-		} else if (!Mouse.isButtonDown(0))
+			}
+		} else if (!Mouse.isButtonDown(0)) {
 			scrolling = false;
+		}
 		
-        int aY = gc.height - Mouse.getEventY() * gc.height / mc.displayHeight - 1;
-		if (Math.abs(aY - lastY) > 1 && scrolling)
-			scrollBarMouseDrag(aY);
+		if (Math.abs(adjY - lastY) > 1 && scrolling) {
+			scrollBarMouseDrag(adjY);
+		}
 	}
 
 	private static void update() {
 		int maxlines = TabbyChat.gnc.getHeightSetting() / 9;
-		int clines = Math.min(TabbyChat.gnc.GetChatHeight(), maxlines);
+		int clines = Math.min(TabbyChat.gnc.GetChatSize(), maxlines);
 
 		barHeight = MathHelper.floor_float((float)5 * TabbyChat.gnc.getScaleSetting());
 		barWidth = MathHelper.floor_float((float)5 * TabbyChat.gnc.getScaleSetting());
 
 		barX = ChatBox.current.width;
 		barBottomY = 0;
+		if(ChatBox.anchoredTop) barBottomY -= ChatBox.tabTrayHeight;
 		barTopY = barBottomY - ChatBox.getChatHeight();
+		if(ChatBox.anchoredTop) barTopY -= 1;
 		
 		barMaxY = barBottomY - barHeight/2 - 1;
 		barMinY = barTopY + barHeight/2 + 1;
-		scrollBarCenter = Math.round(mouseLoc*barMinY + (1.0f-mouseLoc)*barMaxY);
+		if(!ChatBox.anchoredTop) scrollBarCenter = Math.round(mouseLoc*barMinY + (1.0f-mouseLoc)*barMaxY);
+		else scrollBarCenter = Math.round(mouseLoc*barMaxY + (1.0f-mouseLoc)*barMinY);
 	}
 	
 	public static void drawScrollBar() {
@@ -82,7 +87,7 @@ public class ChatScrollBar {
 		float chatOpacity = mc.gameSettings.chatOpacity * 0.9f + 0.1f;
 		int currentOpacity = (int)((float)180 * chatOpacity);
 		gnc.drawRect(barX, barTopY, barX+barWidth+2, barBottomY, currentOpacity << 24);
-		if (gnc.GetChatHeight() > maxlines) {
+		if (gnc.GetChatSize() > maxlines) {
 			gnc.drawRect(minX, scrollBarCenter - barHeight/2, minX + barWidth, scrollBarCenter + barHeight/2, 0xffffff + (currentOpacity / 2 << 24));
 			gnc.drawRect(minX + 1, scrollBarCenter - barHeight/2 - 1, minX + barWidth - 1, scrollBarCenter + barHeight/2 + 1, 0xffffff + (currentOpacity / 2 << 24));
 		}
@@ -91,45 +96,51 @@ public class ChatScrollBar {
 	public static void scrollBarMouseWheel() {
 		update();
 		int maxlines = gnc.getHeightSetting() / 9;
-		int blines = gnc.GetChatHeight();
+		int blines = gnc.GetChatSize();
 		if (blines > maxlines)
 			mouseLoc = (float)gnc.chatLinesTraveled()/(blines-maxlines);
 		else
 			mouseLoc = 0f;
 		   
-		scrollBarCenter = Math.round(mouseLoc*barMinY + (1.0f-mouseLoc)*barMaxY);
+		if(!ChatBox.anchoredTop) scrollBarCenter = Math.round(mouseLoc*barMinY + (1.0f-mouseLoc)*barMaxY);
+		else scrollBarCenter = Math.round(mouseLoc*barMaxY + (1.0f-mouseLoc)*barMinY);
 	}
 	
 	public static void scrollBarMouseDrag(int _absY) {
 		int maxlines = gnc.getHeightSetting() / 9;
-		int blines = gnc.GetChatHeight();
+		int blines = gnc.GetChatSize();
 		if (blines <= maxlines) {
 			mouseLoc = 0f;
 			return;
 		}
 		
-		if (_absY < barMinY)
-			mouseLoc = 1.0f;
-		else if (_absY > barMaxY)
-			mouseLoc = 0.0f;
-		else
-			mouseLoc = ((float)(barMaxY - _absY))/(barMaxY - barMinY);
- 
+		int adjBarMin = barMinY + ChatBox.current.y + ChatBox.current.height;
+		int adjBarMax = barMaxY + ChatBox.current.y + ChatBox.current.height;
+		
+		if (_absY < adjBarMin)
+			mouseLoc = ChatBox.anchoredTop ? 0.0f : 1.0f;
+		else if (_absY > adjBarMax)
+			mouseLoc = ChatBox.anchoredTop ? 1.0f : 0.0f;
+		else {
+			if(!ChatBox.anchoredTop) mouseLoc = Math.abs((float)(adjBarMax - _absY))/(adjBarMax - adjBarMin);
+			else mouseLoc = Math.abs((float)(adjBarMin - _absY))/(adjBarMax - adjBarMin);
+		}
 		float moveInc = 1.0f / (blines - maxlines);
 		
-		int moveLines = (int) Math.floor(mouseLoc / moveInc);
+		int moveLines = (int)(mouseLoc / moveInc);
 		if (moveLines > blines - maxlines)
 			moveLines = blines - maxlines;
 		
 		gnc.setVisChatLines(moveLines);
 		mouseLoc = moveInc * moveLines;
-		scrollBarCenter = Math.round(mouseLoc*barMinY + (1.0f-mouseLoc)*barMaxY);		
+		if(!ChatBox.anchoredTop) scrollBarCenter = Math.round(mouseLoc*(barMinY-barMaxY) + barMaxY);
+		else scrollBarCenter = Math.round(mouseLoc*(barMaxY-barMinY)+barMinY);
 		lastY = _absY;	
 	}
 	
 	public static void setOffset(int _x, int _y) {
 		int maxlines = gnc.getHeightSetting() / 9;
-		int clines = (gnc.GetChatHeight() < maxlines) ? gnc.GetChatHeight() : maxlines;
+		int clines = (gnc.GetChatSize() < maxlines) ? gnc.GetChatSize() : maxlines;
 		barX = 324 + _x;
 		barMinY = mc.currentScreen.height - ((clines-1) * 9 + 8) - 35 + _y;
 		barTopY = barMinY + barHeight/2 + _y;

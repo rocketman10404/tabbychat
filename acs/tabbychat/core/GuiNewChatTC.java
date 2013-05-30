@@ -237,7 +237,7 @@ public class GuiNewChatTC extends GuiNewChat {
 					if(currentOpacity > 3) {
 						visLineCounter++;
 						byte xOrigin = 0;
-						int yOrigin = -visLineCounter * 9;
+						int yOrigin = ChatBox.anchoredTop ? -ChatBox.current.height + (visLineCounter-1)*9 : -visLineCounter * 9;
 						drawRect(xOrigin, yOrigin, xOrigin + this.chatWidth + timeStampOffset, yOrigin+9, currentOpacity / 2 << 24);
 						GL11.glEnable(GL11.GL_BLEND);
 						String _chat = _line.getChatLineString();
@@ -402,7 +402,7 @@ public class GuiNewChatTC extends GuiNewChat {
 		}
 	}
 	
-	public int GetChatHeight() {
+	public int GetChatSize() {
 		int theSize = 0;
 		chatReadLock.lock();
 		try {

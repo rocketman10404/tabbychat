@@ -20,7 +20,7 @@ public class ChatBox {
 	public static Rectangle desired = new Rectangle(current);
 	private static int absMinX = 0;
 	private static int absMinY = -36;
-	private static int absMinW = 100;
+	private static int absMinW = 200;
 	private static int absMinH = 23;
 	public static int tabHeight = 14;
 	public static int tabTrayHeight = 14;
@@ -28,6 +28,7 @@ public class ChatBox {
 	public static boolean dragging = false;
 	public static Point dragStart =  new Point(0,0);
 	public static boolean resizing = false;
+	public static boolean anchoredTop = true;
 	
 	public static void addRowToTray(ScaledResolution sr) {
 		if(current.y - tabHeight > -sr.getScaledHeight()) {
@@ -55,22 +56,41 @@ public class ChatBox {
 			overlay.drawRect(current.width+ChatScrollBar.barWidth+2, -current.height, current.width+ChatScrollBar.barWidth+3, 0, borderColor);
 			overlay.drawRect(-1, 0, current.width+ChatScrollBar.barWidth+3, 1, borderColor);
 			
-			// Draw border between focused chatbox and tab tray
-			overlay.drawRect(0, -current.height+tabTrayHeight, current.width+ChatScrollBar.barWidth+2, -current.height+tabTrayHeight+1, borderColor);
-			
-			// Add shading to tab tray
-			overlay.drawRect(0, -current.height, current.width+ChatScrollBar.barWidth+2, -current.height+tabTrayHeight, trayColor);
-			
-			// Draw handle for mouse drag
-			overlay.drawRect(current.width+ChatScrollBar.barWidth-5, -current.height+2, current.width+ChatScrollBar.barWidth, -current.height+3, handleColor);
-			overlay.drawRect(current.width+ChatScrollBar.barWidth-1, -current.height+3, current.width+ChatScrollBar.barWidth, -current.height+7, handleColor);
-			
+			if(!anchoredTop) {
+				// 	Draw border between focused chatbox and tab tray
+				overlay.drawRect(0, -current.height+tabTrayHeight, current.width+ChatScrollBar.barWidth+2, -current.height+tabTrayHeight+1, borderColor);
+
+				// 	Add shading to tab tray
+				overlay.drawRect(0, -current.height, current.width+ChatScrollBar.barWidth+2, -current.height+tabTrayHeight, trayColor);
+
+				// 	Draw handle for mouse drag
+				overlay.drawRect(current.width+ChatScrollBar.barWidth-5, -current.height+2, current.width+ChatScrollBar.barWidth, -current.height+3, handleColor);
+				overlay.drawRect(current.width+ChatScrollBar.barWidth-1, -current.height+3, current.width+ChatScrollBar.barWidth, -current.height+7, handleColor);
+			} else {
+				//	Draw border between focused chatbox and tab tray
+				overlay.drawRect(0, -tabTrayHeight-1, current.width+ChatScrollBar.barWidth+2, -tabTrayHeight, borderColor);
+
+				// 	Add shading to tab tray
+				overlay.drawRect(0, -tabTrayHeight, current.width+ChatScrollBar.barWidth+2, 0, trayColor);
+
+				// 	Draw handle for mouse drag
+				overlay.drawRect(current.width+ChatScrollBar.barWidth-5, -2, current.width+ChatScrollBar.barWidth, -3, handleColor);
+				overlay.drawRect(current.width+ChatScrollBar.barWidth-1, -3, current.width+ChatScrollBar.barWidth, -7, handleColor);	
+			}
 		} else {
-			// Draw border around unfocused chatbox
-			overlay.drawRect(-1, -unfocusedHeight+tabTrayHeight, current.width+1, -unfocusedHeight+tabTrayHeight+1, borderColor);
-			overlay.drawRect(-1, -unfocusedHeight+tabTrayHeight+1, 0, 0, borderColor);
-			overlay.drawRect(current.width, -unfocusedHeight+tabTrayHeight+1, current.width+1, 0, borderColor);
-			overlay.drawRect(-1, 0, current.width+1, 1, borderColor);	
+			if(!anchoredTop) {
+				// Draw border around unfocused chatbox
+				overlay.drawRect(-1, -unfocusedHeight+tabTrayHeight, current.width+1, -unfocusedHeight+tabTrayHeight+1, borderColor);
+				overlay.drawRect(-1, -unfocusedHeight+tabTrayHeight+1, 0, 0, borderColor);
+				overlay.drawRect(current.width, -unfocusedHeight+tabTrayHeight+1, current.width+1, 0, borderColor);
+				overlay.drawRect(-1, 0, current.width+1, 1, borderColor);
+			} else {
+				// Draw border around unfocused chatbox
+				overlay.drawRect(-1, -current.height, current.width+1, -current.height+1, borderColor);
+				overlay.drawRect(-1, -current.height+1, 0, -current.height+unfocusedHeight-tabTrayHeight-1, borderColor);
+				overlay.drawRect(current.width, -current.height+1, current.width+1, -current.height+unfocusedHeight-tabTrayHeight-1, borderColor);
+				overlay.drawRect(-1, -current.height+unfocusedHeight-tabTrayHeight-1, current.width+1, -current.height+unfocusedHeight-tabTrayHeight, borderColor);
+			}
 			
 		}
 	}
@@ -87,9 +107,9 @@ public class ChatBox {
 		if(!dragging) return;
 		if(Math.abs(_curX - dragStart.x) < 3 && Math.abs(_curY - dragStart.y) < 3) return;
 		
-		float scaleSetting = TabbyChat.gnc.getScaleSetting();
-		int scaledWidth = (int)(sr.getScaledWidth() / scaleSetting);
-		int scaledHeight = (int)(sr.getScaledHeight() / scaleSetting);
+		float scaleSetting = TabbyChat.gnc.getScaleSetting();	
+		int scaledWidth = (int)((sr.getScaledWidth() - current.x) / scaleSetting + current.x);
+		int scaledHeight = (int)((sr.getScaledHeight() + current.y + current.height) / scaleSetting - current.y - current.height);
 				
 		desired.x = current.x + _curX - dragStart.x;
 		desired.y = current.y + _curY - dragStart.y;
@@ -102,10 +122,7 @@ public class ChatBox {
 		else if(desired.y + current.height + 1 >= absMinY) {
 			current.y = absMinY - current.height - 1;
 		} else current.y = desired.y;		
-		
-		System.out.print("Actual width: "+sr.getScaledWidth()+" -- Virtual width: "+scaledWidth+" -- Right border: "+(current.x+current.width));
-		System.out.println(" -- Screen width: "+TabbyChat.mc.currentScreen.width+" -- Scaled sWidth: "+(TabbyChat.mc.currentScreen.width / scaleSetting)+" -- Scale factor: "+sr.getScaleFactor());
-		
+				
 		dragStart.setLocation(_curX, _curY);
 	}
 	
@@ -113,9 +130,9 @@ public class ChatBox {
 		if(!resizing) return;
 		if(Math.abs(_curX - dragStart.x) < 3 && Math.abs(_curY - dragStart.y) < 3) return;
 		
-		float scaleSetting = TabbyChat.gnc.getScaleSetting();
-		int scaledWidth = (int)(sr.getScaledWidth() / scaleSetting);
-		int scaledHeight = (int)(sr.getScaledHeight() / scaleSetting);
+		float scaleSetting = TabbyChat.gnc.getScaleSetting();		
+		int scaledWidth = (int)((sr.getScaledWidth() - current.x) / scaleSetting + current.x);
+		int scaledHeight = (int)((sr.getScaledHeight() + current.y + current.height) / scaleSetting - current.y - current.height);
 		
 		desired.width = current.width + _curX - dragStart.x;
 		desired.height = current.height - _curY + dragStart.y;
@@ -148,7 +165,12 @@ public class ChatBox {
 		    int mx = Mouse.getX() * theScreen.width / TabbyChat.mc.displayWidth;
 		    int my =  -Mouse.getY() * theScreen.height / TabbyChat.mc.displayHeight - 1;
 		    
-		    Rectangle scaled = getScaledBounds(new Rectangle(current.x+current.width+ChatScrollBar.barWidth-6, current.y, 8, 8));
+		    Rectangle scaled;
+		    if(!anchoredTop) {
+		    	scaled = getScaledBounds(new Rectangle(current.x+current.width+ChatScrollBar.barWidth-6, current.y, 8, 8));
+		    } else {
+		    	scaled = getScaledBounds(new Rectangle(current.x+current.width+ChatScrollBar.barWidth-6, current.y+current.height-8, 8, 8));
+		    }
 		    if(mx > scaled.x && mx < scaled.x + scaled.width && my > scaled.y && my < scaled.y + scaled.height) {
 		    	resizeHovered = true;
 		    }
@@ -162,8 +184,10 @@ public class ChatBox {
 		int bottomY = current.y + current.height;
 		
 		float scaleSetting = TabbyChat.gnc.getScaleSetting();
-		int scaledWidth = (int)(sr.getScaledWidth() / scaleSetting);
-		int scaledHeight = (int)(sr.getScaledHeight() / scaleSetting);
+		//int scaledWidth = (int)(sr.getScaledWidth() / scaleSetting);
+		//int scaledHeight = (int)(sr.getScaledHeight() / scaleSetting);		
+		int scaledWidth = (int)((sr.getScaledWidth() - current.x) / scaleSetting + current.x);
+		int scaledHeight = (int)((sr.getScaledHeight() + current.y + current.height) / scaleSetting - current.y - current.height);
 		
 		// Enforce min allowable width for chatbox
 		width = Math.max(100, width);		
@@ -177,7 +201,7 @@ public class ChatBox {
 			height = scaledHeight + absMinY - 3 - tabTrayHeight;
 			current.y = -scaledHeight + 1;
 		} else {
-			current.y = bottomY - height - tabTrayHeight - 1;
+			current.y = Math.max(bottomY - height - tabTrayHeight - 1, -scaledHeight + 1);
 		}
 		
 		current.setSize(width, height + tabTrayHeight + 1);
@@ -207,7 +231,12 @@ public class ChatBox {
 		
 		my = my - theScreen.height;
 		
-		Rectangle scaled = getScaledBounds(new Rectangle(current.x, current.y, current.width, tabTrayHeight));
+		Rectangle scaled;
+		if(!anchoredTop) {
+			scaled = getScaledBounds(new Rectangle(current.x, current.y, current.width, tabTrayHeight));
+		} else {
+			scaled = getScaledBounds(new Rectangle(current.x, current.y + current.height - tabTrayHeight, current.width, tabTrayHeight));
+		}
 		
 		return (mx > scaled.x && mx < scaled.x + scaled.width && my > scaled.y && my < scaled.y + scaled.height);
 	}
@@ -227,7 +256,6 @@ public class ChatBox {
 	public static void updateTabs(LinkedHashMap<String, ChatChannel> chanObjs, ScaledResolution sr) {
 		int tabWidth = 0;
 		float scaleSetting = TabbyChat.gnc.getScaleSetting();
-		//int tabX = Math.round(current.x / scaleSetting);
 		int tabX = current.x;
 		int tabDx = 0;
 		int rows = 1;
@@ -249,6 +277,7 @@ public class ChatBox {
 				for(ChatChannel chan2 : chanObjs.values()) {
 					if(chan2 == chan) break;
 					chan2.tab.yPosition = sr.getScaledHeight() + current.y + tabHeight;
+					if(anchoredTop) chan2.tab.yPosition += current.height - tabHeight;
 				}
 			}
 			
@@ -258,6 +287,7 @@ public class ChatBox {
 				chan.tab.id = chan.getID();
 				chan.tab.xPosition = tabX + tabDx;
 				chan.tab.yPosition = sr.getScaledHeight() + current.y;
+				if(anchoredTop) chan.tab.yPosition += current.height - tabTrayHeight;
 				chan.tab.width(tabWidth);
 				chan.tab.height(tabHeight);
 				chan.tab.displayString = chan.getDisplayTitle();
