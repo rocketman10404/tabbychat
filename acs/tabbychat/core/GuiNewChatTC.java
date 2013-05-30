@@ -189,7 +189,6 @@ public class GuiNewChatTC extends GuiNewChat {
 				if(TabbyChat.generalSettings.timeStampEnable.getValue())
 					timeStampOffset = mc.fontRenderer.getStringWidth(((TimeStampEnum)TabbyChat.generalSettings.timeStampStyle.getValue()).maxTime);
 				if(TabbyChat.advancedSettings.customChatBoxSize.getValue()) {
-					float scaleFactor = 1.0f;
 					maxDisplayedLines = Math.round(ChatBox.getChatHeight() / 9.0f);
 					if(!chatOpen) maxDisplayedLines = Math.round(maxDisplayedLines * TabbyChat.advancedSettings.chatBoxUnfocHeight.getValue() / 100.0f);
 					this.chatWidth = ChatBox.getChatWidth() - timeStampOffset;

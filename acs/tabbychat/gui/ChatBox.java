@@ -87,17 +87,24 @@ public class ChatBox {
 		if(!dragging) return;
 		if(Math.abs(_curX - dragStart.x) < 3 && Math.abs(_curY - dragStart.y) < 3) return;
 		
+		float scaleSetting = TabbyChat.gnc.getScaleSetting();
+		int scaledWidth = (int)(sr.getScaledWidth() / scaleSetting);
+		int scaledHeight = (int)(sr.getScaledHeight() / scaleSetting);
+				
 		desired.x = current.x + _curX - dragStart.x;
 		desired.y = current.y + _curY - dragStart.y;
 		
 		if(desired.x < absMinX+1) current.x = absMinX+1;
-		else if(desired.x + current.width + ChatScrollBar.barWidth + 3 > sr.getScaledWidth()) current.x = sr.getScaledWidth() - current.width - ChatScrollBar.barWidth - 3;
+		else if(desired.x + current.width + ChatScrollBar.barWidth + 3 > scaledWidth) current.x = scaledWidth - current.width - ChatScrollBar.barWidth - 3;
 		else current.x = desired.x;
 		
-		if(desired.y < -sr.getScaledHeight() + 1) current.y = -sr.getScaledHeight() + 1;
+		if(desired.y < -scaledHeight + 1) current.y = -scaledHeight + 1;
 		else if(desired.y + current.height + 1 >= absMinY) {
 			current.y = absMinY - current.height - 1;
 		} else current.y = desired.y;		
+		
+		System.out.print("Actual width: "+sr.getScaledWidth()+" -- Virtual width: "+scaledWidth+" -- Right border: "+(current.x+current.width));
+		System.out.println(" -- Screen width: "+TabbyChat.mc.currentScreen.width+" -- Scaled sWidth: "+(TabbyChat.mc.currentScreen.width / scaleSetting)+" -- Scale factor: "+sr.getScaleFactor());
 		
 		dragStart.setLocation(_curX, _curY);
 	}
@@ -106,19 +113,23 @@ public class ChatBox {
 		if(!resizing) return;
 		if(Math.abs(_curX - dragStart.x) < 3 && Math.abs(_curY - dragStart.y) < 3) return;
 		
+		float scaleSetting = TabbyChat.gnc.getScaleSetting();
+		int scaledWidth = (int)(sr.getScaledWidth() / scaleSetting);
+		int scaledHeight = (int)(sr.getScaledHeight() / scaleSetting);
+		
 		desired.width = current.width + _curX - dragStart.x;
 		desired.height = current.height - _curY + dragStart.y;
 		desired.y = current.y + _curY - dragStart.y;
 	
-		if(desired.x + desired.width + ChatScrollBar.barWidth + 3 > sr.getScaledWidth()) {
-			current.width = sr.getScaledWidth() - current.x - ChatScrollBar.barWidth - 3;
+		if(desired.x + desired.width + ChatScrollBar.barWidth + 3 > scaledWidth) {
+			current.width = scaledWidth - current.x - ChatScrollBar.barWidth - 3;
 		} else {
 			current.width = Math.max(desired.width, absMinW);
 		}
 	
-		if(desired.y < -sr.getScaledHeight() + 1) {
-			current.height += current.y + sr.getScaledHeight() - 1;
-			current.y = -sr.getScaledHeight() + 1;
+		if(desired.y < -scaledHeight + 1) {
+			current.height += current.y + scaledHeight - 1;
+			current.y = -scaledHeight + 1;
 		} else {
 			current.y -= Math.max(desired.height, absMinH) - current.height;
 			current.height = Math.max(desired.height, absMinH);
@@ -150,17 +161,21 @@ public class ChatBox {
 		ScaledResolution sr = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
 		int bottomY = current.y + current.height;
 		
+		float scaleSetting = TabbyChat.gnc.getScaleSetting();
+		int scaledWidth = (int)(sr.getScaledWidth() / scaleSetting);
+		int scaledHeight = (int)(sr.getScaledHeight() / scaleSetting);
+		
 		// Enforce min allowable width for chatbox
 		width = Math.max(100, width);		
 		// Enforce max allowable width for chatbox
-		if(width + current.x + ChatScrollBar.barWidth + 3 > sr.getScaledWidth()) width = sr.getScaledWidth() - current.x - ChatScrollBar.barWidth - 3;
+		if(width + current.x + ChatScrollBar.barWidth + 3 > scaledWidth) width = scaledWidth - current.x - ChatScrollBar.barWidth - 3;
 		
 		// Enforce min allowable height for chat area of chatbox
 		height = Math.max(9, height);
 		// Enforce max allowable height and y-origin for chatbox
-		if(height - absMinY + tabTrayHeight + 3 > sr.getScaledHeight()) {
-			height = sr.getScaledHeight() + absMinY - 3 - tabTrayHeight;
-			current.y = -sr.getScaledHeight() + 1;
+		if(height - absMinY + tabTrayHeight + 3 > scaledHeight) {
+			height = scaledHeight + absMinY - 3 - tabTrayHeight;
+			current.y = -scaledHeight + 1;
 		} else {
 			current.y = bottomY - height - tabTrayHeight - 1;
 		}
