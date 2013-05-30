@@ -1,5 +1,7 @@
 package acs.tabbychat.gui;
 
+import java.awt.Rectangle;
+
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
@@ -42,15 +44,20 @@ public class ChatButton extends net.minecraft.src.GuiButton {
 		this.channel = null;
 	}
 	
-	public boolean mousePressed(Minecraft mc, int par2, int par3) {
-
-        float scaleSetting = TabbyChat.gnc.getScaleSetting();
-        int adjY = (int)((float)(mc.currentScreen.height - this.yPosition - 28) * (1.0F - scaleSetting)) + this.yPosition;
-        int adjX = (int)((float)(this.xPosition - 5) * scaleSetting) + 5;
-        int adjW = (int)((float)this.width * scaleSetting);
-        int adjH = (int)((float)this.height * scaleSetting);
+	private static Rectangle translateButtonDims(Rectangle unscaled) {
+		float scaleSetting = TabbyChat.gnc.getScaleSetting();
+		int adjX = Math.round((unscaled.x - ChatBox.current.x) * scaleSetting + ChatBox.current.x);
 		
-		return this.enabled && this.drawButton && par2 >= adjX && par3 >= adjY && par2 < adjX + adjW && par3 < adjY + adjH;
+		int adjY = Math.round((TabbyChat.mc.currentScreen.height - unscaled.y + ChatBox.current.y + ChatBox.current.height) * (1.0f - scaleSetting)) + unscaled.y;
+		
+		int adjW = Math.round(unscaled.width * scaleSetting);
+		int adjH = Math.round(unscaled.height * scaleSetting);
+		return new Rectangle(adjX, adjY, adjW, adjH);		
+	}
+	
+	public boolean mousePressed(Minecraft mc, int par2, int par3) {		
+		Rectangle cursor = translateButtonDims(new Rectangle(this.xPosition, this.yPosition, this.width, this.height));		
+		return this.enabled && this.drawButton && par2 >= cursor.x && par3 >= cursor.y && par2 < cursor.x + cursor.width && par3 < cursor.y + cursor.height;
 	}
 	
 	public void drawButton(Minecraft mc, int cursorX, int cursorY) {
@@ -59,13 +66,9 @@ public class ChatButton extends net.minecraft.src.GuiButton {
 	          float _mult = mc.gameSettings.chatOpacity * 0.9F + 0.1F;
 	          int _opacity = (int)((float)255 * _mult);
 	          
-	          float scaleSetting = TabbyChat.gnc.getScaleSetting();
-	          int adjY = (int)((float)(mc.currentScreen.height - this.yPosition - 28) * (1.0F - scaleSetting)) + this.yPosition;
-	          int adjX = (int)((float)(this.xPosition - 5) * scaleSetting) + 5;
-	          int adjW = (int)((float)this.width * scaleSetting);
-	          int adjH = (int)((float)this.height * scaleSetting);
+	          Rectangle cursor = translateButtonDims(new Rectangle(this.xPosition, this.yPosition, this.width, this.height));
 	          
-	          boolean hovered = cursorX >= adjX && cursorY >= adjY && cursorX < adjX + adjW && cursorY < adjY + adjH;
+	          boolean hovered = cursorX >= cursor.x && cursorY >= cursor.y && cursorX < cursor.x + cursor.width && cursorY < cursor.y + cursor.height;
 
 	          int var7 = 0xa0a0a0;
 	          int var8 = 0;

@@ -158,48 +158,24 @@ public class GuiChatTC extends GuiChat {
 		}
 	}
 	
-	public void drawChatTabs() {
-/*		// Store non-TabbyChat buttons in external list
-		List<GuiButton> tmpBin = new ArrayList();
-		for(GuiButton _button : (List<GuiButton>)this.buttonList) {
-			if(!ChatButton.class.isInstance(_button)) tmpBin.add(_button);
-		}
-		// Re-create buttonList of tab buttons
-		this.buttonList.clear();
-		//tc.updateButtonLocations(this.sr);
-		ChatBox.updateTabs(TabbyChat.instance.channelMap, this.sr);
-		for (ChatChannel _chan : tc.channelMap.values()) {
-			this.buttonList.add(_chan.tab);
-		}
-		// Add external buttons back on button list
-		this.buttonList.addAll(tmpBin);*/
-		
-		ChatBox.updateTabs(TabbyChat.instance.channelMap, this.sr);
-/*		List<ChatChannel> allChans = (ArrayList)TabbyChat.instance.channelMap.values();
-		List<GuiButton> tempButtons = new ArrayList(this.buttonList);
-		for(ChatChannel chan : allChans) {
-			tempButtons.remove(chan.tab);
-		}
-		if(!tempButtons.isEmpty()) {
-			this.buttonList.removeAll(tempButtons);
-		}*/
-	}
-	
     public @Override void drawScreen(int cursorX, int cursorY, float pointless) {
 		if (tc.enabled() && TabbyChat.advancedSettings.forceUnicode.getValue()) this.fontRenderer.setUnicodeFlag(true);
 		this.width = this.sr.getScaledWidth();
 		this.height = this.sr.getScaledHeight();
+		
 		// Calculate positions of currently-visible input fields
 		int inputHeight = 0;
 		for(int i=0; i<this.inputList.size(); i++) {
 			if(this.inputList.get(i).getVisible()) inputHeight += 12;
 		}
+		
 		// Draw text fields and background
 		int bgWidth = (MacroKeybindCompat.present) ? this.width - 24 : this.width - 2; 
 		drawRect(2, this.height-2-inputHeight, bgWidth, this.height-2, Integer.MIN_VALUE);
 		for(GuiTextField field : this.inputList) {
 			if(field.getVisible()) field.drawTextBox();
 		}
+		
 		// Draw current message length indicator
 		if(tc.enabled()) {
 			String requiredSends = ((Integer)this.getCurrentSends()).toString();
@@ -207,15 +183,18 @@ public class GuiChatTC extends GuiChat {
 			if(MacroKeybindCompat.present) sendsX -= 22; 
 			this.fontRenderer.drawStringWithShadow(requiredSends, sendsX, this.height-inputHeight, 0x707070);
 		}
-		// Draw chat tabs (add to buttonlist) & scroll bar if necessary
-		if(!this.mc.isSingleplayer()) this.drawChatTabs();
-		//if(tc.enabled()) this.scrollBar.drawScrollBar();
+		
+		// Update chat tabs (add to buttonlist)
+		if(!this.mc.isSingleplayer()) ChatBox.updateTabs(TabbyChat.instance.channelMap, this.sr);
+
 		// Determine appropriate scaling for chat tab size and location
 		float scaleSetting = tc.gnc.getScaleSetting();
 		GL11.glPushMatrix();
-		float scaleOffset = (float)(this.sr.getScaledHeight() - 28) * (1.0f - scaleSetting);
-		GL11.glTranslatef(0.0f, scaleOffset, 1.0f);
+		float scaleOffsetX = ChatBox.current.x * (1.0f - scaleSetting);
+		float scaleOffsetY = (this.sr.getScaledHeight() + ChatBox.current.height + ChatBox.current.y) * (1.0f - scaleSetting);
+		GL11.glTranslatef(scaleOffsetX, scaleOffsetY, 1.0f);
 		GL11.glScalef(scaleSetting, scaleSetting, 1.0f);
+		
 		// Draw chat tabs
 		for(GuiButton _button : (List<GuiButton>)this.buttonList) {
 			if(ChatButton.class.isInstance(_button)) _button.drawButton(this.mc, cursorX, cursorY);

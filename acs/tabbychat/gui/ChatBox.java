@@ -136,8 +136,9 @@ public class ChatBox {
 		if(chatOpen && theScreen != null) {
 		    int mx = Mouse.getX() * theScreen.width / TabbyChat.mc.displayWidth;
 		    int my =  -Mouse.getY() * theScreen.height / TabbyChat.mc.displayHeight - 1;
-		    if(mx > current.x+current.width+ChatScrollBar.barWidth-6 && mx < current.x+current.width+ChatScrollBar.barWidth+2 &&
-		    		my < current.y+8 && my > current.y) {
+		    
+		    Rectangle scaled = getScaledBounds(new Rectangle(current.x+current.width+ChatScrollBar.barWidth-6, current.y, 8, 8));
+		    if(mx > scaled.x && mx < scaled.x + scaled.width && my > scaled.y && my < scaled.y + scaled.height) {
 		    	resizeHovered = true;
 		    }
 		}
@@ -188,11 +189,30 @@ public class ChatBox {
 		boolean chatOpen = TabbyChat.gnc.getChatOpen();
 		GuiScreen theScreen = TabbyChat.mc.currentScreen;
 		if(!chatOpen || theScreen == null) return false;
-		return (mx > current.x && mx < current.x + current.width &&	my > theScreen.height + current.y && my < theScreen.height + current.y + tabTrayHeight);
+		
+		my = my - theScreen.height;
+		
+		Rectangle scaled = getScaledBounds(new Rectangle(current.x, current.y, current.width, tabTrayHeight));
+		
+		return (mx > scaled.x && mx < scaled.x + scaled.width && my > scaled.y && my < scaled.y + scaled.height);
 	}
 
+	private static Rectangle getScaledBounds(Rectangle unscaled) {
+		Rectangle scaled = new Rectangle();
+		float scaleSetting = TabbyChat.gnc.getScaleSetting();
+		
+		scaled.x = Math.round((unscaled.x - current.x) * scaleSetting) + current.x;
+		scaled.y = Math.round((unscaled.y - current.y - current.height) * scaleSetting) + current.y + current.height;
+		scaled.width = Math.round(unscaled.width * scaleSetting);
+		scaled.height = Math.round(unscaled.height * scaleSetting);
+		
+		return scaled;
+	}
+	
 	public static void updateTabs(LinkedHashMap<String, ChatChannel> chanObjs, ScaledResolution sr) {
 		int tabWidth = 0;
+		float scaleSetting = TabbyChat.gnc.getScaleSetting();
+		//int tabX = Math.round(current.x / scaleSetting);
 		int tabX = current.x;
 		int tabDx = 0;
 		int rows = 1;
@@ -218,10 +238,10 @@ public class ChatBox {
 			}
 			
 			if(chan.tab == null) {
-				chan.setButtonObj(new ChatButton(chan.getID(), current.x+tabDx, sr.getScaledHeight()+current.y, tabWidth, tabHeight, chan.getDisplayTitle()));
+				chan.setButtonObj(new ChatButton(chan.getID(), tabX+tabDx, sr.getScaledHeight()+current.y, tabWidth, tabHeight, chan.getDisplayTitle()));
 			} else {
 				chan.tab.id = chan.getID();
-				chan.tab.xPosition = current.x + tabDx;
+				chan.tab.xPosition = tabX + tabDx;
 				chan.tab.yPosition = sr.getScaledHeight() + current.y;
 				chan.tab.width(tabWidth);
 				chan.tab.height(tabHeight);
