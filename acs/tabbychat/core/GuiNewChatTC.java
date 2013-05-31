@@ -189,14 +189,10 @@ public class GuiNewChatTC extends GuiNewChat {
 			if(TabbyChat.instance.enabled()) {
 				if(TabbyChat.generalSettings.timeStampEnable.getValue())
 					timeStampOffset = mc.fontRenderer.getStringWidth(((TimeStampEnum)TabbyChat.generalSettings.timeStampStyle.getValue()).maxTime);
-				if(TabbyChat.advancedSettings.customChatBoxSize.getValue()) {
-					maxDisplayedLines = Math.round(ChatBox.getChatHeight() / 9.0f);
-					if(!chatOpen) maxDisplayedLines = Math.round(maxDisplayedLines * TabbyChat.advancedSettings.chatBoxUnfocHeight.getValue() / 100.0f);
-					this.chatWidth = ChatBox.getChatWidth() - timeStampOffset;
-				} else {
-					maxDisplayedLines = this.func_96127_i();
-					this.chatWidth = MathHelper.ceiling_float_int((float)this.func_96126_f() / chatScaling);
-				}
+
+				maxDisplayedLines = MathHelper.floor_float(ChatBox.getChatHeight() / 9.0f);
+				if(!chatOpen) maxDisplayedLines = MathHelper.floor_float(maxDisplayedLines * TabbyChat.advancedSettings.chatBoxUnfocHeight.getValue() / 100.0f);
+				this.chatWidth = ChatBox.getChatWidth() - timeStampOffset;
 				fadeTicks = TabbyChat.advancedSettings.chatFadeTicks.getValue().intValue();
 			} else {
 				maxDisplayedLines = this.func_96127_i();
@@ -253,10 +249,7 @@ public class GuiNewChatTC extends GuiNewChat {
 			this.chatHeight = visLineCounter * 9;
 			if(tc.enabled()) {
 				if(chatOpen) {
-					if(maxDisplayedLines < numLinesTotal) ChatBox.setChatSize(ChatBox.getChatWidth(), this.chatHeight);
-					else if(maxDisplayedLines > numLinesTotal) {
-						drawRect(0, -this.chatHeight, ChatBox.getChatWidth(), -ChatBox.getChatHeight(), (int)(255 * chatOpacity) / 2 << 24);
-					}
+					ChatBox.setChatSize(this.chatHeight);
 					ChatScrollBar.drawScrollBar();
 					ChatBox.drawChatBoxBorder((Gui)this, true, (int)(255 * chatOpacity));
 				} else {
@@ -264,7 +257,6 @@ public class GuiNewChatTC extends GuiNewChat {
 					ChatBox.drawChatBoxBorder((Gui)this, false, currentOpacity);
 				}
 			}
-
 			GL11.glPopMatrix();
 		}
 		if(TabbyChat.instance.enabled() && !this.getChatOpen())

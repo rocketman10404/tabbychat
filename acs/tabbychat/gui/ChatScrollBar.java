@@ -68,7 +68,7 @@ public class ChatScrollBar {
 		barHeight = MathHelper.floor_float((float)5 * TabbyChat.gnc.getScaleSetting());
 		barWidth = MathHelper.floor_float((float)5 * TabbyChat.gnc.getScaleSetting());
 
-		barX = ChatBox.current.width;
+		barX = ChatBox.current.width - barWidth - 2;
 		barBottomY = 0;
 		if(ChatBox.anchoredTop) barBottomY -= ChatBox.tabTrayHeight;
 		barTopY = barBottomY - ChatBox.getChatHeight();
