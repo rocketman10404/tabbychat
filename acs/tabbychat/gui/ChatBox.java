@@ -319,10 +319,11 @@ public class ChatBox {
 						addRowToTray(sr);
 				}
 				tabDx = 0;
-				for(ChatChannel chan2 : chanObjs.values()) {
-					if(chan2 == chan) break;
-					chan2.tab.yPosition = sr.getScaledHeight() + current.y + tabHeight;
-					if(anchoredTop) chan2.tab.yPosition += current.height - tabHeight;
+				if(anchoredTop) {
+					for(ChatChannel chan2 : chanObjs.values()) {
+						if(chan2 == chan) break;
+						chan2.tab.yPosition -= tabHeight;
+					}
 				}
 			}
 			
@@ -331,8 +332,8 @@ public class ChatBox {
 			} else {
 				chan.tab.id = chan.getID();
 				chan.tab.xPosition = tabX + tabDx;
-				chan.tab.yPosition = sr.getScaledHeight() + current.y;
-				if(anchoredTop) chan.tab.yPosition += current.height - tabTrayHeight;
+				if(!anchoredTop) chan.tab.yPosition = sr.getScaledHeight() + current.y;
+				else chan.tab.yPosition = sr.getScaledHeight() + current.y + current.height - tabHeight;
 				chan.tab.width(tabWidth);
 				chan.tab.height(tabHeight);
 				chan.tab.displayString = chan.getDisplayTitle();
