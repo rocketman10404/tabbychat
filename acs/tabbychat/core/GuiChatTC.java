@@ -283,24 +283,22 @@ public class GuiChatTC extends GuiChat {
 	}
 	
 	public @Override void handleMouseInput() {
-		// Allow chatbox dragging
-	    int mx = Mouse.getEventX() * this.width / this.mc.displayWidth;
-	    int my = this.height - Mouse.getEventY() * this.height / this.mc.displayHeight - 1;
+		// Allow chatbox dragging    
 	    if(ChatBox.resizing) {
-	    	ChatBox.handleMouseResize(mx, my, this.sr);
+	    	ChatBox.handleMouseResize(Mouse.getEventX(), Mouse.getEventY());
 	    	if(!Mouse.isButtonDown(0)) ChatBox.resizing = false;
 	    	return;
 	    } else if(ChatBox.dragging) {
-			ChatBox.handleMouseDrag(mx, my, this.sr);
+			ChatBox.handleMouseDrag(Mouse.getEventX(), Mouse.getEventY());
 			if(!Mouse.isButtonDown(0)) ChatBox.dragging = false;
 			return;
 		}
 	    
 		if(Mouse.getEventButton() == 0 && Mouse.isButtonDown(0)) {
 			if(ChatBox.resizeHovered()) {
-				ChatBox.startResizing(mx, my);
-			} else if(ChatBox.tabTrayHovered(mx, my)) {
-				ChatBox.startDragging(mx, my);	
+				ChatBox.startResizing(Mouse.getEventX(), Mouse.getEventY());
+			} else if(ChatBox.tabTrayHovered(Mouse.getEventX(), Mouse.getEventY())) {
+				ChatBox.startDragging(Mouse.getEventX(), Mouse.getEventY());	
 			}
 			
 		}

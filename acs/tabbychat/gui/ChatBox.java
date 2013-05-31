@@ -95,6 +95,8 @@ public class ChatBox {
 		}
 	}
 	
+	
+	
 	public static int getChatHeight() {
 		return current.height - tabTrayHeight - 1;
 	}
@@ -103,16 +105,30 @@ public class ChatBox {
 		return current.width;
 	}
 	
-	public static void handleMouseDrag(int _curX, int _curY, ScaledResolution sr) {
+	private static Rectangle scaleBoundedSpace(Rectangle unscaled) {
+		Rectangle scaled = new Rectangle();
+		float scaleSetting = TabbyChat.gnc.getScaleSetting();
+		
+		scaled.x = Math.round((unscaled.x - current.x) * scaleSetting) + current.x;
+		scaled.y = Math.round((unscaled.y - current.y - current.height) * scaleSetting) + current.y + current.height;
+		scaled.width = Math.round(unscaled.width * scaleSetting);
+		scaled.height = Math.round(unscaled.height * scaleSetting);
+		
+		return scaled;
+	}
+	
+	public static void handleMouseDrag(int _curX, int _curY) {
 		if(!dragging) return;
-		if(Math.abs(_curX - dragStart.x) < 3 && Math.abs(_curY - dragStart.y) < 3) return;
+		
+		Point click = scaleMouseCoords(_curX, _curY, true);
+		if(Math.abs(click.x - dragStart.x) < 3 && Math.abs(click.y - dragStart.y) < 3) return;
 		
 		float scaleSetting = TabbyChat.gnc.getScaleSetting();	
-		int scaledWidth = (int)((sr.getScaledWidth() - current.x) / scaleSetting + current.x);
-		int scaledHeight = (int)((sr.getScaledHeight() + current.y + current.height) / scaleSetting - current.y - current.height);
+		int scaledWidth = (int)((TabbyChat.gnc.sr.getScaledWidth() - current.x) / scaleSetting + current.x);
+		int scaledHeight = (int)((TabbyChat.gnc.sr.getScaledHeight() + current.y + current.height) / scaleSetting - current.y - current.height);
 				
-		desired.x = current.x + _curX - dragStart.x;
-		desired.y = current.y + _curY - dragStart.y;
+		desired.x = current.x + click.x - dragStart.x;
+		desired.y = current.y + click.y - dragStart.y;
 		
 		if(desired.x < absMinX+1) current.x = absMinX+1;
 		else if(desired.x + current.width + ChatScrollBar.barWidth + 3 > scaledWidth) current.x = scaledWidth - current.width - ChatScrollBar.barWidth - 3;
@@ -132,24 +148,26 @@ public class ChatBox {
 			}
 		} else current.y = desired.y;		
 				
-		dragStart.setLocation(_curX, _curY);
+		dragStart = click;
 	}
 	
-	public static void handleMouseResize(int _curX, int _curY, ScaledResolution sr) {
+	public static void handleMouseResize(int _curX, int _curY) {
 		if(!resizing) return;
-		if(Math.abs(_curX - dragStart.x) < 3 && Math.abs(_curY - dragStart.y) < 3) return;
+		
+		Point click = scaleMouseCoords(_curX, _curY, true);
+		if(Math.abs(click.x - dragStart.x) < 3 && Math.abs(click.y - dragStart.y) < 3) return;
 		
 		float scaleSetting = TabbyChat.gnc.getScaleSetting();		
-		int scaledWidth = (int)((sr.getScaledWidth() - current.x) / scaleSetting + current.x);
-		int scaledHeight = (int)((sr.getScaledHeight() + current.y + current.height) / scaleSetting - current.y - current.height);
+		int scaledWidth = (int)((TabbyChat.gnc.sr.getScaledWidth() - current.x) / scaleSetting + current.x);
+		int scaledHeight = (int)((TabbyChat.gnc.sr.getScaledHeight() + current.y + current.height) / scaleSetting - current.y - current.height);
 		
-		desired.width = current.width + _curX - dragStart.x;
+		desired.width = current.width + click.x - dragStart.x;
 		if(!anchoredTop) {
-			desired.height = current.height - _curY + dragStart.y;
+			desired.height = current.height - click.y + dragStart.y;
 			desired.y = current.y + _curY - dragStart.y;
 		} else {
 			desired.y = current.y;
-			desired.height = current.height + _curY - dragStart.y;
+			desired.height = current.height + click.y - dragStart.y;
 		}
 	
 		if(desired.x + desired.width + ChatScrollBar.barWidth + 3 > scaledWidth) {
@@ -166,30 +184,20 @@ public class ChatBox {
 			current.height = Math.max(desired.height, absMinH);
 		}
 		
-		dragStart.setLocation(_curX, _curY);
+		dragStart = click;
 	}
 	
 	public static boolean resizeHovered() {
-		boolean resizeHovered = false;
-		boolean chatOpen = TabbyChat.gnc.getChatOpen();
-		
 		// Check for mouse cursor over resize handle
-		GuiScreen theScreen = TabbyChat.mc.currentScreen;
-		if(chatOpen && theScreen != null) {
-		    int mx = Mouse.getX() * theScreen.width / TabbyChat.mc.displayWidth;
-		    int my =  -Mouse.getY() * theScreen.height / TabbyChat.mc.displayHeight - 1;
-		    
-		    Rectangle scaled;
-		    if(!anchoredTop) {
-		    	scaled = getScaledBounds(new Rectangle(current.x+current.width+ChatScrollBar.barWidth-6, current.y, 8, 8));
-		    } else {
-		    	scaled = getScaledBounds(new Rectangle(current.x+current.width+ChatScrollBar.barWidth-6, current.y+current.height-8, 8, 8));
-		    }
-		    if(mx > scaled.x && mx < scaled.x + scaled.width && my > scaled.y && my < scaled.y + scaled.height) {
-		    	resizeHovered = true;
-		    }
-		}
-		return resizeHovered;
+
+		Point cursor = scaleMouseCoords(Mouse.getX(), Mouse.getY());
+
+		int rX = current.x + current.width + ChatScrollBar.barWidth - 6;
+		int rY;
+		if(anchoredTop) rY = current.y + current.height - 8;
+		else rY = current.y;	
+		
+		return (cursor.x > rX && cursor.x < rX + 8 && cursor.y > rY && cursor.y < rY + 8);
 	}
 	
 	public static void setChatSize(int width, int height) {
@@ -229,42 +237,61 @@ public class ChatBox {
 	public static void startDragging(int atX, int atY) {
 		dragging = true;
 		resizing = false;
-		dragStart = new Point(atX, atY);
+		dragStart = scaleMouseCoords(atX, atY, true);
 	}
 	
 	public static void startResizing(int atX, int atY) {
 		dragging = false;
 		resizing = true;
-		dragStart = new Point(atX, atY);
+		dragStart = scaleMouseCoords(atX, atY, true);
 	}
-	
+
 	public static boolean tabTrayHovered(int mx, int my) {
 		boolean chatOpen = TabbyChat.gnc.getChatOpen();
 		GuiScreen theScreen = TabbyChat.mc.currentScreen;
 		if(!chatOpen || theScreen == null) return false;
 		
-		my = my - theScreen.height;
+		Point click = scaleMouseCoords(mx, my);
 		
-		Rectangle scaled;
 		if(!anchoredTop) {
-			scaled = getScaledBounds(new Rectangle(current.x, current.y, current.width, tabTrayHeight));
+			return (click.x > current.x && click.x < current.x + current.width && click.y > current.y && click.y < current.y + tabTrayHeight);
 		} else {
-			scaled = getScaledBounds(new Rectangle(current.x, current.y + current.height - tabTrayHeight, current.width, tabTrayHeight));
+			return (click.x > current.x && click.x < current.x + current.width && click.y > current.y + current.height - tabTrayHeight && click.y < current.y + current.height);
 		}
-		
-		return (mx > scaled.x && mx < scaled.x + scaled.width && my > scaled.y && my < scaled.y + scaled.height);
 	}
+	
+	public static Point scaleMouseCoords(int _x, int _y) {
+		return scaleMouseCoords(_x, _y, false);
+	}
+	
+	public static Point scaleMouseCoords(int _x, int _y, boolean forGuiScreen) {
+		Minecraft mc = Minecraft.getMinecraft();
+		GuiScreen theScreen = mc.currentScreen;
+		
+		/** transform LWJGL coordinate space (bottom-left) to Minecraft screen coordinate space (top-left, scaled to GUI settings) **/
 
-	private static Rectangle getScaledBounds(Rectangle unscaled) {
-		Rectangle scaled = new Rectangle();
-		float scaleSetting = TabbyChat.gnc.getScaleSetting();
+		// transform to Minecraft GUI scale settings
+		_x = _x * theScreen.width / mc.displayWidth;
 		
-		scaled.x = Math.round((unscaled.x - current.x) * scaleSetting) + current.x;
-		scaled.y = Math.round((unscaled.y - current.y - current.height) * scaleSetting) + current.y + current.height;
-		scaled.width = Math.round(unscaled.width * scaleSetting);
-		scaled.height = Math.round(unscaled.height * scaleSetting);
-		
-		return scaled;
+		// transform to include chat scale setting and initial offset
+		float chatScale = TabbyChat.gnc.getScaleSetting();
+		_x = Math.round((_x - current.x) / chatScale) + current.x;
+
+		if(!forGuiScreen) {
+			// transform to GuiNewChat coordinate space (bottom-to-top is 0 to negative screen height)
+			// including chat scale setting
+			_y = -_y * theScreen.height /  mc.displayHeight;
+			// Subtract offset, scale, add offset back
+			_y = Math.round((_y - current.y - current.height) / chatScale) + current.y + current.height; 
+		} else {
+			// Apply set GUI scale, keep screen bottom as origin
+			_y = _y * theScreen.height / mc.displayHeight;
+			// Subtract offset, scale, add offset back
+			_y = Math.round((_y + current.y + current.height) / chatScale) - current.y - current.height;
+			// Flip to GuiScreen coordinate space - origin at top/left
+			_y = theScreen.height - _y;
+		}
+		return new Point(_x, _y);
 	}
 	
 	public static void updateTabs(LinkedHashMap<String, ChatChannel> chanObjs, ScaledResolution sr) {

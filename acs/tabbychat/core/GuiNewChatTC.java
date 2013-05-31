@@ -162,11 +162,12 @@ public class GuiNewChatTC extends GuiNewChat {
 			}
 		}
 		
+		this.sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
+		
 		int lineCounter = 0;
 		int visLineCounter = 0;
 		if(TabbyChat.generalSettings.tabbyChatEnable.getValue() && TabbyChat.advancedSettings.forceUnicode.getValue()) this.mc.fontRenderer.setUnicodeFlag(true);
 		if(this.mc.gameSettings.chatVisibility != 2) {			
-			this.sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
 			int maxDisplayedLines = 0;
 			boolean chatOpen = false;
 			int validLinesDisplayed = 0;
