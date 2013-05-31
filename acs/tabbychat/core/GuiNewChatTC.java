@@ -418,7 +418,9 @@ public class GuiNewChatTC extends GuiNewChat {
 	}
 
 	public float getScaleSetting() {
-		return this.func_96131_h();
+		//return this.func_96131_h();
+		float theSetting = this.func_96131_h();
+		return Math.round(theSetting * 100.0f) / 100.0f;
 	}
 
 	public @Override List getSentMessages() {

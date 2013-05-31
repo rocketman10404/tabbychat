@@ -113,15 +113,11 @@ public class ChatBox {
 	public static void enforceScreenBoundary(Rectangle newBounds) {
 		// Grow virtual screen width/height to counter reduced size due to chat scaling
 		float scaleSetting = TabbyChat.gnc.getScaleSetting();
-		int scaledWidth = (int)((TabbyChat.gnc.sr.getScaledWidth() - current.x) / scaleSetting + current.x);
-		int scaledHeight = (int)((TabbyChat.gnc.sr.getScaledHeight() + current.y + current.height) / scaleSetting - current.y - current.height);
+		int scaledWidth = Math.round((TabbyChat.gnc.sr.getScaledWidth() - current.x) / scaleSetting + current.x);
+		int scaledHeight = Math.round((TabbyChat.gnc.sr.getScaledHeight() + current.y + current.height) / scaleSetting - current.y - current.height);
 		
-		System.out.print("scaleSetting: "+scaleSetting+" -- scaled height: "+TabbyChat.gnc.sr.getScaledHeight()+" -- current y: "+current.y+" -- current height: "+current.height);
-		System.out.print(" -- float result: "+((TabbyChat.gnc.sr.getScaledHeight() + current.y + current.height) / scaleSetting - current.y - current.height));
-		System.out.println(" -- int result: "+scaledHeight);
-		
-		// Apply desired position
 		current.setBounds(newBounds);
+
 		
 		// Enforce minimum width/height
 		if(current.height < absMinH) current.height = absMinH;
@@ -209,7 +205,10 @@ public class ChatBox {
 			desired.y = current.y + click.y - dragStart.y;
 		} else {
 			desired.height = current.height + click.y - dragStart.y;
-			desired.y = current.y;
+			if(click.y > dragStart.y) {
+				float scaleSetting = TabbyChat.gnc.getScaleSetting();
+				desired.y -= Math.round((click.y - dragStart.y) / scaleSetting);
+			}
 		}
 		
 		enforceScreenBoundary(desired);
