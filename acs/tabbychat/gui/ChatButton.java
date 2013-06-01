@@ -48,7 +48,7 @@ public class ChatButton extends net.minecraft.src.GuiButton {
 		float scaleSetting = TabbyChat.gnc.getScaleSetting();
 		int adjX = Math.round((unscaled.x - ChatBox.current.x) * scaleSetting + ChatBox.current.x);
 		
-		int adjY = Math.round((TabbyChat.mc.currentScreen.height - unscaled.y + ChatBox.current.y + ChatBox.current.height) * (1.0f - scaleSetting)) + unscaled.y;
+		int adjY = Math.round((TabbyChat.mc.currentScreen.height - unscaled.y + ChatBox.current.y) * (1.0f - scaleSetting)) + unscaled.y;
 		
 		int adjW = Math.round(unscaled.width * scaleSetting);
 		int adjH = Math.round(unscaled.height * scaleSetting);

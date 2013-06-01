@@ -48,7 +48,6 @@ public class GuiChatTC extends GuiChat {
     public long field_85043_c = 0L;
     public int field_92018_d = 0;
     public float zLevel = 0.0F;
-    public ScaledResolution sr;    
 	public static GuiChatTC me;
 	public static final TabbyChat tc = TabbyChat.instance;
 	
@@ -57,7 +56,6 @@ public class GuiChatTC extends GuiChat {
 		this.mc = Minecraft.getMinecraft();
 		this.fontRenderer = this.mc.fontRenderer;
 		me = this;
-		this.sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
 		EmoticonsCompat.load();
 		MacroKeybindCompat.load();
 	}
@@ -160,8 +158,8 @@ public class GuiChatTC extends GuiChat {
 	
     public @Override void drawScreen(int cursorX, int cursorY, float pointless) {
 		if (tc.enabled() && TabbyChat.advancedSettings.forceUnicode.getValue()) this.fontRenderer.setUnicodeFlag(true);
-		this.width = this.sr.getScaledWidth();
-		this.height = this.sr.getScaledHeight();
+		this.width = TabbyChat.gnc.sr.getScaledWidth();
+		this.height = TabbyChat.gnc.sr.getScaledHeight();
 		
 		// Calculate positions of currently-visible input fields
 		int inputHeight = 0;
@@ -179,19 +177,19 @@ public class GuiChatTC extends GuiChat {
 		// Draw current message length indicator
 		if(tc.enabled()) {
 			String requiredSends = ((Integer)this.getCurrentSends()).toString();
-			int sendsX = this.sr.getScaledWidth() - 12;
+			int sendsX = TabbyChat.gnc.sr.getScaledWidth() - 12;
 			if(MacroKeybindCompat.present) sendsX -= 22; 
 			this.fontRenderer.drawStringWithShadow(requiredSends, sendsX, this.height-inputHeight, 0x707070);
 		}
 		
 		// Update chat tabs (add to buttonlist)
-		if(!this.mc.isSingleplayer()) ChatBox.updateTabs(TabbyChat.instance.channelMap, this.sr);
+		if(!this.mc.isSingleplayer()) ChatBox.updateTabs(TabbyChat.instance.channelMap);
 
 		// Determine appropriate scaling for chat tab size and location
 		float scaleSetting = tc.gnc.getScaleSetting();
 		GL11.glPushMatrix();
 		float scaleOffsetX = ChatBox.current.x * (1.0f - scaleSetting);
-		float scaleOffsetY = (this.sr.getScaledHeight() + ChatBox.current.height + ChatBox.current.y) * (1.0f - scaleSetting);
+		float scaleOffsetY = (TabbyChat.gnc.sr.getScaledHeight() + ChatBox.current.y) * (1.0f - scaleSetting);
 		GL11.glTranslatef(scaleOffsetX, scaleOffsetY, 1.0f);
 		GL11.glScalef(scaleSetting, scaleSetting, 1.0f);
 		
@@ -319,11 +317,10 @@ public class GuiChatTC extends GuiChat {
 	
 	public @Override void initGui() {
 		Keyboard.enableRepeatEvents(true);
-		this.sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
 		this.buttonList.clear();
 		this.inputList.clear();
-		this.width = this.sr.getScaledWidth();
-		this.height = this.sr.getScaledHeight();
+		this.width = TabbyChat.gnc.sr.getScaledWidth();
+		this.height = TabbyChat.gnc.sr.getScaledHeight();
 		tc.checkServer();
 		if(tc.enabled()) {
 			if(this.scrollBar == null) this.scrollBar = new ChatScrollBar(this);
@@ -383,7 +380,7 @@ public class GuiChatTC extends GuiChat {
 				cPos += this.inputList.get(i).getText().length();
 			}			
 		}
-		if (this.fontRenderer.getStringWidth(msg.toString()) + this.fontRenderer.getStringWidth(_chars) < (this.sr.getScaledWidth()-20)*this.inputList.size()) {
+		if (this.fontRenderer.getStringWidth(msg.toString()) + this.fontRenderer.getStringWidth(_chars) < (TabbyChat.gnc.sr.getScaledWidth()-20)*this.inputList.size()) {
 			msg.insert(cPos, _chars);
 			this.setText(msg, cPos+_chars.length());
 		}
@@ -448,7 +445,7 @@ public class GuiChatTC extends GuiChat {
 			else this.removeCharsAtCursor(1);
 		} else if(_code == Keyboard.KEY_LEFT || _code == Keyboard.KEY_RIGHT) {
 			this.inputList.get(this.getFocusedFieldInd()).textboxKeyTyped(_char, _code);
-		} else if(this.inputField.isFocused() && this.fontRenderer.getStringWidth(this.inputField.getText()) < this.sr.getScaledWidth()-20) {
+		} else if(this.inputField.isFocused() && this.fontRenderer.getStringWidth(this.inputField.getText()) < TabbyChat.gnc.sr.getScaledWidth()-20) {
 			this.inputField.textboxKeyTyped(_char, _code);
 		} else
 			this.insertCharsAtCursor(Character.toString(_char));
@@ -550,7 +547,7 @@ public class GuiChatTC extends GuiChat {
 	}
 
 	public void setText(StringBuilder txt, int pos) {
-		List<String> txtList = this.stringListByWidth(txt, this.sr.getScaledWidth()-20);
+		List<String> txtList = this.stringListByWidth(txt, TabbyChat.gnc.sr.getScaledWidth()-20);
 
 		int strings = Math.min(txtList.size()-1, this.inputList.size()-1);
 		for (int i=strings; i>=0; i--) {

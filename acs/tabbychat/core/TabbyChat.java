@@ -343,7 +343,7 @@ public class TabbyChat {
 		this.chatPMfromMePattern = Pattern.compile(fromMePM.toString());
 	}
 	
-	public void pollForUnread(Gui _gui, int _y, int _tick) {
+	public void pollForUnread(Gui _gui, int _tick) {
 		int _opacity = 0;
 		int tickdiff = 50;
 		
@@ -366,11 +366,11 @@ public class TabbyChat {
 			_opacity = (int)(255.0D * var10);
 			_opacity = (int)((float)_opacity * var6);
 			if (_opacity <= 3) return;
-			ChatBox.updateTabs(this.channelMap, gnc.sr);
+			ChatBox.updateTabs(this.channelMap);
 
 			for (ChatChannel chan : this.channelMap.values()) {
 				if (chan.unread && chan.notificationsOn)
-					chan.unreadNotify(_gui, _y, _opacity);
+					chan.unreadNotify(_gui, _opacity);
 			}
 		}
 	}

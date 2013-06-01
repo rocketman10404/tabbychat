@@ -200,7 +200,11 @@ public class GuiNewChatTC extends GuiNewChat {
 			}
 			
 			GL11.glPushMatrix();
-			GL11.glTranslatef((float)ChatBox.current.x, 48.0f + (float)(ChatBox.current.y + ChatBox.current.height), 0.0f);
+			if(tc.enabled()) {
+				GL11.glTranslatef((float)ChatBox.current.x, 48.0f + (float)ChatBox.current.y, 0.0f);
+			} else {
+				GL11.glTranslatef(2.0f, 20.0f, 0.0f);
+			}
 			GL11.glScalef(chatScaling, chatScaling, 1.0f);
 			
 			int lineAge;
@@ -234,7 +238,7 @@ public class GuiNewChatTC extends GuiNewChat {
 					if(currentOpacity > 3) {
 						visLineCounter++;
 						byte xOrigin = 0;
-						int yOrigin = ChatBox.anchoredTop ? -ChatBox.current.height + (visLineCounter-1)*9 : -visLineCounter * 9;
+						int yOrigin = ChatBox.anchoredTop ? (visLineCounter-1)*9 : -visLineCounter * 9;
 						drawRect(xOrigin, yOrigin, xOrigin + this.chatWidth + timeStampOffset, yOrigin+9, currentOpacity / 2 << 24);
 						GL11.glEnable(GL11.GL_BLEND);
 						String _chat = _line.getChatLineString();
@@ -255,12 +259,11 @@ public class GuiNewChatTC extends GuiNewChat {
 				} else {
 					ChatBox.setUnfocusedHeight(this.chatHeight);
 					ChatBox.drawChatBoxBorder((Gui)this, false, currentOpacity);
+					TabbyChat.instance.pollForUnread(this, currentTick);
 				}
 			}
 			GL11.glPopMatrix();
 		}
-		if(TabbyChat.instance.enabled() && !this.getChatOpen())
-			TabbyChat.instance.pollForUnread(this, -visLineCounter * 9, currentTick);
 		this.mc.fontRenderer.setUnicodeFlag(TabbyChat.defaultUnicode);
 	}
 	

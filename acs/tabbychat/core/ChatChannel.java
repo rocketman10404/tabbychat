@@ -10,6 +10,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
+import acs.tabbychat.gui.ChatBox;
 import acs.tabbychat.gui.ChatButton;
 
 import net.minecraft.client.Minecraft;
@@ -178,17 +179,14 @@ public class ChatChannel implements Serializable {
 		}
 	}
 
-	public void unreadNotify(Gui _gui, int _y, int _opacity) {
+	public void unreadNotify(Gui _gui, int _opacity) {
 		float scaleSetting = TabbyChat.gnc.getScaleSetting();
-		GL11.glPushMatrix();
-		GL11.glTranslatef(0.0F, 20.0F, 0.0F);
-		GL11.glScalef(scaleSetting, scaleSetting, 1.0F);
+		int tabY = this.tab.yPosition - TabbyChat.gnc.sr.getScaledHeight() - ChatBox.current.y;
+		tabY = ChatBox.anchoredTop ? tabY - ChatBox.current.height + ChatBox.unfocusedHeight : tabY + ChatBox.current.height - ChatBox.unfocusedHeight;
 		
-		TabbyChat.instance.mc.ingameGUI.getChatGUI().drawRect(this.tab.xPosition, -this.tab.height() + _y, this.tab.xPosition + this.tab.width(), _y, 0x720000 + (_opacity/2 << 24));
+		TabbyChat.instance.mc.ingameGUI.getChatGUI().drawRect(this.tab.xPosition, tabY, this.tab.xPosition + this.tab.width(), tabY + this.tab.height(), 0x720000 + (_opacity/2 << 24));
 		GL11.glEnable(GL11.GL_BLEND);
-		TabbyChat.instance.mc.ingameGUI.getChatGUI().drawCenteredString(TabbyChat.instance.mc.fontRenderer, this.getDisplayTitle(), this.tab.xPosition + this.tab.width()/2, -(this.tab.height()+8)/2 + _y, 16711680 + (_opacity << 24));
-		
-		GL11.glPopMatrix();	
+		TabbyChat.instance.mc.ingameGUI.getChatGUI().drawCenteredString(TabbyChat.instance.mc.fontRenderer, this.getDisplayTitle(), this.tab.xPosition + this.tab.width()/2, tabY + 4, 16711680 + (_opacity << 24));
 	}
 	
 	protected void importOldChat(ChatChannel oldChan) {

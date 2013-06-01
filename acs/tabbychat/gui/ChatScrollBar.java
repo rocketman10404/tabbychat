@@ -1,5 +1,7 @@
 package acs.tabbychat.gui;
 
+import java.awt.Point;
+
 import org.lwjgl.input.Mouse;
 
 import acs.tabbychat.core.GuiNewChatTC;
@@ -39,15 +41,13 @@ public class ChatScrollBar {
 		}
 	}
 	
-	public static void handleMouse() {
-		int adjX = 0;
-		int adjY = -Mouse.getEventY() * gc.height / mc.displayHeight - 1;
+	public static void handleMouse() {		
+		Point cursor = ChatBox.scaleMouseCoords(Mouse.getEventX(), Mouse.getEventY());
 		
 		if (Mouse.getEventButton() == 0 && Mouse.isButtonDown(0)) {
-			adjX = Mouse.getEventX() * gc.width / mc.displayWidth;
 			int offsetX = barX + ChatBox.current.x;
-			int offsetY = ChatBox.current.y + ChatBox.current.height;
-			if (adjX - offsetX > 0 && adjX - offsetX <= barWidth && adjY <= barMaxY + offsetY && adjY >= barMinY + offsetY) {
+			int offsetY = ChatBox.current.y;
+			if (cursor.x - offsetX > 0 && cursor.x - offsetX <= barWidth && cursor.y <= barMaxY + offsetY && cursor.y >= barMinY + offsetY) {
 				scrolling = true;
 			} else {
 				scrolling = false;
@@ -56,8 +56,8 @@ public class ChatScrollBar {
 			scrolling = false;
 		}
 		
-		if (Math.abs(adjY - lastY) > 1 && scrolling) {
-			scrollBarMouseDrag(adjY);
+		if (Math.abs(cursor.y - lastY) > 1 && scrolling) {
+			scrollBarMouseDrag(cursor.y);
 		}
 	}
 
@@ -70,9 +70,14 @@ public class ChatScrollBar {
 
 		barX = ChatBox.current.width - barWidth - 2;
 		barBottomY = 0;
-		if(ChatBox.anchoredTop) barBottomY -= ChatBox.tabTrayHeight;
-		barTopY = barBottomY - ChatBox.getChatHeight();
-		if(ChatBox.anchoredTop) barTopY -= 1;
+		
+		if(ChatBox.anchoredTop) {
+			barBottomY = ChatBox.current.height - ChatBox.tabTrayHeight;
+			barTopY = 0;
+		} else {
+			barBottomY = 0;
+			barTopY = -ChatBox.current.height + ChatBox.tabTrayHeight;
+		}
 		
 		barMaxY = barBottomY - barHeight/2 - 1;
 		barMinY = barTopY + barHeight/2 + 1;
@@ -114,8 +119,9 @@ public class ChatScrollBar {
 			return;
 		}
 		
-		int adjBarMin = barMinY + ChatBox.current.y + ChatBox.current.height;
-		int adjBarMax = barMaxY + ChatBox.current.y + ChatBox.current.height;
+		int adjBarMin = barMinY + ChatBox.current.y;
+		int adjBarMax = barMaxY + ChatBox.current.y;
+
 		
 		if (_absY < adjBarMin)
 			mouseLoc = ChatBox.anchoredTop ? 0.0f : 1.0f;
