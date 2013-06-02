@@ -191,14 +191,13 @@ public class GuiNewChatTC extends GuiNewChat {
 					timeStampOffset = mc.fontRenderer.getStringWidth(((TimeStampEnum)TabbyChat.generalSettings.timeStampStyle.getValue()).maxTime);
 
 				maxDisplayedLines = MathHelper.floor_float(ChatBox.getChatHeight() / 9.0f);
-				if(!chatOpen) maxDisplayedLines = MathHelper.floor_float(maxDisplayedLines * TabbyChat.advancedSettings.chatBoxUnfocHeight.getValue() / 100.0f);
+				if(!chatOpen) maxDisplayedLines = MathHelper.floor_float(TabbyChat.advancedSettings.chatBoxUnfocHeight.getValue() * ChatBox.getChatHeight() / 900.0f);
 				this.chatWidth = ChatBox.getChatWidth() - timeStampOffset;
 				fadeTicks = TabbyChat.advancedSettings.chatFadeTicks.getValue().intValue();
 			} else {
 				maxDisplayedLines = this.func_96127_i();
 				this.chatWidth = MathHelper.ceiling_float_int((float)this.func_96126_f() / chatScaling);
 			}
-			
 			GL11.glPushMatrix();
 			if(tc.enabled()) {
 				GL11.glTranslatef((float)ChatBox.current.x, 48.0f + (float)ChatBox.current.y, 0.0f);
@@ -311,8 +310,7 @@ public class GuiNewChatTC extends GuiNewChat {
 		int maxWidth = MathHelper.floor_float((float)this.func_96126_f() / this.func_96131_h());
 		if(TabbyChat.instance.enabled()) {
 			if(!backupFlag) TabbyChat.instance.checkServer();
-			if(TabbyChat.advancedSettings.customChatBoxSize.getValue())
-				maxWidth = this.chatWidth;
+			maxWidth = this.chatWidth;
 		}
 		Iterator lineIter = this.mc.fontRenderer.listFormattedStringToWidth(_msg, maxWidth).iterator();
 
@@ -414,7 +412,7 @@ public class GuiNewChatTC extends GuiNewChat {
 	}
 	
 	public int getHeightSetting() {
-		if (TabbyChat.instance.enabled() && TabbyChat.advancedSettings.customChatBoxSize.getValue()) {
+		if (TabbyChat.instance.enabled()) {
 			return ChatBox.getChatHeight();
 		} else
 			return func_96130_b(this.mc.gameSettings.chatHeightFocused);
@@ -480,7 +478,7 @@ public class GuiNewChatTC extends GuiNewChat {
 
 	public @Override void scroll(int _lines) {
 		int maxLineDisplay;
-		if(TabbyChat.instance.enabled() && TabbyChat.advancedSettings.customChatBoxSize.getValue()) {
+		if(TabbyChat.instance.enabled()) {
 			float scaleFactor = 1.0f;
 			maxLineDisplay = Math.round(ChatBox.getChatHeight() / 9.0f);
 			if(!this.getChatOpen()) maxLineDisplay = Math.round(maxLineDisplay * TabbyChat.advancedSettings.chatBoxUnfocHeight.getValue() / 100.0f);

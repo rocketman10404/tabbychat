@@ -102,27 +102,26 @@ public class ChatBox {
 				overlay.drawRect(current.width-7, current.height-2, current.width-2, current.height-3, handleColor);
 				overlay.drawRect(current.width-3, current.height-3, current.width-2, current.height-7, handleColor);	
 			}
-		} else {
+		} else if (unfocusedHeight > 0) {			
 			if(!anchoredTop) {
 				// Draw border around unfocused chatbox
-				overlay.drawRect(-1, -unfocusedHeight+tabTrayHeight, current.width+1, -unfocusedHeight+tabTrayHeight+1, borderColor);
-				overlay.drawRect(-1, -unfocusedHeight+tabTrayHeight+1, 0, 0, borderColor);
-				overlay.drawRect(current.width, -unfocusedHeight+tabTrayHeight+1, current.width+1, 0, borderColor);
+				overlay.drawRect(-1, -unfocusedHeight, current.width+1, -unfocusedHeight+1, borderColor);
+				overlay.drawRect(-1, -unfocusedHeight+1, 0, 0, borderColor);
+				overlay.drawRect(current.width, -unfocusedHeight+1, current.width+1, 0, borderColor);
 				overlay.drawRect(-1, 0, current.width+1, 1, borderColor);
 				
 				// Draw filler for scrollbar
-				overlay.drawRect(current.width-ChatScrollBar.barWidth-2, -unfocusedHeight+tabTrayHeight+1, current.width, 0, opacity / 2 << 24);
+				overlay.drawRect(current.width-ChatScrollBar.barWidth-2, -unfocusedHeight+1, current.width, 0, opacity / 2 << 24);
 			} else {
 				// Draw border around unfocused chatbox
-				overlay.drawRect(-1, unfocusedHeight-tabTrayHeight, current.width+1, unfocusedHeight-tabTrayHeight-1, borderColor);
-				overlay.drawRect(-1, unfocusedHeight-tabTrayHeight-1, 0, 0, borderColor);
-				overlay.drawRect(current.width, unfocusedHeight-tabTrayHeight-1, current.width+1, 0, borderColor);
+				overlay.drawRect(-1, unfocusedHeight, current.width+1, unfocusedHeight-1, borderColor);
+				overlay.drawRect(-1, unfocusedHeight-1, 0, 0, borderColor);
+				overlay.drawRect(current.width, unfocusedHeight-1, current.width+1, 0, borderColor);
 				overlay.drawRect(-1, 0, current.width+1, -1, borderColor);
 				
 				// Draw filler for scrollbar
-				overlay.drawRect(current.width-ChatScrollBar.barWidth-2, unfocusedHeight-tabTrayHeight-1, current.width, 0, opacity / 2 << 24);
+				overlay.drawRect(current.width-ChatScrollBar.barWidth-2, unfocusedHeight-1, current.width, 0, opacity / 2 << 24);
 			}
-			
 		}
 	}
 	
@@ -133,10 +132,23 @@ public class ChatBox {
 		int scaledHeight = Math.round((TabbyChat.gnc.sr.getScaledHeight() + current.y) / scaleSetting - current.y);
 		
 		current.setBounds(newBounds);
+		if(TabbyChat.gnc.sr.getScaledHeight() < -current.y) scaledHeight = TabbyChat.gnc.sr.getScaledHeight();
+		if(TabbyChat.gnc.sr.getScaledWidth() < current.x) scaledWidth = TabbyChat.gnc.sr.getScaledWidth();
 		
 		// Enforce minimum width/height
 		if(current.height < absMinH) current.height = absMinH;
 		if(current.width < absMinW) current.width = absMinW;
+		
+		// Enforce maximum width/height
+		if(current.height > scaledHeight - 2) {
+			current.height = scaledHeight - 2;
+			if(anchoredTop) current.y = -scaledHeight + 1;
+			else current.y = -scaledHeight + current.height + 1;
+		}
+		if(current.width > scaledWidth - 2) {
+			current.width = scaledWidth - 2;
+			current.x = 0;
+		}
 		
 		// Enforce minimum x position
 		if(current.x < absMinX + 1) current.x = absMinX + 1;
@@ -148,10 +160,13 @@ public class ChatBox {
 			// Otherwise, reduce x-location to compensate
 			else current.x = scaledWidth - current.width - 1;
 		}
+		
 
 		if(anchoredTop) {
 			// Enforce minimum y position (top of screen)
-			if(current.y - 1 < -scaledHeight) current.y = -scaledHeight + 1;
+			if(current.y - 1 < -scaledHeight) {
+				current.y = -scaledHeight + 1;
+			}
 			// Enforce maximum y position (including height) (bottom of screen)
 			else if (current.y + current.height + 1 > absMinY) {
 				// If resizing, reduce height to compensate
@@ -178,6 +193,11 @@ public class ChatBox {
 	
 	public static int getChatWidth() {
 		return current.width - ChatScrollBar.barWidth-2;
+	}
+	
+	public static int getUnfocusedHeight() {
+		//return (int)(TabbyChat.advancedSettings.chatBoxUnfocHeight.getValue().floatValue() * getChatHeight() / 100.0f);
+		return unfocusedHeight;
 	}
 	
 	public static void handleMouseDrag(int _curX, int _curY) {
@@ -249,8 +269,7 @@ public class ChatBox {
 	}
 	
 	public static void setUnfocusedHeight(int uHeight) {
-		uHeight = Math.max(9, uHeight);
-		unfocusedHeight = uHeight + tabTrayHeight + 1;
+		unfocusedHeight = Math.min(uHeight, (int)(TabbyChat.advancedSettings.chatBoxUnfocHeight.getValue().floatValue() * getChatHeight() / 100.0f));
 	}
 	
 	public static void startDragging(int atX, int atY) {

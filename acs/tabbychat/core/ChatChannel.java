@@ -182,7 +182,7 @@ public class ChatChannel implements Serializable {
 	public void unreadNotify(Gui _gui, int _opacity) {
 		float scaleSetting = TabbyChat.gnc.getScaleSetting();
 		int tabY = this.tab.yPosition - TabbyChat.gnc.sr.getScaledHeight() - ChatBox.current.y;
-		tabY = ChatBox.anchoredTop ? tabY - ChatBox.current.height + ChatBox.unfocusedHeight : tabY + ChatBox.current.height - ChatBox.unfocusedHeight;
+		tabY = ChatBox.anchoredTop ? tabY - ChatBox.current.height + ChatBox.getUnfocusedHeight() : tabY + ChatBox.current.height - ChatBox.getUnfocusedHeight();
 		
 		TabbyChat.instance.mc.ingameGUI.getChatGUI().drawRect(this.tab.xPosition, tabY, this.tab.xPosition + this.tab.width(), tabY + this.tab.height(), 0x720000 + (_opacity/2 << 24));
 		GL11.glEnable(GL11.GL_BLEND);
