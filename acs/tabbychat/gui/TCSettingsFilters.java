@@ -220,7 +220,9 @@ public class TCSettingsFilters extends TCSettingsGUI {
 	}
 	
 	public boolean audioNotificationBool(int ind) {
-		return (Boolean)this.filterMap.get(Integer.toString(ind) + ".audioNotificationBool");
+		Boolean ret = (Boolean)this.filterMap.get(Integer.toString(ind) + ".audioNotificationBool");
+		if(ret != null) return ret.booleanValue();
+		else return false;
 	}
 	
 	private int deleteFilter() {
@@ -471,7 +473,9 @@ public class TCSettingsFilters extends TCSettingsGUI {
 	}
 	
 	public boolean removeMatches(int ind) {
-		return (Boolean)this.filterMap.get(Integer.toString(ind) + ".removeMatches");
+		Boolean ret = (Boolean)this.filterMap.get(Integer.toString(ind) + ".removeMatches");
+		if(ret != null) return ret;
+		else return false;
 	}
 	
 	protected void resetTempVars() {
@@ -537,15 +541,21 @@ public class TCSettingsFilters extends TCSettingsGUI {
 	}
 
 	public boolean sendToAllTabs(int ind) {
-		return (Boolean)this.filterMap.get(Integer.toString(ind) + ".sendToAllTabs");
+		Boolean ret = (Boolean)this.filterMap.get(Integer.toString(ind) + ".sendToAllTabs");
+		if(ret != null) return ret.booleanValue();
+		else return false;
 	}
 
 	public boolean sendToTabBool(int ind) {
-		return (Boolean)this.filterMap.get(Integer.toString(ind) + ".sendToTabBool");
+		Boolean ret = (Boolean)this.filterMap.get(Integer.toString(ind) + ".sendToTabBool");
+		if(ret != null) return ret.booleanValue();
+		else return false;
 	}
 
 	public String sendToTabName(int ind) {
-		return (String)this.filterMap.get(Integer.toString(ind) + ".sendToTabName");
+		String ret = (String)this.filterMap.get(Integer.toString(ind) + ".sendToTabName");
+		if(ret != null) return ret;
+		else return "";
 	}
 
 	private void storeTempFilter(int fId) {
