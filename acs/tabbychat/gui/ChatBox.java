@@ -17,20 +17,20 @@ import net.minecraft.src.MathHelper;
 import net.minecraft.src.ScaledResolution;
 
 public class ChatBox {
-	public static Rectangle current = new Rectangle(2, -250, 600, 180);
+	public static Rectangle current = new Rectangle(0, -36, 320, 180);
 	public static Rectangle desired = new Rectangle(current);
-	private static int absMinX = 0;
-	private static int absMinY = -36;
-	private static int absMinW = 200;
-	private static int absMinH = 24;
+	protected static int absMinX = 0;
+	protected static int absMinY = -36;
+	protected static int absMinW = 200;
+	protected static int absMinH = 24;
 	private static int tabHeight = 14;
 	protected static int tabTrayHeight = 14;
 	private static int chatHeight = 165;
-	public static int unfocusedHeight = 180;
+	public static int unfocusedHeight = 160;
 	public static boolean dragging = false;
 	private static Point dragStart =  new Point(0,0);
 	public static boolean resizing = false;
-	public static boolean anchoredTop = true;
+	public static boolean anchoredTop = false;
 	
 	public static void addRowToTray() {
 		// // Grow virtual screen width/height to counter reduced size due to chat scaling

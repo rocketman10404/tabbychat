@@ -28,7 +28,8 @@ public class ChatScrollBar {
 	private static boolean scrolling = false;
 	
 	public ChatScrollBar(GuiChat _gc) {
-		mc = Minecraft.getMinecraft();
+		
+		mc = TabbyChat.instance.mc;
 		gc = _gc;
 		
 		if(TabbyChat.generalSettings.timeStampEnable.getValue()) {
@@ -89,7 +90,8 @@ public class ChatScrollBar {
 		update();
 		int minX = barX + 1;
 		int maxlines = gnc.getHeightSetting() / 9;
-		float chatOpacity = mc.gameSettings.chatOpacity * 0.9f + 0.1f;
+		//float chatOpacity = mc.gameSettings.chatOpacity * 0.9f + 0.1f;
+		float chatOpacity = TabbyChat.instance.mc.gameSettings.chatOpacity * 0.9f + 0.1f;
 		int currentOpacity = (int)((float)180 * chatOpacity);
 		gnc.drawRect(barX, barTopY, barX+barWidth+2, barBottomY, currentOpacity << 24);
 		if (gnc.GetChatSize() > maxlines) {

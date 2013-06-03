@@ -155,7 +155,10 @@ public class GuiNewChatTC extends GuiNewChat {
 		// Save channel data if at main menu or disconnect screen, use flag so it's only saved once
 		if(mc.currentScreen != null) {
 			if(this.mc.currentScreen instanceof GuiDisconnected || this.mc.currentScreen instanceof GuiIngameMenu) {
-				if(this.saveNeeded) tc.storeChannelData();
+				if(this.saveNeeded) {
+					tc.storeChannelData();
+					tc.advancedSettings.saveSettingsFile();
+				}
 				this.saveNeeded = false;
 			} else {
 				this.saveNeeded = true;
@@ -501,11 +504,28 @@ public class GuiNewChatTC extends GuiNewChat {
 	}
 
 	public void setChatLines(int _pos, List<TCChatLine> _add) {
+		int clsize = 0;
+		boolean addInstead = false;
+		chatReadLock.lock();
+		try {
+			clsize = Math.min(this.chatLines.size(), this.backupLines.size());
+		} finally {
+			chatReadLock.unlock();
+		}
+		if(_pos + _add.size() > clsize) {
+			addInstead = true;
+		}
+		
 		chatWriteLock.lock();
 		try {
 			for (int i=0; i < _add.size(); i++) {
-				this.chatLines.set(_pos+i, _add.get(i));
-				this.backupLines.set(_pos+i, _add.get(i));
+				if(addInstead) {
+					this.chatLines.add(_add.get(i));
+					this.backupLines.add(_add.get(i));
+				} else {
+					this.chatLines.set(_pos+i, _add.get(i));
+					this.backupLines.set(_pos+i, _add.get(i));
+				}
 			}
 		} finally {
 			chatWriteLock.unlock();

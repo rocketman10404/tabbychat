@@ -127,6 +127,11 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		this.chatBoxUnfocHeight.setCleanValue(TabbyChatUtils.parseFloat(settingsTable.getProperty("chatBoxUnfocHeight"), 20.0f, 100.0f));
 		this.chatFadeTicks.setCleanValue(TabbyChatUtils.parseFloat(settingsTable.getProperty("chatFadeTicks"), 10.0f, 2000.0f));
 		this.forceUnicode.setCleanValue(settingsTable.getProperty("forceUnicode"));
+		ChatBox.current.x = TabbyChatUtils.parseInteger(settingsTable.getProperty("chatbox.x"), ChatBox.absMinX, 10000, ChatBox.absMinX);
+		ChatBox.current.y = TabbyChatUtils.parseInteger(settingsTable.getProperty("chatbox.y"), -10000, ChatBox.absMinY, ChatBox.absMinY);
+		ChatBox.current.width = TabbyChatUtils.parseInteger(settingsTable.getProperty("chatbox.width"), ChatBox.absMinW, 10000, 320);
+		ChatBox.current.height = TabbyChatUtils.parseInteger(settingsTable.getProperty("chatbox.height"), ChatBox.absMinH, 10000, 180);
+		ChatBox.anchoredTop = Boolean.parseBoolean(settingsTable.getProperty("chatbox.anchoredtop"));		
 		this.resetTempVars();
 		return;
 	}
@@ -140,7 +145,7 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		this.forceUnicode.reset();
 	}
 	
-	protected void saveSettingsFile() {
+	public void saveSettingsFile() {
 		if (!tabbyChatDir.exists())
 			tabbyChatDir.mkdirs();
 		Properties settingsTable = new Properties();
@@ -150,6 +155,11 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		settingsTable.put("chatBoxUnfocHeight", this.chatBoxUnfocHeight.getValue().toString());
 		settingsTable.put("chatFadeTicks", this.chatFadeTicks.getValue().toString());
 		settingsTable.put("forceUnicode", this.forceUnicode.getValue().toString());
+		settingsTable.put("chatbox.x", Integer.toString(ChatBox.current.x));
+		settingsTable.put("chatbox.y", Integer.toString(ChatBox.current.y));
+		settingsTable.put("chatbox.width", Integer.toString(ChatBox.current.width));
+		settingsTable.put("chatbox.height", Integer.toString(ChatBox.current.height));
+		settingsTable.put("chatbox.anchoredtop", Boolean.toString(ChatBox.anchoredTop));
 		
 		try {
 			FileOutputStream fOutStream = new FileOutputStream(this.settingsFile);

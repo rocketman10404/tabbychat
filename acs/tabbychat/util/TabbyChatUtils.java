@@ -35,7 +35,7 @@ public class TabbyChatUtils extends Thread {
 	private static File logDir = new File(Minecraft.getMinecraftDir(), "TabbyChatLogs");
 	private static File logFile;
 	private static SimpleDateFormat logNameFormat = new SimpleDateFormat("'TabbyChatLog_'MM-dd-yyyy'.txt'");
-	public static String version = "1.7.08";
+	public static String version = "1.8.00b1";
 	
 	private TabbyChatUtils() {}
 	
@@ -96,7 +96,6 @@ public class TabbyChatUtils extends Thread {
 
 	public static Integer parseInteger(String _input, int min, int max, int fallback) {
 		Integer result;
-		System.out.println("parseInteger: parsing '"+_input+"'");
 		try {
 			result = Integer.parseInt(_input);
 			result = Math.max(min, result);
@@ -104,7 +103,6 @@ public class TabbyChatUtils extends Thread {
 		} catch (NumberFormatException e) {
 			result = fallback;
 		}
-		System.out.println("parsed to '"+result.toString()+"'");
 		return result;
 	}
 	

@@ -362,6 +362,7 @@ public class GuiChatTC extends GuiChat {
 				String thePrefix = tc.channelMap.get(activeTabs.get(0)).cmdPrefix.trim();
 				if(thePrefix.length() > 0) this.inputField.setText(tc.channelMap.get(activeTabs.get(0)).cmdPrefix.trim() + " ");
 			}
+			ChatBox.enforceScreenBoundary(ChatBox.current);
 		}
 		// Initialize Emoticons screen if present
 		EmoticonsCompat.initGui(this.buttonList);
