@@ -1,12 +1,14 @@
 package acs.tabbychat.settings;
 
+import acs.tabbychat.core.TabbyChat;
+
 public enum ChannelDelimEnum {
-	ANGLES("<Angles>", "<", ">"),
-	BRACES("{Braces}", "{", "}"),
-	BRACKETS("[Brackets]", "[", "]"),
-	PARENTHESIS("(Parenthesis)", "(", ")"),
-	ANGLESPARENSCOMBO("<(Combo)Pl.>", "<\\(", ")(?: |\u00A7r)?[A-Za-z0-9_]{1,16}>"),
-	ANGLESBRACKETSCOMBO("<[Combo]Pl.>", "<\\[", "](?: |\u00A7r)?[A-Za-z0-9_]{1,16}>");
+	ANGLES(TabbyChat.translator.getString("delims.angles"), "<", ">"),
+	BRACES(TabbyChat.translator.getString("delims.braces"), "{", "}"),
+	BRACKETS(TabbyChat.translator.getString("delims.brackets"), "[", "]"),
+	PARENTHESIS(TabbyChat.translator.getString("delims.parenthesis"), "(", ")"),
+	ANGLESPARENSCOMBO(TabbyChat.translator.getString("delims.anglesparenscombo"), "<\\(", ")(?: |\u00A7r)?[A-Za-z0-9_]{1,16}>"),
+	ANGLESBRACKETSCOMBO(TabbyChat.translator.getString("delims.anglesbracketscombo"), "<\\[", "](?: |\u00A7r)?[A-Za-z0-9_]{1,16}>");
 	
 	private String title;
 	private String open;

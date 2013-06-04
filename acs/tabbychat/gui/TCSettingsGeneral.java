@@ -33,17 +33,17 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 	private static final int unreadFlashingID = 9106;
 	private static final int timeStampColorID = 9107;
 	
-	public TCSettingBool tabbyChatEnable = new TCSettingBool(true, "TabbyChat Enabled", tabbyChatEnableID);
-	public TCSettingBool saveChatLog = new TCSettingBool(false, "Log chat to file", saveChatLogID);
-	public TCSettingBool timeStampEnable = new TCSettingBool(false, "Timestamp chat", timeStampEnableID);
-	public TCSettingEnum timeStampStyle = new TCSettingEnum(TimeStampEnum.MILITARY, "\u00A7oTimestamp Style\u00A7r", timeStampStyleID);
-	public TCSettingEnum timeStampColor = new TCSettingEnum(ColorCodeEnum.DEFAULT, "\u00A7oTimestamp Color\u00A7r", timeStampColorID);
-	public TCSettingBool groupSpam = new TCSettingBool(false, "Consolidate spammed chat", groupSpamID);
-	public TCSettingBool unreadFlashing = new TCSettingBool(true, "Default unread notification flashing", unreadFlashingID);
+	public TCSettingBool tabbyChatEnable = new TCSettingBool(true, TabbyChat.translator.getString("settings.general.tabbychatenable"), tabbyChatEnableID);
+	public TCSettingBool saveChatLog = new TCSettingBool(false, TabbyChat.translator.getString("settings.general.savechatlog"), saveChatLogID);
+	public TCSettingBool timeStampEnable = new TCSettingBool(false, TabbyChat.translator.getString("settings.general.timestampenable"), timeStampEnableID);
+	public TCSettingEnum timeStampStyle = new TCSettingEnum(TimeStampEnum.MILITARY, "\u00A7o"+TabbyChat.translator.getString("settings.general.timestampstyle")+"\u00A7r", timeStampStyleID);
+	public TCSettingEnum timeStampColor = new TCSettingEnum(ColorCodeEnum.DEFAULT, "\u00A7o"+TabbyChat.translator.getString("settings.general.timestampcolor")+"\u00A7r", timeStampColorID);
+	public TCSettingBool groupSpam = new TCSettingBool(false, TabbyChat.translator.getString("settings.general.groupspam"), groupSpamID);
+	public TCSettingBool unreadFlashing = new TCSettingBool(true, TabbyChat.translator.getString("settings.general.unreadflashing"), unreadFlashingID);
 	
 	public TCSettingsGeneral() {
 		super();
-		this.name = "General Config";
+		this.name = TabbyChat.translator.getString("settings.general.name");
 		this.bgcolor = 0x664782be;
 	}
 	
@@ -65,6 +65,18 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 		}
 			
 		this.validateButtonStates();
+	}
+	
+	private void applyTimestampPattern() {
+		if(((ColorCodeEnum)this.timeStampColor.getValue()).toCode().length() > 0) {
+			StringBuilder tsPattern = new StringBuilder();
+			tsPattern.append("'").append(((ColorCodeEnum)this.timeStampColor.getValue()).toCode()).append("'");
+			tsPattern.append(((TimeStampEnum)this.timeStampStyle.getValue()).toCode());
+			tsPattern.append("'\u00A7r'");
+			this.timeStamp.applyPattern(tsPattern.toString());
+		} else {
+			this.timeStamp.applyPattern(((TimeStampEnum)this.timeStampStyle.getValue()).toCode());
+		}
 	}
 	
 	public void initGui() {
@@ -142,11 +154,7 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 		this.unreadFlashing.setCleanValue(settingsTable.get("unreadFlashing"));
 		this.timeStampColor.setCleanValue(TabbyChatUtils.parseColor(settingsTable.get("timeStampColor")));
 
-		StringBuilder tsPattern = new StringBuilder();
-		tsPattern.append("'").append(((ColorCodeEnum)this.timeStampColor.getValue()).toCode()).append("'");
-		tsPattern.append(((TimeStampEnum)this.timeStampStyle.getValue()).toCode());
-		tsPattern.append("'\u00A7r'");
-		this.timeStamp.applyPattern(tsPattern.toString());
+		this.applyTimestampPattern();
 		this.resetTempVars();
 		return;
 	}
@@ -192,11 +200,7 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 		this.groupSpam.save();
 		this.unreadFlashing.save();
 		this.timeStampColor.save();
-		StringBuilder tsPattern = new StringBuilder();
-		tsPattern.append("'").append(((ColorCodeEnum)this.timeStampColor.getValue()).toCode()).append("'");
-		tsPattern.append(((TimeStampEnum)this.timeStampStyle.getValue()).toCode());
-		tsPattern.append("'\u00A7r'");
-		this.timeStamp.applyPattern(tsPattern.toString());
+		this.applyTimestampPattern();
 	}
 	
 	public void validateButtonStates() {

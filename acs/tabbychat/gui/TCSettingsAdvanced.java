@@ -26,16 +26,16 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 	private static final int chatFadeTicksID = 9408;
 	private static final int forceUnicodeID = 9409;
 	
-	public TCSettingTextBox chatScrollHistory = new TCSettingTextBox("100", "Chat history to retain (lines)", chatScrollHistoryID);
-	public TCSettingTextBox maxLengthChannelName = new TCSettingTextBox("10", "Channel name max. length", maxLengthChannelNameID);
-	public TCSettingTextBox multiChatDelay = new TCSettingTextBox("100", "Multi-chat send delay (ms)", multiChatDelayID);
-	public TCSettingSlider chatBoxUnfocHeight = new TCSettingSlider(20.0f, "Unfocused Height", chatBoxUnfocHeightID, 20.0f, 100.0f);
-	public TCSettingSlider chatFadeTicks = new TCSettingSlider(200.0f, "Chat fade time (ticks)", chatFadeTicksID, 10.0f, 2000.0f);
-	public TCSettingBool forceUnicode = new TCSettingBool(false, "Force Unicode Chat Rendering", forceUnicodeID);
+	public TCSettingTextBox chatScrollHistory = new TCSettingTextBox("100", TabbyChat.translator.getString("settings.advanced.chatscrollhistory"), chatScrollHistoryID);
+	public TCSettingTextBox maxLengthChannelName = new TCSettingTextBox("10", TabbyChat.translator.getString("settings.advanced.maxlengthchannelname"), maxLengthChannelNameID);
+	public TCSettingTextBox multiChatDelay = new TCSettingTextBox("100", TabbyChat.translator.getString("settings.advanced.multichatdelay"), multiChatDelayID);
+	public TCSettingSlider chatBoxUnfocHeight = new TCSettingSlider(20.0f, TabbyChat.translator.getString("settings.advanced.chatboxunfocheight"), chatBoxUnfocHeightID, 20.0f, 100.0f);
+	public TCSettingSlider chatFadeTicks = new TCSettingSlider(200.0f, TabbyChat.translator.getString("settings.advanced.chatfadeticks"), chatFadeTicksID, 10.0f, 2000.0f);
+	public TCSettingBool forceUnicode = new TCSettingBool(false, TabbyChat.translator.getString("settings.advanced.forceunicode"), forceUnicodeID);
 	
 	public TCSettingsAdvanced() {
 		super();
-		this.name = "Advanced Settings";
+		this.name = TabbyChat.translator.getString("settings.advanced.name");
 		this.bgcolor = 0x66802e94;
 		this.chatScrollHistory.setCharLimit(3);
 		this.maxLengthChannelName.setCharLimit(2);

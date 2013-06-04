@@ -35,16 +35,16 @@ public class ChatBox {
 	public static void addRowToTray() {
 		// // Grow virtual screen width/height to counter reduced size due to chat scaling
 		float sf = TabbyChat.gnc.getScaleSetting();
-		int sh = MathHelper.floor_float((TabbyChat.gnc.sr.getScaledHeight() + current.y + current.height) / sf - current.y - current.height);
+		int sh = MathHelper.floor_float((TabbyChat.gnc.sr.getScaledHeight() + current.y) / sf - current.y);
 		
 		
 		// Add tab row to tray
 		tabTrayHeight += tabHeight;
 		
-		if(current.height + tabHeight + absMinH > sh) {						// Check if box is too tall for screen
+		if(current.height + tabHeight - absMinY > sh) {						// Check if box is too tall for screen
 			// Constrain box height to screen, stick to top
 			current.y = anchoredTop ? -sh+1 : -sh+1+current.height;
-			current.height = sh - absMinH - 3;
+			current.height = sh + absMinY - 3;
 		} else if(!anchoredTop && current.y - current.height - tabHeight - 1 < -sh) {	// Tray needs to slide up, but can't
 			current.y = -sh+current.height+1;
 			current.height += tabHeight;
@@ -345,7 +345,8 @@ public class ChatBox {
 		current.height -= moveY;
 		
 		for(ChatChannel chan : chanObjs.values()) {
-			tabWidth = TabbyChat.mc.fontRenderer.getStringWidth(chan.getDisplayTitle()) + 8;
+			//tabWidth = TabbyChat.mc.fontRenderer.getStringWidth(chan.getDisplayTitle()) + 8;
+			tabWidth = TabbyChat.mc.fontRenderer.getStringWidth(chan.getAlias()+"<>") + 8;
 			if(tabDx + tabWidth > current.width - 6 && tabWidth < current.width - 6) {
 				rows++;
 				if(tabHeight * (rows+1) > tabTrayHeight) {

@@ -31,9 +31,9 @@ public class ChatChannelGUI extends GuiScreen {
 	private static final int prevButtonID = 8986;
 	private static final int nextButtonID = 8987;
 	
-	private TCSettingBool notificationsOn = new TCSettingBool(false, "Unread Notifications", notificationsOnID);
-	private TCSettingTextBox alias = new TCSettingTextBox("Alias", aliasID);
-	private TCSettingTextBox cmdPrefix = new TCSettingTextBox("Chat command prefix", cmdPrefixID);
+	private TCSettingBool notificationsOn = new TCSettingBool(false, TabbyChat.translator.getString("settings.channel.notificationson"), notificationsOnID);
+	private TCSettingTextBox alias = new TCSettingTextBox(TabbyChat.translator.getString("settings.channel.alias"), aliasID);
+	private TCSettingTextBox cmdPrefix = new TCSettingTextBox(TabbyChat.translator.getString("settings.channel.cmdprefix"), cmdPrefixID);
 	
 	public ChatChannelGUI(ChatChannel _c) {
 		this.channel = _c;
@@ -90,8 +90,8 @@ public class ChatChannelGUI extends GuiScreen {
 		
 		// Draw tab position info
 		this.drawString(mc.fontRenderer, Integer.toString(this.position), rightX-34, topY+22, 0xffffff);
-		this.drawString(mc.fontRenderer, "Position:", rightX-55-mc.fontRenderer.getStringWidth("Position:"), topY+22, 0xffffff);
-		this.drawString(mc.fontRenderer, "of "+TabbyChat.instance.channelMap.size(), rightX-34, topY+35, 0xffffff);
+		this.drawString(mc.fontRenderer, TabbyChat.translator.getString("settings.channel.position"), rightX-55-mc.fontRenderer.getStringWidth(TabbyChat.translator.getString("settings.channel.position")), topY+22, 0xffffff);
+		this.drawString(mc.fontRenderer, TabbyChat.translator.getString("settings.channel.of")+" "+TabbyChat.instance.channelMap.size(), rightX-34, topY+35, 0xffffff);
 		
 		// Draw buttons
 		for (int i = 0; i < this.buttonList.size(); i++) {
@@ -109,9 +109,9 @@ public class ChatChannelGUI extends GuiScreen {
 		this.buttonList.clear();
 		
 		// Define generic buttons
-		PrefsButton savePrefs = new PrefsButton(saveButton, rightX - 45, botY - 19, 40, 14, "Save");
+		PrefsButton savePrefs = new PrefsButton(saveButton, rightX - 45, botY - 19, 40, 14, TabbyChat.translator.getString("settings.save"));
 		this.buttonList.add(savePrefs);
-		PrefsButton cancelPrefs = new PrefsButton(cancelButton, rightX - 90, botY - 19, 40, 14, "Cancel");
+		PrefsButton cancelPrefs = new PrefsButton(cancelButton, rightX - 90, botY - 19, 40, 14, TabbyChat.translator.getString("settings.cancel"));
 		this.buttonList.add(cancelPrefs);
 		PrefsButton nextButton = new PrefsButton(nextButtonID, rightX - 20, topY+20, 15, 14, ">>");
 		this.buttonList.add(nextButton);

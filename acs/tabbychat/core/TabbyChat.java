@@ -45,6 +45,7 @@ import acs.tabbychat.gui.TCSettingsFilters;
 import acs.tabbychat.gui.TCSettingsGUI;
 import acs.tabbychat.gui.TCSettingsGeneral;
 import acs.tabbychat.gui.TCSettingsServer;
+import acs.tabbychat.lang.TCTranslate;
 import acs.tabbychat.settings.ChannelDelimEnum;
 import acs.tabbychat.settings.ColorCodeEnum;
 import acs.tabbychat.settings.FormatCodeEnum;
@@ -64,6 +65,7 @@ public class TabbyChat {
 	private Pattern chatPMfromMePattern = null;
 	private Pattern chatPMtoMePattern = null;
 	public static String version = TabbyChatUtils.version;
+	public static TCTranslate translator;
 	protected Calendar cal = Calendar.getInstance();
 	private volatile List<TCChatLine> lastChat = new ArrayList();
 	public LinkedHashMap<String, ChatChannel> channelMap = new LinkedHashMap();
@@ -82,6 +84,7 @@ public class TabbyChat {
 	
 	private TabbyChat() {
 		mc = Minecraft.getMinecraft();
+		translator = new TCTranslate(mc.gameSettings.language);
 		generalSettings = new TCSettingsGeneral(this);
 		serverSettings = new TCSettingsServer(this);
 		filterSettings = new TCSettingsFilters(this);
@@ -116,6 +119,19 @@ public class TabbyChat {
 	public static void printException(String err, Exception e) {
 		System.err.println("[TabbyChat] "+err);
 		mc.getLogAgent().logWarningException("[TABBYCHAT] "+err, e);
+	}
+	
+	public static void printMessageToChat(String msg) {
+		if(TabbyChat.instance == null) return;
+		if(!TabbyChat.instance.channelMap.containsKey("TabbyChat")) {
+			TabbyChat.instance.channelMap.put("TabbyChat", new ChatChannel("TabbyChat"));
+		}
+		
+		List<String> split = mc.fontRenderer.listFormattedStringToWidth(msg, ChatBox.current.width);
+		for(String splitMsg : split) {
+			TabbyChat.instance.addToChannel("TabbyChat", new TCChatLine(mc.ingameGUI.getUpdateCounter(), splitMsg, 0, true));
+		}
+		TabbyChat.instance.channelMap.get("TabbyChat").unread = true;
 	}
 	
 	public int addToChannel(String _name, List<TCChatLine> thisChat) {
@@ -269,22 +285,27 @@ public class TabbyChat {
 		
 		if(importData == null) return;
 		int oldIDs = 0;
-		for(Map.Entry<String, ChatChannel> chan : importData.entrySet()) {
-			ChatChannel _new = null;
-			if(!this.channelMap.containsKey(chan.getKey())) {
-				_new = new ChatChannel(chan.getKey());
-				_new.chanID = chan.getValue().chanID;
-				this.channelMap.put(_new.getTitle(), _new);
-			} else {
-				_new = this.channelMap.get(chan.getKey());
+		try {
+			for(Map.Entry<String, ChatChannel> chan : importData.entrySet()) {
+				if(chan.getKey().contentEquals("TabbyChat")) continue;
+				ChatChannel _new = null;
+				if(!this.channelMap.containsKey(chan.getKey())) {
+					_new = new ChatChannel(chan.getKey());
+					_new.chanID = chan.getValue().chanID;
+					this.channelMap.put(_new.getTitle(), _new);
+				} else {
+					_new = this.channelMap.get(chan.getKey());
+				}
+				_new.setAlias(chan.getValue().getAlias());
+				_new.active = chan.getValue().active;
+				_new.notificationsOn = chan.getValue().notificationsOn;
+				_new.cmdPrefix = chan.getValue().cmdPrefix;
+				this.addToChannel(chan.getKey(), new TCChatLine(-1, "-- chat history from "+(new SimpleDateFormat()).format(chanDataFile.lastModified()), 0, true));
+				_new.importOldChat(chan.getValue());
+				oldIDs++;
 			}
-			_new.setAlias(chan.getValue().getAlias());
-			_new.active = chan.getValue().active;
-			_new.notificationsOn = chan.getValue().notificationsOn;
-			_new.cmdPrefix = chan.getValue().cmdPrefix;
-			this.addToChannel(chan.getKey(), new TCChatLine(-1, "-- chat history from "+(new SimpleDateFormat()).format(chanDataFile.lastModified()), 0, true));
-			_new.importOldChat(chan.getValue());
-			oldIDs++;
+		} catch (ClassCastException e) {
+			this.printMessageToChat("Unable to load channel history data due to upgrade (sorry!)");
 		}
 		ChatChannel.nextID = 3600 + oldIDs;
 		this.resetDisplayedChat();

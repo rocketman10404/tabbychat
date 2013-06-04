@@ -119,9 +119,9 @@ public class TCSettingsGUI extends net.minecraft.src.GuiScreen {
 		int effRight = (this.width + this.displayWidth)/2;
 		int bW = 40;
 		int bH = this.line_height;
-		PrefsButton savePrefs = new PrefsButton(saveButton, effRight - bW, (this.height + this.displayHeight)/2 - bH, bW, bH, "Save");
+		PrefsButton savePrefs = new PrefsButton(saveButton, effRight - bW, (this.height + this.displayHeight)/2 - bH, bW, bH, TabbyChat.translator.getString("settings.save"));
 		this.buttonList.add(savePrefs);
-		PrefsButton cancelPrefs = new PrefsButton(cancelButton, effRight - 2*bW - 2, (this.height + this.displayHeight)/2 - bH, bW, bH, "Cancel");
+		PrefsButton cancelPrefs = new PrefsButton(cancelButton, effRight - 2*bW - 2, (this.height + this.displayHeight)/2 - bH, bW, bH, TabbyChat.translator.getString("settings.cancel"));
 		this.buttonList.add(cancelPrefs);
 		
 		for (int i = 0; i < ScreenList.size(); i++) {

@@ -58,26 +58,26 @@ public class TCSettingsFilters extends TCSettingsGUI {
 	private static final int addNewID = 9316;
 	private static final int delID = 9317;
 	
-	public TCSettingBool inverseMatch = new TCSettingBool(false, "Inverse match", inverseMatchID);
-	public TCSettingBool caseSensitive = new TCSettingBool(false, "Case Sensitive", caseSenseID);
-	public TCSettingBool highlightBool = new TCSettingBool(true, "Highlight matches", highlightBoolID);
-	public TCSettingEnum highlightColor = new TCSettingEnum(ColorCodeEnum.YELLOW, "\u00A7oColor\u00A7r", highlightColorID);
-	public TCSettingEnum highlightFormat = new TCSettingEnum(FormatCodeEnum.BOLD, "\u00A7oFormat\u00A7r", highlightFormatID);
-	public TCSettingBool audioNotificationBool = new TCSettingBool(false, "Audio notification", audioNotificationBoolID);
-	public TCSettingEnum audioNotificationSound = new TCSettingEnum(NotificationSoundEnum.ORB, "\u00A7oSound\u00A7r", audioNotificationEnumID);
-	public TCSettingTextBox filterName = new TCSettingTextBox("Filter Name", filterNameID);
-	public TCSettingBool sendToTabBool = new TCSettingBool(false, "Send matches to tab", sendToTabBoolID);
-	public TCSettingTextBox sendToTabName = new TCSettingTextBox("Tab Name", sendToTabNameID);
-	public TCSettingBool sendToAllTabs = new TCSettingBool(false, "All tabs", sendToAllTabsID);
-	public TCSettingBool removeMatches = new TCSettingBool(false, "Hide matches from chat", removeMatchesID);
-	public TCSettingTextBox expressionString = new TCSettingTextBox("Expression", expressionID);
+	public TCSettingBool inverseMatch = new TCSettingBool(false, TabbyChat.translator.getString("settings.filters.inversematch"), inverseMatchID);
+	public TCSettingBool caseSensitive = new TCSettingBool(false, TabbyChat.translator.getString("settings.filters.casesensitive"), caseSenseID);
+	public TCSettingBool highlightBool = new TCSettingBool(true, TabbyChat.translator.getString("settings.filters.highlightbool"), highlightBoolID);
+	public TCSettingEnum highlightColor = new TCSettingEnum(ColorCodeEnum.YELLOW, "\u00A7o"+TabbyChat.translator.getString("settings.filters.highlightcolor")+"\u00A7r", highlightColorID);
+	public TCSettingEnum highlightFormat = new TCSettingEnum(FormatCodeEnum.BOLD, "\u00A7o"+TabbyChat.translator.getString("settings.filters.highlightformat")+"\u00A7r", highlightFormatID);
+	public TCSettingBool audioNotificationBool = new TCSettingBool(false, TabbyChat.translator.getString("settings.filters.audionotificationbool"), audioNotificationBoolID);
+	public TCSettingEnum audioNotificationSound = new TCSettingEnum(NotificationSoundEnum.ORB, "\u00A7o"+TabbyChat.translator.getString("settings.filters.audionotificationsound")+"\u00A7r", audioNotificationEnumID);
+	public TCSettingTextBox filterName = new TCSettingTextBox(TabbyChat.translator.getString("settings.filters.filtername"), filterNameID);
+	public TCSettingBool sendToTabBool = new TCSettingBool(false, TabbyChat.translator.getString("settings.filters.sendtotabbool"), sendToTabBoolID);
+	public TCSettingTextBox sendToTabName = new TCSettingTextBox(TabbyChat.translator.getString("settings.filters.sendtotabname"), sendToTabNameID);
+	public TCSettingBool sendToAllTabs = new TCSettingBool(false, TabbyChat.translator.getString("settings.filters.sendtoalltabs"), sendToAllTabsID);
+	public TCSettingBool removeMatches = new TCSettingBool(false, TabbyChat.translator.getString("removematches"), removeMatchesID);
+	public TCSettingTextBox expressionString = new TCSettingTextBox(TabbyChat.translator.getString("expressionstring"), expressionID);
 	
 	public HashMap filterMap = new HashMap();
 	protected HashMap tempFilterMap = new HashMap();
 	
 	public TCSettingsFilters() {
 		super();
-		this.name = "Custom Filters";
+		this.name = TabbyChat.translator.getString("settings.filters.name");
 		this.bgcolor = 0x66289f28;
 		this.filterName.setCharLimit(50);
 		this.sendToTabName.setCharLimit(20);
@@ -320,8 +320,8 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		int buttonColor = (this.bgcolor & 0x00ffffff) + 0xff000000;
 		
 		
-		PrefsButton newButton = new PrefsButton(addNewID, col1x, (this.height + this.displayHeight)/2 - this.line_height, 45 ,this.line_height, "New");
-		PrefsButton delButton = new PrefsButton(delID, col1x + 50, (this.height + this.displayHeight)/2 - this.line_height, 45, this.line_height, "Delete");
+		PrefsButton newButton = new PrefsButton(addNewID, col1x, (this.height + this.displayHeight)/2 - this.line_height, 45 ,this.line_height, TabbyChat.translator.getString("settings.new"));
+		PrefsButton delButton = new PrefsButton(delID, col1x + 50, (this.height + this.displayHeight)/2 - this.line_height, 45, this.line_height, TabbyChat.translator.getString("settings.delete"));
 		newButton.bgcolor = this.bgcolor;
 		delButton.bgcolor = this.bgcolor;
 		this.buttonList.add(newButton);

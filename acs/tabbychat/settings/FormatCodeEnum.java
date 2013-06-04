@@ -1,11 +1,13 @@
 package acs.tabbychat.settings;
 
+import acs.tabbychat.core.TabbyChat;
+
 public enum FormatCodeEnum {
-	DEFAULT("Default", ""),
-	BOLD("Bold", "\u00A7l"),
-	STRIKED("Striked", "\u00A7m"),
-	UNDERLINE("Underlined", "\u00A7n"),
-	ITALIC("Italic", "\u00A7o");
+	DEFAULT(TabbyChat.translator.getString("formats.default"), ""),
+	BOLD(TabbyChat.translator.getString("formats.bold"), "\u00A7l"),
+	STRIKED(TabbyChat.translator.getString("formats.striked"), "\u00A7m"),
+	UNDERLINE(TabbyChat.translator.getString("formats.underline"), "\u00A7n"),
+	ITALIC(TabbyChat.translator.getString("formats.italic"), "\u00A7o");
 	
 	private String title;
 	private String code;

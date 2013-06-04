@@ -1,22 +1,24 @@
 package acs.tabbychat.settings;
 
+import acs.tabbychat.core.TabbyChat;
+
 public enum ColorCodeEnum {
-	DEFAULT("Default", ""),
-	DARKBLUE("Dark Blue", "\u00A71"),
-	DARKGREEN("Dark Green", "\u00A72"),
-	DARKAQUA("Dark Aqua", "\u00A73"),
-	DARKRED("Dark Red", "\u00A74"),
-	PURPLE("Purple", "\u00A75"),
-	GOLD("Gold", "\u00A76"),
-	GRAY("Gray", "\u00A77"),
-	DARKGRAY("Dark Gray", "\u00A78"),
-	INDIGO("Indigo", "\u00A79"),
-	BRIGHTGREEN("Bright Green", "\u00A7a"),
-	AQUA("Aqua", "\u00A7b"),
-	RED("Red", "\u00A7c"),
-	PINK("Pink", "\u00A7d"),
-	YELLOW("Yellow", "\u00A7e"),
-	WHITE("White", "\u00A7f");
+	DEFAULT(TabbyChat.translator.getString("colors.default"), ""),
+	DARKBLUE(TabbyChat.translator.getString("colors.darkblue"), "\u00A71"),
+	DARKGREEN(TabbyChat.translator.getString("colors.darkgreen"), "\u00A72"),
+	DARKAQUA(TabbyChat.translator.getString("colors.darkaqua"), "\u00A73"),
+	DARKRED(TabbyChat.translator.getString("colors.darkred"), "\u00A74"),
+	PURPLE(TabbyChat.translator.getString("colors.purple"), "\u00A75"),
+	GOLD(TabbyChat.translator.getString("colors.gold"), "\u00A76"),
+	GRAY(TabbyChat.translator.getString("colors.gray"), "\u00A77"),
+	DARKGRAY(TabbyChat.translator.getString("colors.darkgray"), "\u00A78"),
+	INDIGO(TabbyChat.translator.getString("colors.indigo"), "\u00A79"),
+	BRIGHTGREEN(TabbyChat.translator.getString("colors.brightgreen"), "\u00A7a"),
+	AQUA(TabbyChat.translator.getString("colors.aqua"), "\u00A7b"),
+	RED(TabbyChat.translator.getString("colors.red"), "\u00A7c"),
+	PINK(TabbyChat.translator.getString("colors.pink"), "\u00A7d"),
+	YELLOW(TabbyChat.translator.getString("colors.yellow"), "\u00A7e"),
+	WHITE(TabbyChat.translator.getString("colors.white"), "\u00A7f");
 	
 	
 	private String title;

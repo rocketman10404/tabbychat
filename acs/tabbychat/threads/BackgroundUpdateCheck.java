@@ -18,20 +18,17 @@ public class BackgroundUpdateCheck extends Thread {
 	public void run() {
 		if(!TabbyChat.generalSettings.tabbyChatEnable.getValue()) return;
 		Minecraft mc = Minecraft.getMinecraft();
-		String ver;
+		//String ver;
 		ArrayList<TCChatLine> updateMsg = new ArrayList<TCChatLine>();
 		if (!newest.equals(TabbyChatUtils.version)) {
-			ver = "\u00A77TabbyChat: An update is available!  (Current version is "+TabbyChatUtils.version+", newest is "+newest+")";
-			String ver2 = " \u00A77Visit the TabbyChat forum thread at minecraftforum.net to download.";
-			TCChatLine updateLine = new TCChatLine(mc.ingameGUI.getUpdateCounter(), ver, 0, true);
-			TCChatLine updateLine2 = new TCChatLine(mc.ingameGUI.getUpdateCounter(), ver2, 0, true);
-			if(!TabbyChat.instance.channelMap.containsKey("TabbyChat")) TabbyChat.instance.channelMap.put("TabbyChat", new ChatChannel("TabbyChat"));
-			updateMsg.add(updateLine);
-			updateMsg.add(updateLine2);			
-			//TabbyChat.instance.processChat(updateMsg);
-			//TabbyChat.instance.addLastChatToChannel(TabbyChat.instance.channelMap.get("TabbyChat"));
-			TabbyChat.instance.addToChannel("*", updateMsg);
-			TabbyChat.instance.addToChannel("TabbyChat", updateMsg);
+			StringBuilder updateReport = new StringBuilder("\u00A77");
+			updateReport.append(TabbyChat.translator.getString("messages.update1"));
+			updateReport.append(TabbyChatUtils.version);
+			updateReport.append(TabbyChat.translator.getString("messages.update2"));
+			updateReport.append(newest+") ");
+			updateReport.append(TabbyChat.translator.getString("messages.update3"));
+			updateReport.append("\u00A7r");
+			TabbyChat.instance.printMessageToChat(updateReport.toString());
 		}
 	}	
 }

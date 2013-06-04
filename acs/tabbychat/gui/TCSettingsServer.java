@@ -34,14 +34,14 @@ public class TCSettingsServer extends TCSettingsGUI {
 	private static final int defaultChansID = 9207;
 	private static final int ignoredChansID = 9208;
 	
-	public TCSettingBool autoChannelSearch = new TCSettingBool(true, "Auto-search for new channels", autoChannelSearchID);
-	public TCSettingEnum delimiterChars = new TCSettingEnum(ChannelDelimEnum.BRACKETS, "Chat-channel delimiters", chatChannelDelimsID);
-	public TCSettingBool delimColorBool = new TCSettingBool(false,"\u00A7oColored delimiters\u00A7r", delimColorBoolID);
+	public TCSettingBool autoChannelSearch = new TCSettingBool(true, TabbyChat.translator.getString("settings.server.autochannelsearch"), autoChannelSearchID);
+	public TCSettingEnum delimiterChars = new TCSettingEnum(ChannelDelimEnum.BRACKETS, TabbyChat.translator.getString("settings.server.delimiterchars"), chatChannelDelimsID);
+	public TCSettingBool delimColorBool = new TCSettingBool(false,"\u00A7o"+TabbyChat.translator.getString("settings.server.delimcolorbool")+"\u00A7r", delimColorBoolID);
 	public TCSettingEnum delimColorCode = new TCSettingEnum(ColorCodeEnum.DEFAULT, "", delimColorEnumID);
-	public TCSettingBool delimFormatBool = new TCSettingBool(false,"\u00A7oFormatted delimiters\u00A7r", delimFormatBoolID);
+	public TCSettingBool delimFormatBool = new TCSettingBool(false,"\u00A7o"+TabbyChat.translator.getString("settings.server.delimformatbool")+"\u00A7r", delimFormatBoolID);
 	public TCSettingEnum delimFormatCode = new TCSettingEnum(FormatCodeEnum.DEFAULT, "", delimFormatEnumID);
-	public TCSettingTextBox defaultChannels = new TCSettingTextBox("Default channels", defaultChansID);
-	public TCSettingTextBox ignoredChannels = new TCSettingTextBox("Ignored channels", ignoredChansID);
+	public TCSettingTextBox defaultChannels = new TCSettingTextBox(TabbyChat.translator.getString("settings.server.defaultchannels"), defaultChansID);
+	public TCSettingTextBox ignoredChannels = new TCSettingTextBox(TabbyChat.translator.getString("settings.server.ignoredchannels"), ignoredChansID);
 	
 	public List<String> defaultChanList = new ArrayList();
 	public List<String> ignoredChanList = new ArrayList();
@@ -52,7 +52,7 @@ public class TCSettingsServer extends TCSettingsGUI {
 	
 	public TCSettingsServer() {
 		super();
-		this.name = "Server Config";
+		this.name = TabbyChat.translator.getString("settings.server.name");
 		this.bgcolor = 0x66d6d643;
 		this.defaultChannels.setCharLimit(300);
 		this.ignoredChannels.setCharLimit(300);
