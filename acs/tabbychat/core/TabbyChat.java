@@ -79,19 +79,22 @@ public class TabbyChat {
 	private final ReentrantReadWriteLock lastChatLock = new ReentrantReadWriteLock(true);
 	private final Lock lastChatReadLock = lastChatLock.readLock();
 	private final Lock lastChatWriteLock = lastChatLock.writeLock();
-	public static GuiNewChatTC gnc = GuiNewChatTC.me;
+	public static GuiNewChatTC gnc;
 	public static final TabbyChat instance = new TabbyChat();
 	
-	private TabbyChat() {
+	private TabbyChat() {}
+	
+	public void postInit() {
 		mc = Minecraft.getMinecraft();
+		gnc = GuiNewChatTC.me;
 		translator = new TCTranslate(mc.gameSettings.language);
 		generalSettings = new TCSettingsGeneral(this);
-		serverSettings = new TCSettingsServer(this);
-		filterSettings = new TCSettingsFilters(this);
 		advancedSettings = new TCSettingsAdvanced(this);
-		defaultUnicode = mc.fontRenderer.getUnicodeFlag();
+		filterSettings = new TCSettingsFilters(this);
+		serverSettings = new TCSettingsServer(this);
 		generalSettings.loadSettingsFile();
 		advancedSettings.loadSettingsFile();
+		defaultUnicode = mc.fontRenderer.getUnicodeFlag();
 		if (!this.enabled()) this.disable();
 		else {
 			this.enable();
