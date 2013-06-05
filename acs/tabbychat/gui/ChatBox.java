@@ -345,7 +345,6 @@ public class ChatBox {
 		current.height -= moveY;
 		
 		for(ChatChannel chan : chanObjs.values()) {
-			//tabWidth = TabbyChat.mc.fontRenderer.getStringWidth(chan.getDisplayTitle()) + 8;
 			tabWidth = TabbyChat.mc.fontRenderer.getStringWidth(chan.getAlias()+"<>") + 8;
 			if(tabDx + tabWidth > current.width - 6 && tabWidth < current.width - 6) {
 				rows++;
