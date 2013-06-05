@@ -8,12 +8,12 @@ import net.minecraft.src.GuiChat;
 import net.minecraft.src.GuiTextField;
 import acs.tabbychat.core.GuiChatTC;
 import acs.tabbychat.core.TabbyChat;
-import acs.tabbychat.liteloader.TabbyChatMod;
 import acs.tabbychat.util.TabbyChatUtils;
 import com.mumfrey.liteloader.InitCompleteListener;
 import com.mumfrey.liteloader.core.LiteLoader;
 
-public class TabbyChatInitListener implements InitCompleteListener {
+public class LiteModTabbyChat implements InitCompleteListener {
+	private static TabbyChat tc;
 
 	@Override
 	public String getName() {
@@ -26,12 +26,14 @@ public class TabbyChatInitListener implements InitCompleteListener {
 	}
 
 	@Override
-	public void init() {}
+	public void init() {
+		tc = TabbyChat.instance;
+	}
 
 	@Override
 	public void onInitCompleted(Minecraft var1, LiteLoader var2) {
-		TabbyChat.instance.postInit();
-		TabbyChatUtils.hookIntoChat(TabbyChat.gnc);
+		tc.postInit();
+		TabbyChatUtils.hookIntoChat(tc.gnc);
 	}
 
 	@Override
