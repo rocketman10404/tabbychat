@@ -48,7 +48,7 @@ public class GuiChatTC extends GuiChat {
     public long field_85043_c = 0L;
     public int field_92018_d = 0;
     public float zLevel = 0.0F;
-    private ScaledResolution sr;
+    private static ScaledResolution sr;
 	public static GuiChatTC me;
 	public static final TabbyChat tc = TabbyChat.instance;
 	
@@ -57,6 +57,7 @@ public class GuiChatTC extends GuiChat {
 		this.mc = Minecraft.getMinecraft();
 		sr = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
 		this.fontRenderer = this.mc.fontRenderer;
+		sr = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
 		me = this;
 		EmoticonsCompat.load();
 		MacroKeybindCompat.load();
@@ -160,8 +161,9 @@ public class GuiChatTC extends GuiChat {
 	
     public @Override void drawScreen(int cursorX, int cursorY, float pointless) {
 		if (tc.enabled() && TabbyChat.advancedSettings.forceUnicode.getValue()) this.fontRenderer.setUnicodeFlag(true);
-		this.width = TabbyChat.gnc.sr.getScaledWidth();
-		this.height = TabbyChat.gnc.sr.getScaledHeight();
+		sr = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
+		this.width = sr.getScaledWidth();
+		this.height = sr.getScaledHeight();
 		
 		// Calculate positions of currently-visible input fields
 		int inputHeight = 0;
@@ -179,7 +181,7 @@ public class GuiChatTC extends GuiChat {
 		// Draw current message length indicator
 		if(tc.enabled()) {
 			String requiredSends = ((Integer)this.getCurrentSends()).toString();
-			int sendsX = TabbyChat.gnc.sr.getScaledWidth() - 12;
+			int sendsX = sr.getScaledWidth() - 12;
 			if(MacroKeybindCompat.present) sendsX -= 22; 
 			this.fontRenderer.drawStringWithShadow(requiredSends, sendsX, this.height-inputHeight, 0x707070);
 		}
@@ -321,8 +323,9 @@ public class GuiChatTC extends GuiChat {
 		Keyboard.enableRepeatEvents(true);
 		this.buttonList.clear();
 		this.inputList.clear();
-		this.width = TabbyChat.gnc.sr.getScaledWidth();
-		this.height = TabbyChat.gnc.sr.getScaledHeight();
+		sr = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
+		this.width = sr.getScaledWidth();
+		this.height = sr.getScaledHeight();
 		tc.checkServer();
 		if(tc.enabled()) {
 			if(this.scrollBar == null) this.scrollBar = new ChatScrollBar(this);
@@ -383,7 +386,7 @@ public class GuiChatTC extends GuiChat {
 				cPos += this.inputList.get(i).getText().length();
 			}			
 		}
-		if (this.fontRenderer.getStringWidth(msg.toString()) + this.fontRenderer.getStringWidth(_chars) < (TabbyChat.gnc.sr.getScaledWidth()-20)*this.inputList.size()) {
+		if (this.fontRenderer.getStringWidth(msg.toString()) + this.fontRenderer.getStringWidth(_chars) < (sr.getScaledWidth()-20)*this.inputList.size()) {
 			msg.insert(cPos, _chars);
 			this.setText(msg, cPos+_chars.length());
 		}
@@ -448,7 +451,7 @@ public class GuiChatTC extends GuiChat {
 			else this.removeCharsAtCursor(1);
 		} else if(_code == Keyboard.KEY_LEFT || _code == Keyboard.KEY_RIGHT) {
 			this.inputList.get(this.getFocusedFieldInd()).textboxKeyTyped(_char, _code);
-		} else if(this.inputField.isFocused() && this.fontRenderer.getStringWidth(this.inputField.getText()) < TabbyChat.gnc.sr.getScaledWidth()-20) {
+		} else if(this.inputField.isFocused() && this.fontRenderer.getStringWidth(this.inputField.getText()) < sr.getScaledWidth()-20) {
 			this.inputField.textboxKeyTyped(_char, _code);
 		} else
 			this.insertCharsAtCursor(Character.toString(_char));
@@ -550,7 +553,7 @@ public class GuiChatTC extends GuiChat {
 	}
 
 	public void setText(StringBuilder txt, int pos) {
-		List<String> txtList = this.stringListByWidth(txt, TabbyChat.gnc.sr.getScaledWidth()-20);
+		List<String> txtList = this.stringListByWidth(txt, sr.getScaledWidth()-20);
 
 		int strings = Math.min(txtList.size()-1, this.inputList.size()-1);
 		for (int i=strings; i>=0; i--) {

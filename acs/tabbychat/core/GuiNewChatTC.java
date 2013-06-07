@@ -1,5 +1,6 @@
 package acs.tabbychat.core;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -273,18 +274,14 @@ public class GuiNewChatTC extends GuiNewChat {
 		if(!this.getChatOpen()) return null;
 		else {
 			ChatClickData returnMe = null;
-			ScaledResolution _sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
-			int scaleFactor = _sr.getScaleFactor();
-			float scaleSetting = this.func_96131_h();
-			int clickXRel = clickX / scaleFactor - 3;
-			int clickYRel = clickY / scaleFactor - 28;
-			clickXRel = MathHelper.floor_float((float)clickXRel / scaleSetting);
-			clickYRel = MathHelper.floor_float((float)clickYRel / scaleSetting);
+			Point adjClick = ChatBox.scaleMouseCoords(clickX, clickY);
+			int clickXRel = Math.abs(adjClick.x - ChatBox.current.x);
+			int clickYRel = Math.abs(adjClick.y - ChatBox.current.y);
 			if(clickXRel >= 0 && clickYRel >= 0) {
 				chatReadLock.lock();
 				try {
 					int displayedLines = Math.min(this.getHeightSetting() / 9, this.chatLines.size());
-					if(clickXRel <= MathHelper.floor_float((float)this.chatWidth / scaleSetting)
+					if(clickXRel <= ChatBox.getChatWidth()
 							&& clickYRel < this.mc.fontRenderer.FONT_HEIGHT * displayedLines + displayedLines) {
 						int lineIndex = clickYRel / this.mc.fontRenderer.FONT_HEIGHT + this.scrollOffset;
 						if(lineIndex < displayedLines + this.scrollOffset && this.chatLines.get(lineIndex) != null) {
