@@ -13,7 +13,7 @@ import acs.tabbychat.core.TabbyChat;
 import acs.tabbychat.util.TabbyChatUtils;
 
 public class mod_TabbyChat extends BaseMod {
-	private static TabbyChat tc;
+	private static GuiNewChatTC gnc;
 	public static final String version = TabbyChatUtils.version;
 	
 	@Override
@@ -23,7 +23,8 @@ public class mod_TabbyChat extends BaseMod {
 
 	@Override
 	public void load() {
-		tc = TabbyChat.instance.postInit();
+		gnc = GuiNewChatTC.getInstance();
+		//tc = TabbyChat.getInstance(gnc);
 		ModLoader.setInGameHook(this, true, true);
 		ModLoader.setInGUIHook(this, true, true);
 	}
@@ -39,7 +40,7 @@ public class mod_TabbyChat extends BaseMod {
 				List<ChatLine> missedChats = (ArrayList<ChatLine>)chatLineField.get(mc.ingameGUI.getChatGUI());
 				
 				// Replace pointer to GuiNewChat
-				TabbyChatUtils.hookIntoChat(GuiNewChatTC.me);
+				TabbyChatUtils.hookIntoChat(gnc);
 				
 				// Convert missed ChatLines to TCChatLines
 				if(missedChats.size() > 0) {
@@ -49,7 +50,7 @@ public class mod_TabbyChat extends BaseMod {
 					}
 				
 					//Add any missed chatLines to replacement class
-					GuiNewChatTC.me.addChatLines(0, addChats);
+					gnc.addChatLines(0, addChats);
 				}
 			} catch (Throwable e) {
 				e.printStackTrace();

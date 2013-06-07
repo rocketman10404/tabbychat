@@ -6,6 +6,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import acs.tabbychat.core.ChatChannel;
+import acs.tabbychat.core.GuiNewChatTC;
 import acs.tabbychat.core.TabbyChat;
 
 import net.minecraft.client.Minecraft;
@@ -45,7 +46,7 @@ public class ChatButton extends net.minecraft.src.GuiButton {
 	}
 	
 	private static Rectangle translateButtonDims(Rectangle unscaled) {
-		float scaleSetting = TabbyChat.gnc.getScaleSetting();
+		float scaleSetting = GuiNewChatTC.getInstance().getScaleSetting();
 		int adjX = Math.round((unscaled.x - ChatBox.current.x) * scaleSetting + ChatBox.current.x);
 		
 		int adjY = Math.round((TabbyChat.mc.currentScreen.height - unscaled.y + ChatBox.current.y) * (1.0f - scaleSetting)) + unscaled.y;

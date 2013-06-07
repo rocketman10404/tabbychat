@@ -41,15 +41,16 @@ public class GuiNewChatTC extends GuiNewChat {
 	private int scrollOffset = 0;
 	private boolean chatScrolled = false;
 	protected boolean saveNeeded = true;
-	public static GuiNewChatTC me = new GuiNewChatTC();
-	private final static TabbyChat tc = TabbyChat.instance.postInit();
+	//public static GuiNewChatTC me = new GuiNewChatTC();
+	private static GuiNewChatTC instance = null;
+	public static TabbyChat tc;
 	
-	public GuiNewChatTC() {
+/*	public GuiNewChatTC() {
 		this(Minecraft.getMinecraft());
 		TabbyChatUtils.hookIntoChat(this);
-	}
+	}*/
 	
-	public GuiNewChatTC(Minecraft par1Minecraft) {
+	private GuiNewChatTC(Minecraft par1Minecraft) {
 		super(par1Minecraft);
 		this.mc = par1Minecraft;
 		this.sr = new ScaledResolution(this.mc.gameSettings, this.mc.displayWidth, this.mc.displayHeight);
@@ -190,7 +191,7 @@ public class GuiNewChatTC extends GuiNewChat {
 			chatOpen = this.getChatOpen();
 			if(numLinesTotal == 0 && !chatOpen) return;
 			
-			if(TabbyChat.instance.enabled()) {
+			if(tc.enabled()) {
 				if(TabbyChat.generalSettings.timeStampEnable.getValue())
 					timeStampOffset = mc.fontRenderer.getStringWidth(((TimeStampEnum)TabbyChat.generalSettings.timeStampStyle.getValue()).maxTime);
 
@@ -262,7 +263,7 @@ public class GuiNewChatTC extends GuiNewChat {
 				} else {
 					ChatBox.setUnfocusedHeight(this.chatHeight);
 					ChatBox.drawChatBoxBorder((Gui)this, false, currentOpacity);
-					TabbyChat.instance.pollForUnread(this, currentTick);
+					tc.pollForUnread(this, currentTick);
 				}
 			}
 			GL11.glPopMatrix();
@@ -308,8 +309,8 @@ public class GuiNewChatTC extends GuiNewChat {
 		}			
 		// Split message by available chatbox space
 		int maxWidth = MathHelper.floor_float((float)this.func_96126_f() / this.func_96131_h());
-		if(TabbyChat.instance.enabled()) {
-			if(!backupFlag) TabbyChat.instance.checkServer();
+		if(tc.enabled()) {
+			if(!backupFlag) tc.checkServer();
 			maxWidth = this.chatWidth;
 		}
 		Iterator lineIter = this.mc.fontRenderer.listFormattedStringToWidth(_msg, maxWidth).iterator();
@@ -329,8 +330,8 @@ public class GuiNewChatTC extends GuiNewChat {
 		}
 		
 		// Add chatlines to appropriate lists
-		if(TabbyChat.instance.enabled() && !optionalDeletion && !backupFlag) {
-			int ret = TabbyChat.instance.processChat(multiLineChat);
+		if(tc.enabled() && !optionalDeletion && !backupFlag) {
+			int ret = tc.processChat(multiLineChat);
 		} else {
 			int _len = multiLineChat.size();
 			chatWriteLock.lock();
@@ -346,8 +347,8 @@ public class GuiNewChatTC extends GuiNewChat {
 		}
 		
 		// Trim lists to size as needed
-		if(TabbyChat.instance.serverDataLock.availablePermits() < 1) return;
-		int maxChats = TabbyChat.instance.enabled() ? Integer.parseInt(TabbyChat.advancedSettings.chatScrollHistory.getValue()) : 100;
+		if(tc.serverDataLock.availablePermits() < 1) return;
+		int maxChats = tc.enabled() ? Integer.parseInt(TabbyChat.advancedSettings.chatScrollHistory.getValue()) : 100;
 		int numChats = 0;
 		chatReadLock.lock();
 		try {
@@ -412,10 +413,19 @@ public class GuiNewChatTC extends GuiNewChat {
 	}
 	
 	public int getHeightSetting() {
-		if (TabbyChat.instance.enabled()) {
+		if (tc.enabled()) {
 			return ChatBox.getChatHeight();
 		} else
 			return func_96130_b(this.mc.gameSettings.chatHeightFocused);
+	}
+	
+	public static GuiNewChatTC getInstance() {
+		if(instance == null) {
+			instance = new GuiNewChatTC(Minecraft.getMinecraft());
+			tc = TabbyChat.getInstance(instance);
+			TabbyChatUtils.hookIntoChat(instance);
+		}
+		return instance;
 	}
 
 	public float getScaleSetting() {
@@ -478,7 +488,7 @@ public class GuiNewChatTC extends GuiNewChat {
 
 	public @Override void scroll(int _lines) {
 		int maxLineDisplay;
-		if(TabbyChat.instance.enabled()) {
+		if(tc.enabled()) {
 			float scaleFactor = 1.0f;
 			maxLineDisplay = Math.round(ChatBox.getChatHeight() / 9.0f);
 			if(!this.getChatOpen()) maxLineDisplay = Math.round(maxLineDisplay * TabbyChat.advancedSettings.chatBoxUnfocHeight.getValue() / 100.0f);

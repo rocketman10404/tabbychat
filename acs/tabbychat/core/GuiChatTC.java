@@ -49,8 +49,8 @@ public class GuiChatTC extends GuiChat {
     public int field_92018_d = 0;
     public float zLevel = 0.0F;
     private static ScaledResolution sr;
-	public static GuiChatTC me;
-	public static final TabbyChat tc = TabbyChat.instance;
+	public TabbyChat tc;
+	public GuiNewChatTC gnc;
 	
 	public GuiChatTC() {
 		super();
@@ -58,7 +58,8 @@ public class GuiChatTC extends GuiChat {
 		sr = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
 		this.fontRenderer = this.mc.fontRenderer;
 		sr = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
-		me = this;
+		this.gnc = GuiNewChatTC.getInstance();
+		this.tc = this.gnc.tc;
 		EmoticonsCompat.load();
 		MacroKeybindCompat.load();
 	}
@@ -78,28 +79,28 @@ public class GuiChatTC extends GuiChat {
 			this.mc.displayGuiScreen(TabbyChat.generalSettings);
 			return;
 		}
-		if (!tc.enabled()) return;
+		if (!this.tc.enabled()) return;
 		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
 			this.buttonList.remove(_button);
-			tc.channelMap.remove(_button.channel.getTitle());
+			this.tc.channelMap.remove(_button.channel.getTitle());
 		} else if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL)) {
 			if (!_button.channel.active) {
-				tc.gnc.mergeChatLines(_button.channel);
+				this.gnc.mergeChatLines(_button.channel);
 				_button.channel.unread = false;
 			}
 			_button.channel.active = !_button.channel.active;
 			if (!_button.channel.active)
-				tc.resetDisplayedChat();
+				this.tc.resetDisplayedChat();
 		} else {
-			List<String> preActiveTabs = tc.getActive();
-			for (ChatChannel chan : tc.channelMap.values()) {
+			List<String> preActiveTabs = this.tc.getActive();
+			for (ChatChannel chan : this.tc.channelMap.values()) {
 				if (!_button.equals(chan.tab))
 					chan.active = false;
 			}
 			if (!_button.channel.active) {
 				this.scrollBar.scrollBarMouseWheel();
 				if(preActiveTabs.size() == 1) {
-					String oldPrefix = tc.channelMap.get(preActiveTabs.get(0)).cmdPrefix.trim();
+					String oldPrefix = this.tc.channelMap.get(preActiveTabs.get(0)).cmdPrefix.trim();
 					if(this.inputField.getText().trim().equals(oldPrefix)) {
 						String newPrefix = _button.channel.cmdPrefix.trim();
 						if(newPrefix.length() > 0) this.inputField.setText(_button.channel.cmdPrefix.trim() + " ");
@@ -109,7 +110,7 @@ public class GuiChatTC extends GuiChat {
 				_button.channel.active = true;
 				_button.channel.unread = false;
 			}
-			tc.resetDisplayedChat();
+			this.tc.resetDisplayedChat();
 		}
 	}
 
@@ -160,7 +161,7 @@ public class GuiChatTC extends GuiChat {
 	}
 	
     public @Override void drawScreen(int cursorX, int cursorY, float pointless) {
-		if (tc.enabled() && TabbyChat.advancedSettings.forceUnicode.getValue()) this.fontRenderer.setUnicodeFlag(true);
+		if (this.tc.enabled() && TabbyChat.advancedSettings.forceUnicode.getValue()) this.fontRenderer.setUnicodeFlag(true);
 		sr = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
 		this.width = sr.getScaledWidth();
 		this.height = sr.getScaledHeight();
@@ -179,7 +180,7 @@ public class GuiChatTC extends GuiChat {
 		}
 		
 		// Draw current message length indicator
-		if(tc.enabled()) {
+		if(this.tc.enabled()) {
 			String requiredSends = ((Integer)this.getCurrentSends()).toString();
 			int sendsX = sr.getScaledWidth() - 12;
 			if(MacroKeybindCompat.present) sendsX -= 22; 
@@ -187,13 +188,13 @@ public class GuiChatTC extends GuiChat {
 		}
 		
 		// Update chat tabs (add to buttonlist)
-		if(!this.mc.isSingleplayer()) ChatBox.updateTabs(TabbyChat.instance.channelMap);
+		if(!this.mc.isSingleplayer()) ChatBox.updateTabs(this.tc.channelMap);
 
 		// Determine appropriate scaling for chat tab size and location
-		float scaleSetting = tc.gnc.getScaleSetting();
+		float scaleSetting = this.gnc.getScaleSetting();
 		GL11.glPushMatrix();
 		float scaleOffsetX = ChatBox.current.x * (1.0f - scaleSetting);
-		float scaleOffsetY = (TabbyChat.gnc.sr.getScaledHeight() + ChatBox.current.y) * (1.0f - scaleSetting);
+		float scaleOffsetY = (this.gnc.sr.getScaledHeight() + ChatBox.current.y) * (1.0f - scaleSetting);
 		GL11.glTranslatef(scaleOffsetX, scaleOffsetY, 1.0f);
 		GL11.glScalef(scaleSetting, scaleSetting, 1.0f);
 		
@@ -269,7 +270,7 @@ public class GuiChatTC extends GuiChat {
 	
 	public @Override void getSentHistory(int _dir) {
 		int loc = this.sentHistoryCursor + _dir;
-		int historyLength = tc.gnc.getSentMessages().size();
+		int historyLength = this.gnc.getSentMessages().size();
 		loc = Math.max(0, loc);
 		loc = Math.min(historyLength, loc);
 		if(loc == this.sentHistoryCursor) return;
@@ -278,7 +279,7 @@ public class GuiChatTC extends GuiChat {
 			this.setText(new StringBuilder(""), 1);
 		} else {
 			if(this.sentHistoryCursor == historyLength) this.historyBuffer = this.inputField.getText();
-			StringBuilder _sb = new StringBuilder((String)tc.gnc.getSentMessages().get(loc));
+			StringBuilder _sb = new StringBuilder((String)this.gnc.getSentMessages().get(loc));
 			this.setText(_sb, _sb.length());
 			this.sentHistoryCursor = loc;
 		}
@@ -311,10 +312,10 @@ public class GuiChatTC extends GuiChat {
 			wheelDelta = Math.max(-1, wheelDelta);
 			if(!isShiftKeyDown()) wheelDelta *= 7;
 			
-			if(ChatBox.anchoredTop) tc.gnc.scroll(-wheelDelta);
-			else tc.gnc.scroll(wheelDelta);
-			if(tc.enabled()) this.scrollBar.scrollBarMouseWheel();
-		} else if(tc.enabled()) this.scrollBar.handleMouse();
+			if(ChatBox.anchoredTop) this.gnc.scroll(-wheelDelta);
+			else this.gnc.scroll(wheelDelta);
+			if(this.tc.enabled()) this.scrollBar.scrollBarMouseWheel();
+		} else if(this.tc.enabled()) this.scrollBar.handleMouse();
 		
 		if(mc.currentScreen.getClass() != GuiChat.class) super.handleMouseInput();
 	}
@@ -326,17 +327,17 @@ public class GuiChatTC extends GuiChat {
 		sr = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
 		this.width = sr.getScaledWidth();
 		this.height = sr.getScaledHeight();
-		tc.checkServer();
-		if(tc.enabled()) {
-			if(this.scrollBar == null) this.scrollBar = new ChatScrollBar(this);
-			for(ChatChannel chan : TabbyChat.instance.channelMap.values()) {
+		this.tc.checkServer();
+		if(this.tc.enabled()) {
+			if(this.scrollBar == null) this.scrollBar = new ChatScrollBar();
+			for(ChatChannel chan : this.tc.channelMap.values()) {
 				this.buttonList.add(chan.tab);
 			}
 		} else if(!Minecraft.getMinecraft().isSingleplayer()) {
-			this.buttonList.add(tc.channelMap.get("*").tab);
+			this.buttonList.add(this.tc.channelMap.get("*").tab);
 		}
 		
-		this.sentHistoryCursor = tc.gnc.getSentMessages().size();
+		this.sentHistoryCursor = this.gnc.getSentMessages().size();
 		int textFieldWidth = (MacroKeybindCompat.present) ? this.width - 26 : this.width - 4; 
 		this.inputField = new GuiTextField(this.fontRenderer, 4, this.height - 12, textFieldWidth, 12);
 		this.inputField.setMaxStringLength(500);
@@ -359,13 +360,13 @@ public class GuiChatTC extends GuiChat {
 			this.inputList.add(i,placeholder);
 		}
 		
-		if(tc.enabled()) {
-			List<String> activeTabs = tc.getActive();
+		if(this.tc.enabled()) {
+			List<String> activeTabs = this.tc.getActive();
 			if(activeTabs.size() != 1) {
 				this.inputField.setText("");
 			} else {
-				String thePrefix = tc.channelMap.get(activeTabs.get(0)).cmdPrefix.trim();
-				if(thePrefix.length() > 0) this.inputField.setText(tc.channelMap.get(activeTabs.get(0)).cmdPrefix.trim() + " ");
+				String thePrefix = this.tc.channelMap.get(activeTabs.get(0)).cmdPrefix.trim();
+				if(thePrefix.length() > 0) this.inputField.setText(this.tc.channelMap.get(activeTabs.get(0)).cmdPrefix.trim() + " ");
 			}
 			ChatBox.enforceScreenBoundary(ChatBox.current);
 		}
@@ -438,11 +439,11 @@ public class GuiChatTC extends GuiChat {
 				} else this.getSentHistory(1);
 			}
 		} else if(_code == Keyboard.KEY_PRIOR) {
-			tc.gnc.scroll(19);
-			if(tc.enabled()) this.scrollBar.scrollBarMouseWheel();
+			this.gnc.scroll(19);
+			if(this.tc.enabled()) this.scrollBar.scrollBarMouseWheel();
 		} else if(_code == Keyboard.KEY_NEXT) {
-			tc.gnc.scroll(-19);
-			if(tc.enabled()) this.scrollBar.scrollBarMouseWheel();
+			this.gnc.scroll(-19);
+			if(this.tc.enabled()) this.scrollBar.scrollBarMouseWheel();
 		} else if(_code == Keyboard.KEY_BACK) {
 			if(this.inputField.isFocused() && this.inputField.getCursorPosition() > 0) this.inputField.textboxKeyTyped(_char, _code);
 			else this.removeCharsAtCursor(-1);
@@ -459,7 +460,7 @@ public class GuiChatTC extends GuiChat {
 
 	public @Override void mouseClicked(int _x, int _y, int _button) {		
 		if(_button == 0 && this.mc.gameSettings.chatLinks) {
-			ChatClickData ccd = tc.gnc.func_73766_a(Mouse.getX(), Mouse.getY());
+			ChatClickData ccd = this.gnc.func_73766_a(Mouse.getX(), Mouse.getY());
 			if(ccd != null) {
 				URI url = ccd.getURI();
 				if(url != null) {
@@ -497,7 +498,7 @@ public class GuiChatTC extends GuiChat {
 						return;
 					} else if (_button == 1) {
 						ChatButton _cb = (ChatButton)_guibutton;
-						if(_cb.channel == tc.channelMap.get("*")) return;
+						if(_cb.channel == this.tc.channelMap.get("*")) return;
 						this.mc.displayGuiScreen(new ChatChannelGUI(_cb.channel));
 						return;
 					}

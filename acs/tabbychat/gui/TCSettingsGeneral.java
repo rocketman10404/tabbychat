@@ -10,6 +10,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
+import acs.tabbychat.core.GuiNewChatTC;
 import acs.tabbychat.core.TabbyChat;
 import acs.tabbychat.settings.ColorCodeEnum;
 import acs.tabbychat.settings.TCSettingBool;
@@ -53,13 +54,14 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 	}
 	
 	public void actionPerformed(GuiButton button) {
+		TabbyChat tc = GuiNewChatTC.getInstance().tc;
 		super.actionPerformed(button);
 		switch (button.id) {
 		case tabbyChatEnableID:
-			if (TabbyChat.instance.enabled())
-				TabbyChat.instance.disable();
+			if (tc.enabled())
+				tc.disable();
 			else {
-				TabbyChat.instance.enable();
+				tc.enable();
 			}
 			break;	
 		}

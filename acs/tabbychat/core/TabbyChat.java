@@ -59,35 +59,60 @@ import net.minecraft.src.ScaledResolution;
 import net.minecraft.src.StringUtils;
 
 public class TabbyChat {
-	public static Minecraft mc;
-	private Pattern chatChannelPatternClean = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
-	private Pattern chatChannelPatternDirty = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
-	private Pattern chatPMfromMePattern = null;
-	private Pattern chatPMtoMePattern = null;
-	public static String version = TabbyChatUtils.version;
-	public static TCTranslate translator;
-	protected Calendar cal = Calendar.getInstance();
 	private volatile List<TCChatLine> lastChat = new ArrayList();
-	public LinkedHashMap<String, ChatChannel> channelMap = new LinkedHashMap();
-	public int nextID = 3600;
+	
+	public static boolean liteLoaded = false;
 	public static boolean defaultUnicode;
+	public static String version = TabbyChatUtils.version;
+	public static Minecraft mc;
+	public static TCTranslate translator;
 	public static TCSettingsGeneral generalSettings;
 	public static TCSettingsServer serverSettings;
 	public static TCSettingsFilters filterSettings;
 	public static TCSettingsAdvanced advancedSettings;
+	public LinkedHashMap<String, ChatChannel> channelMap = new LinkedHashMap();
+	
+	protected Calendar cal = Calendar.getInstance();
 	protected Semaphore serverDataLock = new Semaphore(0, true);
+	
+	private Pattern chatChannelPatternClean = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
+	private Pattern chatChannelPatternDirty = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
+	private Pattern chatPMfromMePattern = null;
+	private Pattern chatPMtoMePattern = null;
 	private final ReentrantReadWriteLock lastChatLock = new ReentrantReadWriteLock(true);
 	private final Lock lastChatReadLock = lastChatLock.readLock();
 	private final Lock lastChatWriteLock = lastChatLock.writeLock();
-	public static GuiNewChatTC gnc;
-	public static final TabbyChat instance = new TabbyChat();
 	
-	private TabbyChat() {}
+	private static GuiNewChatTC gnc;
+	private static TabbyChat instance = null;
 	
-	public TabbyChat postInit() {
+	private TabbyChat(GuiNewChatTC gncInstance) {
 		mc = Minecraft.getMinecraft();
-		gnc = GuiNewChatTC.me;
-		System.out.println("TC.GNC set");
+		gnc = gncInstance;
+		translator = new TCTranslate(mc.gameSettings.language);
+		generalSettings = new TCSettingsGeneral(this);
+		filterSettings = new TCSettingsFilters(this);
+		serverSettings = new TCSettingsServer(this);
+		advancedSettings = new TCSettingsAdvanced(this);
+		generalSettings.loadSettingsFile();
+		advancedSettings.loadSettingsFile();
+		defaultUnicode = mc.fontRenderer.getUnicodeFlag();
+		if (!this.enabled()) this.disable();
+		else {
+			this.enable();
+		}
+	}
+	
+	public static TabbyChat getInstance(GuiNewChatTC gncInstance) {
+		if(instance == null) {
+			instance = new TabbyChat(gncInstance);
+		}
+		return instance;
+	}
+	
+/*	public TabbyChat postInit() {
+		mc = Minecraft.getMinecraft();
+		gnc = GuiNewChatTC.getInstance();
 		translator = new TCTranslate(mc.gameSettings.language);
 		generalSettings = new TCSettingsGeneral(this);
 		filterSettings = new TCSettingsFilters(this);
@@ -101,11 +126,17 @@ public class TabbyChat {
 			this.enable();
 		}
 		return instance;
-	}
+	}*/
 	
 	private static String getNewestVersion() {
+		String updateURL;
+		if(liteLoaded) {
+			updateURL = "http://tabbychat.port0.org/tabbychat/current_version.php?type=LL&mc=1.5.2";
+		} else {
+			updateURL = "http://tabbychat.port0.org/tabbychat/current_version.php?mc=1.5.2";
+		}
 		try {
-			HttpURLConnection conn = (HttpURLConnection) new URL("http://tabbychat.port0.org/tabbychat/current_version.php?mc=1.5.2").openConnection();
+			HttpURLConnection conn = (HttpURLConnection) new URL(updateURL).openConnection();
 			BufferedReader buffer = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 			String newestVersion = buffer.readLine();
 			buffer.close();

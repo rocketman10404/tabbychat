@@ -7,6 +7,7 @@ import java.util.List;
 import org.lwjgl.opengl.GL11;
 
 import acs.tabbychat.core.GuiChatTC;
+import acs.tabbychat.core.GuiNewChatTC;
 import acs.tabbychat.core.TabbyChat;
 import acs.tabbychat.gui.ChatButton;
 
@@ -88,7 +89,7 @@ public class EmoticonsCompat {
 		try {
 			emoteDrawScreen.invoke(emoteObject, args);
 			for(GuiButton _button : (List<GuiButton>)buttonList) {
-				if(!ChatButton.class.isInstance(_button) && _button.id > 2) _button.drawButton(TabbyChat.instance.mc, par1-emoteOffsetX, par2);
+				if(!ChatButton.class.isInstance(_button) && _button.id > 2) _button.drawButton(Minecraft.getMinecraft(), par1-emoteOffsetX, par2);
 			}
 		} catch (Exception e) {
 			present = false;

@@ -7,6 +7,7 @@ import java.util.Map;
 import org.lwjgl.input.Keyboard;
 
 import acs.tabbychat.core.ChatChannel;
+import acs.tabbychat.core.GuiNewChatTC;
 import acs.tabbychat.core.TabbyChat;
 import acs.tabbychat.settings.TCSetting;
 import acs.tabbychat.settings.TCSettingBool;
@@ -22,6 +23,7 @@ public class ChatChannelGUI extends GuiScreen {
 	public final int displayHeight = 95;
 	private String title;
 	private int position;
+	private TabbyChat tc;
 	
 	private static final int saveButton = 8981;
 	private static final int cancelButton = 8982;
@@ -36,6 +38,7 @@ public class ChatChannelGUI extends GuiScreen {
 	private TCSettingTextBox cmdPrefix = new TCSettingTextBox(TabbyChat.translator.getString("settings.channel.cmdprefix"), cmdPrefixID);
 	
 	public ChatChannelGUI(ChatChannel _c) {
+		this.tc = GuiNewChatTC.getInstance().tc;
 		this.channel = _c;
 		this.notificationsOn.setValue(_c.notificationsOn);
 		this.alias.setCharLimit(20);
@@ -52,7 +55,7 @@ public class ChatChannelGUI extends GuiScreen {
 			this.channel.notificationsOn = this.notificationsOn.getTempValue();
 			this.channel.setAlias(this.alias.getTempValue().trim());
 			this.channel.cmdPrefix = this.cmdPrefix.getTempValue().trim();
-			TabbyChat.instance.storeChannelData();
+			this.tc.storeChannelData();
 		case cancelButton:
 			mc.displayGuiScreen((GuiScreen)null);
 			break;
@@ -61,16 +64,16 @@ public class ChatChannelGUI extends GuiScreen {
 			break;
 		case prevButtonID:
 			if(this.position<=2) return;
-			LinkedHashMap<String, ChatChannel> newMap = TabbyChatUtils.swapChannels(TabbyChat.instance.channelMap, this.position-2, this.position-1);
-			TabbyChat.instance.channelMap.clear();
-			TabbyChat.instance.channelMap = newMap;
+			LinkedHashMap<String, ChatChannel> newMap = TabbyChatUtils.swapChannels(this.tc.channelMap, this.position-2, this.position-1);
+			this.tc.channelMap.clear();
+			this.tc.channelMap = newMap;
 			this.position--;
 			break;
 		case nextButtonID:
-			if(this.position>=TabbyChat.instance.channelMap.size()) return;
-			LinkedHashMap<String, ChatChannel> newMap2 = TabbyChatUtils.swapChannels(TabbyChat.instance.channelMap, this.position-1, this.position); 
-			TabbyChat.instance.channelMap.clear();
-			TabbyChat.instance.channelMap = newMap2;
+			if(this.position>=this.tc.channelMap.size()) return;
+			LinkedHashMap<String, ChatChannel> newMap2 = TabbyChatUtils.swapChannels(this.tc.channelMap, this.position-1, this.position); 
+			this.tc.channelMap.clear();
+			this.tc.channelMap = newMap2;
 			this.position++;
 			break;
 		}
@@ -91,7 +94,7 @@ public class ChatChannelGUI extends GuiScreen {
 		// Draw tab position info
 		this.drawString(mc.fontRenderer, Integer.toString(this.position), rightX-34, topY+22, 0xffffff);
 		this.drawString(mc.fontRenderer, TabbyChat.translator.getString("settings.channel.position"), rightX-55-mc.fontRenderer.getStringWidth(TabbyChat.translator.getString("settings.channel.position")), topY+22, 0xffffff);
-		this.drawString(mc.fontRenderer, TabbyChat.translator.getString("settings.channel.of")+" "+TabbyChat.instance.channelMap.size(), rightX-34, topY+35, 0xffffff);
+		this.drawString(mc.fontRenderer, TabbyChat.translator.getString("settings.channel.of")+" "+this.tc.channelMap.size(), rightX-34, topY+35, 0xffffff);
 		
 		// Draw buttons
 		for (int i = 0; i < this.buttonList.size(); i++) {
@@ -135,8 +138,8 @@ public class ChatChannelGUI extends GuiScreen {
 		
 		// Determine tab position
 		position = 1;
-		int numTabs = TabbyChat.instance.channelMap.size();
-		Iterator _chanPtr = TabbyChat.instance.channelMap.keySet().iterator();
+		int numTabs = this.tc.channelMap.size();
+		Iterator _chanPtr = this.tc.channelMap.keySet().iterator();
 		while(_chanPtr.hasNext()) {
 			if(this.channel.getTitle().equals(_chanPtr.next())) break;
 			position++;

@@ -168,8 +168,9 @@ public class ChatChannel implements Serializable {
 	}
 	
 	public void trimLog() {
-		if(TabbyChat.instance == null || TabbyChat.instance.serverDataLock.availablePermits() < 1) return;
-		int maxChats = TabbyChat.instance.enabled() ? Integer.parseInt(TabbyChat.advancedSettings.chatScrollHistory.getValue()) : 100;
+		TabbyChat tc = GuiNewChatTC.getInstance().tc;
+		if(tc == null || tc.serverDataLock.availablePermits() < 1) return;
+		int maxChats = tc.enabled() ? Integer.parseInt(TabbyChat.advancedSettings.chatScrollHistory.getValue()) : 100;
 		this.chatWriteLock.lock();
 		try {
 			while(this.chatLog.size() > maxChats) {
@@ -181,13 +182,15 @@ public class ChatChannel implements Serializable {
 	}
 
 	public void unreadNotify(Gui _gui, int _opacity) {
-		float scaleSetting = TabbyChat.gnc.getScaleSetting();
-		int tabY = this.tab.yPosition - TabbyChat.gnc.sr.getScaledHeight() - ChatBox.current.y;
+		Minecraft mc = Minecraft.getMinecraft();
+		GuiNewChatTC gnc = GuiNewChatTC.getInstance();
+		float scaleSetting = gnc.getScaleSetting();
+		int tabY = this.tab.yPosition - gnc.sr.getScaledHeight() - ChatBox.current.y;
 		tabY = ChatBox.anchoredTop ? tabY - ChatBox.getChatHeight() + ChatBox.getUnfocusedHeight() - 1: tabY + ChatBox.getChatHeight() - ChatBox.getUnfocusedHeight() + 1;
 		
-		TabbyChat.instance.mc.ingameGUI.getChatGUI().drawRect(this.tab.xPosition, tabY, this.tab.xPosition + this.tab.width(), tabY + this.tab.height(), 0x720000 + (_opacity/2 << 24));
+		mc.ingameGUI.getChatGUI().drawRect(this.tab.xPosition, tabY, this.tab.xPosition + this.tab.width(), tabY + this.tab.height(), 0x720000 + (_opacity/2 << 24));
 		GL11.glEnable(GL11.GL_BLEND);
-		TabbyChat.instance.mc.ingameGUI.getChatGUI().drawCenteredString(TabbyChat.instance.mc.fontRenderer, this.getDisplayTitle(), this.tab.xPosition + this.tab.width()/2, tabY + 4, 16711680 + (_opacity << 24));
+		mc.ingameGUI.getChatGUI().drawCenteredString(mc.fontRenderer, this.getDisplayTitle(), this.tab.xPosition + this.tab.width()/2, tabY + 4, 16711680 + (_opacity << 24));
 	}
 	
 	protected void importOldChat(ChatChannel oldChan) {

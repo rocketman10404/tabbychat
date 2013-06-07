@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import org.lwjgl.input.Mouse;
 
 import acs.tabbychat.core.ChatChannel;
+import acs.tabbychat.core.GuiNewChatTC;
 import acs.tabbychat.core.TabbyChat;
 
 import net.minecraft.client.Minecraft;
@@ -31,11 +32,12 @@ public class ChatBox {
 	private static Point dragStart =  new Point(0,0);
 	public static boolean resizing = false;
 	public static boolean anchoredTop = false;
+	private static GuiNewChatTC gnc = GuiNewChatTC.getInstance();
 	
 	public static void addRowToTray() {
 		// // Grow virtual screen width/height to counter reduced size due to chat scaling
-		float sf = TabbyChat.gnc.getScaleSetting();
-		int sh = MathHelper.floor_float((TabbyChat.gnc.sr.getScaledHeight() + current.y) / sf - current.y);
+		float sf = gnc.getScaleSetting();
+		int sh = MathHelper.floor_float((gnc.sr.getScaledHeight() + current.y) / sf - current.y);
 		
 		
 		// Add tab row to tray
@@ -127,13 +129,13 @@ public class ChatBox {
 	
 	public static void enforceScreenBoundary(Rectangle newBounds) {
 		// Grow virtual screen width/height to counter reduced size due to chat scaling
-		float scaleSetting = TabbyChat.gnc.getScaleSetting();
-		int scaledWidth = Math.round((TabbyChat.gnc.sr.getScaledWidth() - current.x) / scaleSetting + current.x);
-		int scaledHeight = Math.round((TabbyChat.gnc.sr.getScaledHeight() + current.y) / scaleSetting - current.y);
+		float scaleSetting = gnc.getScaleSetting();
+		int scaledWidth = Math.round((gnc.sr.getScaledWidth() - current.x) / scaleSetting + current.x);
+		int scaledHeight = Math.round((gnc.sr.getScaledHeight() + current.y) / scaleSetting - current.y);
 		
 		current.setBounds(newBounds);
-		if(TabbyChat.gnc.sr.getScaledHeight() < -current.y) scaledHeight = TabbyChat.gnc.sr.getScaledHeight();
-		if(TabbyChat.gnc.sr.getScaledWidth() < current.x) scaledWidth = TabbyChat.gnc.sr.getScaledWidth();
+		if(gnc.sr.getScaledHeight() < -current.y) scaledHeight = gnc.sr.getScaledHeight();
+		if(gnc.sr.getScaledWidth() < current.x) scaledWidth = gnc.sr.getScaledWidth();
 		
 		// Enforce minimum width/height
 		if(current.height < absMinH) current.height = absMinH;
@@ -206,8 +208,8 @@ public class ChatBox {
 		Point click = scaleMouseCoords(_curX, _curY, true);
 		if(Math.abs(click.x - dragStart.x) < 3 && Math.abs(click.y - dragStart.y) < 3) return;
 		
-		float scaleSetting = TabbyChat.gnc.getScaleSetting();	
-		int scaledHeight = Math.round((TabbyChat.gnc.sr.getScaledHeight() + current.y) / scaleSetting - current.y);
+		float scaleSetting = gnc.getScaleSetting();	
+		int scaledHeight = Math.round((gnc.sr.getScaledHeight() + current.y) / scaleSetting - current.y);
 				
 		desired.x = current.x + click.x - dragStart.x;
 		desired.y = current.y + click.y - dragStart.y;
@@ -285,7 +287,7 @@ public class ChatBox {
 	}
 
 	public static boolean tabTrayHovered(int mx, int my) {
-		boolean chatOpen = TabbyChat.gnc.getChatOpen();
+		boolean chatOpen = gnc.getChatOpen();
 		GuiScreen theScreen = TabbyChat.mc.currentScreen;
 		if(!chatOpen || theScreen == null) return false;
 		
@@ -312,7 +314,7 @@ public class ChatBox {
 		_x = _x * theScreen.width / mc.displayWidth;
 		
 		// transform to include chat scale setting and initial offset
-		float chatScale = TabbyChat.gnc.getScaleSetting();
+		float chatScale = gnc.getScaleSetting();
 		_x = Math.round((_x - current.x) / chatScale) + current.x;
 
 		if(!forGuiScreen) {
@@ -335,7 +337,7 @@ public class ChatBox {
 	public static void updateTabs(LinkedHashMap<String, ChatChannel> chanObjs) {
 		int tabWidth = 0;
 		int tabX = current.x;
-		int tabY = TabbyChat.gnc.sr.getScaledHeight() + current.y + (anchoredTop ? current.height - tabTrayHeight : -current.height);
+		int tabY = gnc.sr.getScaledHeight() + current.y + (anchoredTop ? current.height - tabTrayHeight : -current.height);
 		int tabDx = 0;
 		int rows = 0;
 		
@@ -361,7 +363,7 @@ public class ChatBox {
 			}
 			
 			if(chan.tab == null) {
-				chan.setButtonObj(new ChatButton(chan.getID(), tabX+tabDx, TabbyChat.gnc.sr.getScaledHeight()+current.y, tabWidth, tabHeight, chan.getDisplayTitle()));
+				chan.setButtonObj(new ChatButton(chan.getID(), tabX+tabDx, gnc.sr.getScaledHeight()+current.y, tabWidth, tabHeight, chan.getDisplayTitle()));
 			} else {
 				chan.tab.id = chan.getID();
 				chan.tab.xPosition = tabX + tabDx;

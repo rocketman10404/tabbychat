@@ -13,8 +13,7 @@ import net.minecraft.src.MathHelper;
 
 public class ChatScrollBar {
 	private static Minecraft mc;
-	private static GuiChat gc;
-	private static GuiNewChatTC gnc = TabbyChat.instance.gnc;
+	private static GuiNewChatTC gnc = GuiNewChatTC.getInstance();
 	private static float mouseLoc = 0.0f;
 	private static int scrollBarCenter = 0;
 	private static int barBottomY = 0;
@@ -27,11 +26,8 @@ public class ChatScrollBar {
 	protected static int barWidth = 5;
 	private static boolean scrolling = false;
 	
-	public ChatScrollBar(GuiChat _gc) {
-		
-		mc = TabbyChat.instance.mc;
-		gc = _gc;
-		
+	public ChatScrollBar() {
+		mc = Minecraft.getMinecraft();
 		if(TabbyChat.generalSettings.timeStampEnable.getValue()) {
 			String maxTime = ((TimeStampEnum)TabbyChat.generalSettings.timeStampStyle.getValue()).maxTime;
 			boolean oldVal = mc.fontRenderer.getUnicodeFlag();
@@ -63,11 +59,11 @@ public class ChatScrollBar {
 	}
 
 	private static void update() {
-		int maxlines = TabbyChat.gnc.getHeightSetting() / 9;
-		int clines = Math.min(TabbyChat.gnc.GetChatSize(), maxlines);
+		int maxlines = gnc.getHeightSetting() / 9;
+		int clines = Math.min(gnc.GetChatSize(), maxlines);
 
-		barHeight = MathHelper.floor_float((float)5 * TabbyChat.gnc.getScaleSetting());
-		barWidth = MathHelper.floor_float((float)5 * TabbyChat.gnc.getScaleSetting());
+		barHeight = MathHelper.floor_float((float)5 * gnc.getScaleSetting());
+		barWidth = MathHelper.floor_float((float)5 * gnc.getScaleSetting());
 
 		barX = ChatBox.current.width - barWidth - 2;
 		barBottomY = 0;
@@ -91,7 +87,7 @@ public class ChatScrollBar {
 		int minX = barX + 1;
 		int maxlines = gnc.getHeightSetting() / 9;
 		//float chatOpacity = mc.gameSettings.chatOpacity * 0.9f + 0.1f;
-		float chatOpacity = TabbyChat.instance.mc.gameSettings.chatOpacity * 0.9f + 0.1f;
+		float chatOpacity = gnc.tc.mc.gameSettings.chatOpacity * 0.9f + 0.1f;
 		int currentOpacity = (int)((float)180 * chatOpacity);
 		gnc.drawRect(barX, barTopY, barX+barWidth+2, barBottomY, currentOpacity << 24);
 		if (gnc.GetChatSize() > maxlines) {

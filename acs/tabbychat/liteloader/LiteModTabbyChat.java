@@ -14,7 +14,7 @@ import com.mumfrey.liteloader.InitCompleteListener;
 import com.mumfrey.liteloader.core.LiteLoader;
 
 public class LiteModTabbyChat implements InitCompleteListener {
-	private static TabbyChat tc;
+	private static GuiNewChatTC gnc;
 
 	@Override
 	public String getName() {
@@ -27,14 +27,14 @@ public class LiteModTabbyChat implements InitCompleteListener {
 	}
 
 	@Override
-	public void init() {
-		tc = TabbyChat.instance;
-	}
+	public void init() {}
 
 	@Override
 	public void onInitCompleted(Minecraft var1, LiteLoader var2) {
-		//tc.postInit();
-		TabbyChatUtils.hookIntoChat(new GuiNewChatTC(var1));
+		gnc = GuiNewChatTC.getInstance();
+		//tc = TabbyChat.getInstance(gnc);
+		gnc.tc.liteLoaded = true;
+		//TabbyChatUtils.hookIntoChat(gnc);
 	}
 
 	@Override
