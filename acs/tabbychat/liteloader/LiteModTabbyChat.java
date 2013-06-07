@@ -32,9 +32,7 @@ public class LiteModTabbyChat implements InitCompleteListener {
 	@Override
 	public void onInitCompleted(Minecraft var1, LiteLoader var2) {
 		gnc = GuiNewChatTC.getInstance();
-		//tc = TabbyChat.getInstance(gnc);
 		gnc.tc.liteLoaded = true;
-		//TabbyChatUtils.hookIntoChat(gnc);
 	}
 
 	@Override

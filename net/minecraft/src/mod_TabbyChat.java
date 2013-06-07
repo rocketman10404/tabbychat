@@ -23,7 +23,7 @@ public class mod_TabbyChat extends BaseMod {
 
 	@Override
 	public void load() {
-		gnc = GuiNewChatTC.getInstance();
+		//gnc = GuiNewChatTC.getInstance();
 		//tc = TabbyChat.getInstance(gnc);
 		ModLoader.setInGameHook(this, true, true);
 		ModLoader.setInGUIHook(this, true, true);
@@ -31,6 +31,7 @@ public class mod_TabbyChat extends BaseMod {
 	
 	@Override
 	public boolean onTickInGame(float f, Minecraft mc) {
+		if(gnc == null) gnc = GuiNewChatTC.getInstance();
 		if(mc.ingameGUI.getChatGUI().getClass() == GuiNewChat.class) {
 			try {
 				// Grab any current GuiNewChat.chatLines
@@ -52,10 +53,7 @@ public class mod_TabbyChat extends BaseMod {
 					//Add any missed chatLines to replacement class
 					gnc.addChatLines(0, addChats);
 				}
-			} catch (Throwable e) {
-				e.printStackTrace();
-				ModLoader.throwException("The current GUI mods are incompatible with TabbyChat", new Throwable());
-			}
+			} catch (Throwable e) {}
 		} else if(mc.ingameGUI.getChatGUI().getClass() != GuiNewChatTC.class) {
 			ModLoader.throwException("The current GUI mods are incompatible with TabbyChat", new Throwable());
 		}
