@@ -13,7 +13,7 @@ import acs.tabbychat.core.TabbyChat;
 import acs.tabbychat.util.TabbyChatUtils;
 
 public class mod_TabbyChat extends BaseMod {
-	public GuiChatTC gc;
+	private static TabbyChat tc;
 	public static final String version = TabbyChatUtils.version;
 	
 	@Override
@@ -23,6 +23,7 @@ public class mod_TabbyChat extends BaseMod {
 
 	@Override
 	public void load() {
+		tc = TabbyChat.instance.postInit();
 		ModLoader.setInGameHook(this, true, true);
 		ModLoader.setInGUIHook(this, true, true);
 	}

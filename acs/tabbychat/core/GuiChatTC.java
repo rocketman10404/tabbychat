@@ -48,12 +48,14 @@ public class GuiChatTC extends GuiChat {
     public long field_85043_c = 0L;
     public int field_92018_d = 0;
     public float zLevel = 0.0F;
+    private ScaledResolution sr;
 	public static GuiChatTC me;
 	public static final TabbyChat tc = TabbyChat.instance;
 	
 	public GuiChatTC() {
 		super();
 		this.mc = Minecraft.getMinecraft();
+		sr = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
 		this.fontRenderer = this.mc.fontRenderer;
 		me = this;
 		EmoticonsCompat.load();

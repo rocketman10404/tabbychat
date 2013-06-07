@@ -84,14 +84,15 @@ public class TabbyChat {
 	
 	private TabbyChat() {}
 	
-	public void postInit() {
+	public TabbyChat postInit() {
 		mc = Minecraft.getMinecraft();
 		gnc = GuiNewChatTC.me;
+		System.out.println("TC.GNC set");
 		translator = new TCTranslate(mc.gameSettings.language);
 		generalSettings = new TCSettingsGeneral(this);
-		advancedSettings = new TCSettingsAdvanced(this);
 		filterSettings = new TCSettingsFilters(this);
 		serverSettings = new TCSettingsServer(this);
+		advancedSettings = new TCSettingsAdvanced(this);
 		generalSettings.loadSettingsFile();
 		advancedSettings.loadSettingsFile();
 		defaultUnicode = mc.fontRenderer.getUnicodeFlag();
@@ -99,6 +100,7 @@ public class TabbyChat {
 		else {
 			this.enable();
 		}
+		return instance;
 	}
 	
 	private static String getNewestVersion() {

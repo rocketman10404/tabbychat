@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.src.GuiChat;
 import net.minecraft.src.GuiTextField;
 import acs.tabbychat.core.GuiChatTC;
+import acs.tabbychat.core.GuiNewChatTC;
 import acs.tabbychat.core.TabbyChat;
 import acs.tabbychat.util.TabbyChatUtils;
 import com.mumfrey.liteloader.InitCompleteListener;
@@ -32,8 +33,8 @@ public class LiteModTabbyChat implements InitCompleteListener {
 
 	@Override
 	public void onInitCompleted(Minecraft var1, LiteLoader var2) {
-		tc.postInit();
-		TabbyChatUtils.hookIntoChat(tc.gnc);
+		//tc.postInit();
+		TabbyChatUtils.hookIntoChat(new GuiNewChatTC(var1));
 	}
 
 	@Override
@@ -43,11 +44,11 @@ public class LiteModTabbyChat implements InitCompleteListener {
 		
 		String defText = "";
 		try {
-			for(Field fields : GuiChat.class.getDeclaredFields()) {
+			for(Field fields : var1.currentScreen.getClass().getDeclaredFields()) {
 				if(fields.getType() == GuiTextField.class) {
 					fields.setAccessible(true);
 					Method getInputText = GuiTextField.class.getMethod("getText", (Class[]) null);
-					defText = (String)getInputText.invoke(fields, (Object[])null);
+					defText = (String)getInputText.invoke(fields.get(var1.currentScreen), (Object[])null);
 				}
 			}
 		} catch (Exception e) {

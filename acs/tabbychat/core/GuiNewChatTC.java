@@ -41,7 +41,7 @@ public class GuiNewChatTC extends GuiNewChat {
 	private boolean chatScrolled = false;
 	protected boolean saveNeeded = true;
 	public static GuiNewChatTC me = new GuiNewChatTC();
-	private final static TabbyChat tc = TabbyChat.instance;
+	private final static TabbyChat tc = TabbyChat.instance.postInit();
 	
 	public GuiNewChatTC() {
 		this(Minecraft.getMinecraft());
