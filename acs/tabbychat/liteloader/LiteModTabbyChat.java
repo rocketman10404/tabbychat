@@ -37,22 +37,7 @@ public class LiteModTabbyChat implements InitCompleteListener {
 
 	@Override
 	public void onTick(Minecraft var1, float var2, boolean var3, boolean var4) {
-		if(var1.currentScreen == null) return;
-		else if(var1.currentScreen.getClass() != GuiChat.class) return;
-		
-		String defText = "";
-		try {
-			for(Field fields : var1.currentScreen.getClass().getDeclaredFields()) {
-				if(fields.getType() == GuiTextField.class) {
-					fields.setAccessible(true);
-					Method getInputText = GuiTextField.class.getMethod("getText", (Class[]) null);
-					defText = (String)getInputText.invoke(fields.get(var1.currentScreen), (Object[])null);
-				}
-			}
-		} catch (Exception e) {
-			TabbyChat.printException("Error loading chat hook.", e);
-		}
-		var1.displayGuiScreen(new GuiChatTC(defText));
+		TabbyChatUtils.chatGuiTick(var1);
 	}
 
 }

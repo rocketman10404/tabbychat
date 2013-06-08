@@ -17,6 +17,10 @@ public class TCChatLine extends TCChatLineFake implements Serializable {
 		super(_counter, _string, _id);
 	}
 	
+	public TCChatLine(ChatLine _cl) {
+		super(_cl.getUpdatedCounter(), _cl.getChatLineString(), _cl.getChatLineID());
+	}
+	
 	public TCChatLine(int _counter, String _string, int _id, boolean _stat) {
 		this(_counter, _string, _id);
 		this.statusMsg = _stat;

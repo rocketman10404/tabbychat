@@ -62,6 +62,7 @@ public class TabbyChat {
 	private volatile List<TCChatLine> lastChat = new ArrayList();
 	
 	public static boolean liteLoaded = false;
+	public static boolean modLoaded = false;
 	public static boolean defaultUnicode;
 	public static String version = TabbyChatUtils.version;
 	public static Minecraft mc;
@@ -97,10 +98,6 @@ public class TabbyChat {
 		generalSettings.loadSettingsFile();
 		advancedSettings.loadSettingsFile();
 		defaultUnicode = mc.fontRenderer.getUnicodeFlag();
-		if (!this.enabled()) this.disable();
-		else {
-			this.enable();
-		}
 	}
 	
 	public static TabbyChat getInstance(GuiNewChatTC gncInstance) {
@@ -109,24 +106,6 @@ public class TabbyChat {
 		}
 		return instance;
 	}
-	
-/*	public TabbyChat postInit() {
-		mc = Minecraft.getMinecraft();
-		gnc = GuiNewChatTC.getInstance();
-		translator = new TCTranslate(mc.gameSettings.language);
-		generalSettings = new TCSettingsGeneral(this);
-		filterSettings = new TCSettingsFilters(this);
-		serverSettings = new TCSettingsServer(this);
-		advancedSettings = new TCSettingsAdvanced(this);
-		generalSettings.loadSettingsFile();
-		advancedSettings.loadSettingsFile();
-		defaultUnicode = mc.fontRenderer.getUnicodeFlag();
-		if (!this.enabled()) this.disable();
-		else {
-			this.enable();
-		}
-		return instance;
-	}*/
 	
 	private static String getNewestVersion() {
 		String updateURL;

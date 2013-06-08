@@ -32,11 +32,12 @@ public class GuiNewChat extends Gui {
 	}
 
 	public void printChatMessage(String par1Str) {
-		GuiNewChatTC.getInstance().printChatMessage(par1Str);
+		this.printChatMessageWithOptionalDeletion(par1Str, 0);
 	}
 
 	public void printChatMessageWithOptionalDeletion(String par1Str, int par2) {
-		GuiNewChatTC.getInstance().printChatMessageWithOptionalDeletion(par1Str, par2);
+		this.func_96129_a(par1Str, par2, this.mc.ingameGUI.getUpdateCounter(), false);
+		this.mc.getLogAgent().logInfo("[CHAT] " + par1Str);
 	}
 
 	public void func_96129_a(String par1Str, int par2, int par3, boolean par4) {
@@ -48,11 +49,13 @@ public class GuiNewChat extends Gui {
    }
    
    public List getSentMessages() {
-      return GuiNewChatTC.getInstance().getSentMessages();
+	   return this.sentMessages;
    }
 
    public void addToSentMessages(String par1Str) {
-	   GuiNewChatTC.getInstance().addToSentMessages(par1Str);
+	   if(this.sentMessages.isEmpty() || !((String)this.sentMessages.get(this.sentMessages.size() - 1)).equals(par1Str)) {
+		   this.sentMessages.add(par1Str);
+	   }
    }
 
    public void resetScroll() {
@@ -68,11 +71,11 @@ public class GuiNewChat extends Gui {
    }
 
    public void addTranslatedMessage(String par1Str, Object ... par2ArrayOfObj) {
-	   GuiNewChatTC.getInstance().addTranslatedMessage(par1Str, par2ArrayOfObj);
+	   this.printChatMessage(StringTranslate.getInstance().translateKeyFormat(par1Str, par2ArrayOfObj));
    }
 
    public boolean getChatOpen() {
-      return GuiNewChatTC.getInstance().getChatOpen();
+	   return this.mc.currentScreen instanceof GuiChat;
    }
 
    public void deleteChatLine(int par1) {

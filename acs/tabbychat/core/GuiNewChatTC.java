@@ -32,7 +32,7 @@ public class GuiNewChatTC extends GuiNewChat {
 	public ScaledResolution sr;
 	protected int chatWidth = 320;
 	public int chatHeight = 0;
-	protected List<String> sentMessages = new ArrayList<String>();
+	public List<String> sentMessages;
 	public List<TCChatLine> chatLines;
 	public List<TCChatLine> backupLines;
 	private static final ReentrantReadWriteLock chatListLock = new ReentrantReadWriteLock(true);
@@ -147,6 +147,7 @@ public class GuiNewChatTC extends GuiNewChat {
 	}
 
 	public @Override void drawChat(int currentTick) {
+		if(!tc.liteLoaded && !tc.modLoaded) TabbyChatUtils.chatGuiTick(mc);
 		
 		// Save channel data if at main menu or disconnect screen, use flag so it's only saved once
 		if(mc.currentScreen != null) {
@@ -418,6 +419,8 @@ public class GuiNewChatTC extends GuiNewChat {
 			instance = new GuiNewChatTC(Minecraft.getMinecraft());
 			tc = TabbyChat.getInstance(instance);
 			TabbyChatUtils.hookIntoChat(instance);
+			if (!tc.enabled()) tc.disable();
+			else tc.enable();
 		}
 		return instance;
 	}

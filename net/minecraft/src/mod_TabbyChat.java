@@ -23,51 +23,21 @@ public class mod_TabbyChat extends BaseMod {
 
 	@Override
 	public void load() {
-		//gnc = GuiNewChatTC.getInstance();
-		//tc = TabbyChat.getInstance(gnc);
-		ModLoader.setInGameHook(this, true, true);
 		ModLoader.setInGUIHook(this, true, true);
 	}
 	
 	@Override
-	public boolean onTickInGame(float f, Minecraft mc) {
-		if(gnc == null) gnc = GuiNewChatTC.getInstance();
-		if(mc.ingameGUI.getChatGUI().getClass() == GuiNewChat.class) {
-			try {
-				// Grab any current GuiNewChat.chatLines
-				Class newChatGui = GuiNewChat.class;
-				Field chatLineField = newChatGui.getDeclaredFields()[3]; // field_96134_d
-				chatLineField.setAccessible(true);
-				List<ChatLine> missedChats = (ArrayList<ChatLine>)chatLineField.get(mc.ingameGUI.getChatGUI());
-				
-				// Replace pointer to GuiNewChat
-				TabbyChatUtils.hookIntoChat(gnc);
-				
-				// Convert missed ChatLines to TCChatLines
-				if(missedChats.size() > 0) {
-					List<TCChatLine> addChats = new ArrayList<TCChatLine>(missedChats.size());
-					for(ChatLine cl : missedChats) {
-						addChats.add(new TCChatLine(cl.getUpdatedCounter(), cl.getChatLineString(), cl.getChatLineID()));
-					}
-				
-					//Add any missed chatLines to replacement class
-					gnc.addChatLines(0, addChats);
-				}
-			} catch (Throwable e) {}
-		} else if(mc.ingameGUI.getChatGUI().getClass() != GuiNewChatTC.class) {
-			ModLoader.throwException("The current GUI mods are incompatible with TabbyChat", new Throwable());
+	public void clientChat(String var1) {
+		if(gnc == null) {
+			gnc = GuiNewChatTC.getInstance();
+			gnc.tc.modLoaded = true;
 		}
-		
-		return false;
 	}
 	
 	@Override
 	public boolean onTickInGUI(float var1, Minecraft var2, GuiScreen var3)
     {
-		if(var3 != null && var3.getClass() == GuiChat.class) {
-				String defText = ((GuiChat)var3).inputField.getText();
-				var2.displayGuiScreen(new GuiChatTC(defText));
-		}
+		TabbyChatUtils.chatGuiTick(var2);
         return true;
     }
 }

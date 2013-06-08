@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -14,7 +15,9 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import acs.tabbychat.core.ChatChannel;
+import acs.tabbychat.core.GuiChatTC;
 import acs.tabbychat.core.GuiNewChatTC;
+import acs.tabbychat.core.TCChatLine;
 import acs.tabbychat.core.TabbyChat;
 import acs.tabbychat.settings.ChannelDelimEnum;
 import acs.tabbychat.settings.ColorCodeEnum;
@@ -25,9 +28,12 @@ import acs.tabbychat.threads.BackgroundChatThread;
 
 import net.minecraft.client.Minecraft;
 
+import net.minecraft.src.ChatLine;
 import net.minecraft.src.Gui;
+import net.minecraft.src.GuiChat;
 import net.minecraft.src.GuiIngame;
 import net.minecraft.src.GuiNewChat;
+import net.minecraft.src.GuiTextField;
 
 public class TabbyChatUtils extends Thread {
 	
@@ -213,7 +219,9 @@ public class TabbyChatUtils extends Thread {
 				for(Field fields : GuiNewChat.class.getDeclaredFields()) {
 					if(fields.getType() == List.class) {
 						fields.setAccessible(true);
-						if(tmp == 1) {
+						if(tmp == 0) {
+							_gnc.sentMessages = (List)fields.get(_gnc);
+						} else if(tmp == 1) {
 							_gnc.backupLines = (List)fields.get(_gnc);
 						} else if(tmp == 2) {
 							_gnc.chatLines = (List)fields.get(_gnc);
@@ -222,10 +230,28 @@ public class TabbyChatUtils extends Thread {
 						tmp++;
 					}
 				}
-				
 			} catch (Exception e) {
 				TabbyChat.printException("Error loading chat hook.",e);
 			}
 		}
+	}
+	
+	public static void chatGuiTick(Minecraft mc) {
+		if(mc.currentScreen == null) return;
+		if(mc.currentScreen.getClass() != GuiChat.class) return;
+		
+		String defText = "";
+		try {
+			for(Field fields : mc.currentScreen.getClass().getDeclaredFields()) {
+				if(fields.getType() == GuiTextField.class) {
+					fields.setAccessible(true);
+					GuiTextField inputObj = (GuiTextField)fields.get(mc.currentScreen);
+					defText = inputObj.getText();
+				}
+			}
+		} catch (Exception e) {
+			TabbyChat.printException("Unable to display chat interface", e);
+		}
+		mc.displayGuiScreen(new GuiChatTC(defText));
 	}
 }
