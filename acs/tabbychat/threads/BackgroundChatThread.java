@@ -5,24 +5,39 @@ import net.minecraft.client.Minecraft;
 
 public class BackgroundChatThread extends Thread {
 	String sendChat = "";
+	String knownPrefix = null;
 	
 	public BackgroundChatThread(String _send) {
 		this.sendChat = _send;
 	}
 	
+	public BackgroundChatThread(String _send, String _prefix) {
+		this.sendChat = _send;
+		this.knownPrefix = _prefix;
+	}
+	
 	public synchronized void run() {
 		Minecraft mc = Minecraft.getMinecraft();
 		mc.ingameGUI.getChatGUI().addToSentMessages(this.sendChat);
-		String[] toSplit = this.sendChat.split(" ");
 		String cmdPrefix = "";
-		int start = 0;
-		if (toSplit.length > 0 && toSplit[0].startsWith("/")) {
-			if (toSplit[0].startsWith("/msg")) {
-				cmdPrefix = toSplit[0] + " " + toSplit[1] + " ";
-				start = 2;
-			} else if (!toSplit[0].trim().equals("/")) { 
-				cmdPrefix = toSplit[0] + " ";
-				start = 1;
+		String[] toSplit;
+		int start;
+		if(this.knownPrefix != null && this.sendChat.startsWith(this.knownPrefix)) {
+			cmdPrefix = this.knownPrefix.trim() + " ";
+			this.sendChat = this.sendChat.substring(this.knownPrefix.length());
+			toSplit = this.sendChat.split(" ");
+			start = 0;
+		} else {
+			toSplit = this.sendChat.split(" ");		
+			start = 0;
+			if (toSplit.length > 0 && toSplit[0].startsWith("/")) {
+				if (toSplit[0].startsWith("/msg")) {
+					cmdPrefix = toSplit[0] + " " + toSplit[1] + " ";
+					start = 2;
+				} else if (!toSplit[0].trim().equals("/")) { 
+					cmdPrefix = toSplit[0] + " ";
+					start = 1;
+				}
 			}
 		}
 		int suffix = cmdPrefix.length();

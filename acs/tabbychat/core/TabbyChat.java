@@ -107,6 +107,10 @@ public class TabbyChat {
 		return instance;
 	}
 	
+	public static TabbyChat getInstance() {
+		return instance;
+	}
+	
 	private static String getNewestVersion() {
 		String updateURL;
 		if(liteLoaded) {

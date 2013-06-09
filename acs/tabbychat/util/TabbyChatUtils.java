@@ -67,7 +67,14 @@ public class TabbyChatUtils extends Thread {
 	}
 
 	public static void writeLargeChat(String toSend) {
-		BackgroundChatThread sendProc = new BackgroundChatThread(toSend);
+		List<String> actives = TabbyChat.getInstance().getActive();
+		BackgroundChatThread sendProc;
+		if(!TabbyChat.getInstance().enabled() || actives.size() != 1) sendProc = new BackgroundChatThread(toSend);
+		else {
+			String tabPrefix = TabbyChat.getInstance().channelMap.get(actives.get(0)).cmdPrefix;
+			if(tabPrefix != null && tabPrefix.length() > 0) sendProc = new BackgroundChatThread(toSend, tabPrefix);
+			else sendProc = new BackgroundChatThread(toSend);
+		}
 		sendProc.start();
 	}
 	
