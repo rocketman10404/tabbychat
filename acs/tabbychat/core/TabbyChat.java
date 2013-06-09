@@ -92,8 +92,8 @@ public class TabbyChat {
 		gnc = gncInstance;
 		translator = new TCTranslate(mc.gameSettings.language);
 		generalSettings = new TCSettingsGeneral(this);
-		filterSettings = new TCSettingsFilters(this);
 		serverSettings = new TCSettingsServer(this);
+		filterSettings = new TCSettingsFilters(this);
 		advancedSettings = new TCSettingsAdvanced(this);
 		generalSettings.loadSettingsFile();
 		advancedSettings.loadSettingsFile();

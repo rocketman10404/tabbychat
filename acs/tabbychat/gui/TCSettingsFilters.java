@@ -69,8 +69,8 @@ public class TCSettingsFilters extends TCSettingsGUI {
 	public TCSettingBool sendToTabBool = new TCSettingBool(false, TabbyChat.translator.getString("settings.filters.sendtotabbool"), sendToTabBoolID);
 	public TCSettingTextBox sendToTabName = new TCSettingTextBox(TabbyChat.translator.getString("settings.filters.sendtotabname"), sendToTabNameID);
 	public TCSettingBool sendToAllTabs = new TCSettingBool(false, TabbyChat.translator.getString("settings.filters.sendtoalltabs"), sendToAllTabsID);
-	public TCSettingBool removeMatches = new TCSettingBool(false, TabbyChat.translator.getString("removematches"), removeMatchesID);
-	public TCSettingTextBox expressionString = new TCSettingTextBox(TabbyChat.translator.getString("expressionstring"), expressionID);
+	public TCSettingBool removeMatches = new TCSettingBool(false, TabbyChat.translator.getString("settings.filters.removematches"), removeMatchesID);
+	public TCSettingTextBox expressionString = new TCSettingTextBox(TabbyChat.translator.getString("settings.filters.expressionstring"), expressionID);
 	
 	public HashMap filterMap = new HashMap();
 	protected HashMap tempFilterMap = new HashMap();
