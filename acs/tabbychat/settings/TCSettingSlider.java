@@ -7,23 +7,20 @@ import org.lwjgl.input.Mouse;
 import net.minecraft.client.Minecraft;
 import net.minecraft.src.GuiTextField;
 
-public class TCSettingSlider extends TCSetting {
-	
-	protected volatile Float value;
-	protected Float tempValue;
+public class TCSettingSlider extends TCSetting implements ITCSetting {
 	protected float minValue;
 	protected float maxValue;
 	protected float sliderValue;
-	private float theDefault;
 	private int sliderX;
 	private int buttonOffColor = 0x44ffffff;
 	public String units = "%";
 	private boolean dragging = false;
-	
-	public TCSettingSlider(float theSetting, String theLabel, int theID) {
-		super(theID, 0, 0, "");
+	{
 		this.type = "slider";
-		mc = Minecraft.getMinecraft();
+	}
+	
+	public TCSettingSlider(Float theSetting, String theLabel, int theID) {
+		super(theID, 0, 0, "");
 		this.value = theSetting;
 		this.description = theLabel;
 		this.labelX = 0;
@@ -31,14 +28,14 @@ public class TCSettingSlider extends TCSetting {
 		this.height = 11;
 		this.tempValue = this.value;
 		this.theDefault = this.value;
-		this.sliderValue = (float)(this.tempValue - this.minValue) / (float)(this.maxValue - this.minValue);
+		this.sliderValue = ((Float)this.tempValue - this.minValue) / (this.maxValue - this.minValue);
 	}
 	
-	public TCSettingSlider(float theSetting, String theLabel, int theID, float minVal, float maxVal) {
+	public TCSettingSlider(Float theSetting, String theLabel, int theID, float minVal, float maxVal) {
 		this(theSetting, theLabel, theID);
 		this.minValue = minVal;
 		this.maxValue = maxVal;
-		this.sliderValue = (float)(this.tempValue - this.minValue) / (float)(this.maxValue - this.minValue);
+		this.sliderValue = ((Float)this.tempValue - this.minValue) / (this.maxValue - this.minValue);
 	}
 	
 	public TCSettingSlider(String theLabel, int theID) {
@@ -46,9 +43,8 @@ public class TCSettingSlider extends TCSetting {
 	}
 	
 	public void clear() {
-		this.value = this.theDefault;
-		this.tempValue = this.theDefault;
-		this.sliderValue = (this.tempValue - this.minValue) / (this.maxValue - this.minValue);
+		super.clear();
+		this.sliderValue = ((Float)this.tempValue - this.minValue) / (this.maxValue - this.minValue);
 	}
 		
 	public void drawButton(Minecraft par1, int cursorX, int cursorY) {
@@ -100,11 +96,11 @@ public class TCSettingSlider extends TCSetting {
 	
 	public Float getTempValue() {
 		this.tempValue = this.sliderValue * (this.maxValue - this.minValue) + this.minValue;
-		return this.tempValue;
+		return (Float)this.tempValue;
 	}
 	
 	public Float getValue() {
-		return this.value;
+		return (Float)this.value;
 	}
 	
 	public void handleMouseInput() {
@@ -156,39 +152,23 @@ public class TCSettingSlider extends TCSetting {
 	}
 	
 	public void reset() {
-		this.tempValue = this.value;
-		this.sliderValue = (this.tempValue - this.minValue) / (this.maxValue - this.minValue);
+		super.reset();
+		this.sliderValue = ((Float)this.tempValue - this.minValue) / (this.maxValue - this.minValue);
 	}
 	
 	public void save() {
 		this.tempValue = this.sliderValue * (this.maxValue - this.minValue) + this.minValue;
-		this.value = this.tempValue;
-	}
-	
-	public void setButtonDims(int wide, int tall) {
-		this.width = wide;
-		this.height = tall;
-	}
-	
-	public void setCleanValue(Object theVal) {
-		if(theVal == null) this.clear();
-		else {
-			this.value = (Float)theVal;
-		}
+		super.save();
 	}
 	
 	public void setRange(float theMin, float theMax) {
 		this.minValue = theMin;
 		this.maxValue = theMax;
-		this.sliderValue = (float)(this.tempValue - this.minValue) / (float)(this.maxValue - this.minValue);
+		this.sliderValue = ((Float)this.tempValue - this.minValue) / (this.maxValue - this.minValue);
 	}
 	
-	public void setTempValue(float theVal) {
-		this.tempValue = theVal;
-		this.sliderValue = (this.tempValue - this.minValue) / (this.maxValue - this.minValue);
-	}
-	
-	public void setValue(float theVal) {
-		this.value = theVal;
+	public void setTempValue(Object theVal) {
+		super.setTempValue(theVal);
+		this.sliderValue = ((Float)this.tempValue - this.minValue) / (this.maxValue - this.minValue);
 	}
 }

@@ -8,16 +8,18 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import acs.tabbychat.core.TabbyChat;
-import acs.tabbychat.settings.TCSetting;
+import acs.tabbychat.settings.ITCSetting;
+import acs.tabbychat.settings.TCSettingSlider;
 import acs.tabbychat.settings.TCSettingTextBox;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-public class TCSettingsGUI extends net.minecraft.src.GuiScreen {
+public class TCSettingsGUI extends GuiScreen {
 	protected static TabbyChat tc;
 	protected static Minecraft mc;
 	protected final int margin = 4;
@@ -32,8 +34,8 @@ public class TCSettingsGUI extends net.minecraft.src.GuiScreen {
 	public static File tabbyChatDir = new File(Minecraft.getMinecraftDir(), new StringBuilder().append("config").append(File.separatorChar).append("tabbychat").toString());
 	protected File settingsFile;
 	
-	private static final int saveButton = 8901;
-	private static final int cancelButton = 8902;
+	private static final int SAVEBUTTON = 8901;
+	private static final int CANCELBUTTON = 8902;
 	
 	public TCSettingsGUI() {
 		mc = Minecraft.getMinecraft();
@@ -46,9 +48,9 @@ public class TCSettingsGUI extends net.minecraft.src.GuiScreen {
 	}
 	
 	public void actionPerformed(GuiButton button) {
-		if (TCSetting.class.isInstance(button) && ((TCSetting)button).type != "textbox") {
-			((TCSetting)button).actionPerformed();
-		} else if (button.id == saveButton) {
+		if (button instanceof ITCSetting && ((ITCSetting)button).getType() != "textbox") {
+			((ITCSetting)button).actionPerformed();
+		} else if (button.id == SAVEBUTTON) {
 			for (TCSettingsGUI screen : ScreenList) {
 				screen.storeTempVars();
 				screen.saveSettingsFile();
@@ -57,7 +59,7 @@ public class TCSettingsGUI extends net.minecraft.src.GuiScreen {
 			mc.displayGuiScreen((GuiScreen)null);
 			if (TabbyChat.generalSettings.tabbyChatEnable.getValue())
 				tc.resetDisplayedChat();
-		} else if (button.id == cancelButton) {
+		} else if (button.id == CANCELBUTTON) {
 			for (TCSettingsGUI screen : ScreenList)
 				screen.resetTempVars();
 			mc.displayGuiScreen((GuiScreen)null);
@@ -106,6 +108,18 @@ public class TCSettingsGUI extends net.minecraft.src.GuiScreen {
 		mc.fontRenderer.setUnicodeFlag(TabbyChat.defaultUnicode);
 	}
 	
+	public void handleMouseInput() {
+		super.handleMouseInput();
+		for (int i = 0; i < this.buttonList.size(); i++) {
+			if (this.buttonList.get(i) instanceof ITCSetting) {
+				ITCSetting tmp = (ITCSetting)this.buttonList.get(i);
+				if (tmp.getType() == "slider") {
+					((TCSettingSlider)tmp).handleMouseInput();
+				}
+			}
+		}
+	}
+	
 	public void initGui() {
 		Keyboard.enableRepeatEvents(true);
 		this.buttonList.clear();
@@ -119,9 +133,9 @@ public class TCSettingsGUI extends net.minecraft.src.GuiScreen {
 		int effRight = (this.width + this.displayWidth)/2;
 		int bW = 40;
 		int bH = this.line_height;
-		PrefsButton savePrefs = new PrefsButton(saveButton, effRight - bW, (this.height + this.displayHeight)/2 - bH, bW, bH, TabbyChat.translator.getString("settings.save"));
+		PrefsButton savePrefs = new PrefsButton(SAVEBUTTON, effRight - bW, (this.height + this.displayHeight)/2 - bH, bW, bH, TabbyChat.translator.getString("settings.save"));
 		this.buttonList.add(savePrefs);
-		PrefsButton cancelPrefs = new PrefsButton(cancelButton, effRight - 2*bW - 2, (this.height + this.displayHeight)/2 - bH, bW, bH, TabbyChat.translator.getString("settings.cancel"));
+		PrefsButton cancelPrefs = new PrefsButton(CANCELBUTTON, effRight - 2*bW - 2, (this.height + this.displayHeight)/2 - bH, bW, bH, TabbyChat.translator.getString("settings.cancel"));
 		this.buttonList.add(cancelPrefs);
 		
 		for (int i = 0; i < ScreenList.size(); i++) {
@@ -135,9 +149,9 @@ public class TCSettingsGUI extends net.minecraft.src.GuiScreen {
 	
 	public void keyTyped(char par1, int par2) {
 		for (int i = 0; i < this.buttonList.size(); i++) {
-			if (TCSetting.class.isInstance(this.buttonList.get(i))) {
-				TCSetting tmp = (TCSetting)this.buttonList.get(i);
-				if (tmp.type == "textbox") {
+			if (ITCSetting.class.isInstance(this.buttonList.get(i))) {
+				ITCSetting tmp = (ITCSetting)this.buttonList.get(i);
+				if (tmp.getType() == "textbox") {
 					((TCSettingTextBox)tmp).keyTyped(par1, par2);
 				}
 			}
@@ -149,9 +163,9 @@ public class TCSettingsGUI extends net.minecraft.src.GuiScreen {
 	
 	public void mouseClicked(int par1, int par2, int par3) {
 		for (int i = 0; i < this.buttonList.size(); i++) {
-			if (TCSetting.class.isInstance(this.buttonList.get(i))) {
-				TCSetting tmp = (TCSetting)this.buttonList.get(i);
-				if (tmp.type == "textbox" || tmp.type == "enum" || tmp.type == "slider") {
+			if(this.buttonList.get(i) instanceof ITCSetting) {
+				ITCSetting tmp = (ITCSetting)this.buttonList.get(i);
+				if (tmp.getType() == "textbox" || tmp.getType() == "enum" || tmp.getType() == "slider") {
 					tmp.mouseClicked(par1, par2, par3);
 				}
 			}
@@ -159,7 +173,8 @@ public class TCSettingsGUI extends net.minecraft.src.GuiScreen {
 		super.mouseClicked(par1, par2, par3);
 	}
 	
-	protected void resetTempVars() {}
+	protected void resetTempVars() {
+	}
 	
 	protected int rowY(int rowNum) {
 		return (this.height - this.displayHeight)/2 + (rowNum - 1) * (this.line_height + this.margin);

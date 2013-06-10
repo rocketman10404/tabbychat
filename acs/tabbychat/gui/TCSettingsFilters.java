@@ -24,7 +24,7 @@ import acs.tabbychat.core.TabbyChat;
 import acs.tabbychat.settings.ColorCodeEnum;
 import acs.tabbychat.settings.FormatCodeEnum;
 import acs.tabbychat.settings.NotificationSoundEnum;
-import acs.tabbychat.settings.TCSetting;
+import acs.tabbychat.settings.ITCSetting;
 import acs.tabbychat.settings.TCSettingBool;
 import acs.tabbychat.settings.TCSettingEnum;
 import acs.tabbychat.settings.TCSettingTextBox;
@@ -629,17 +629,17 @@ public class TCSettingsFilters extends TCSettingsGUI {
 
 		
 		for (int i = 0; i < this.buttonList.size(); i++) {
-			if (TCSetting.class.isInstance(this.buttonList.get(i))) {
-				TCSetting tmp = (TCSetting)this.buttonList.get(i);
+			if (ITCSetting.class.isInstance(this.buttonList.get(i))) {
+				ITCSetting tmp = (ITCSetting)this.buttonList.get(i);
 				if (this.numTempFilters == 0)
 					tmp.disable();
-				else if (tmp.type == "textbox")
+				else if (tmp.getType() == "textbox")
 					tmp.enable();
-				else if (tmp.type == "bool")
-					((TCSettingBool)tmp).setTempValue(((TCSettingBool)tmp).getTempValue() && tmp.enabled);
+				else if (tmp.getType() == "bool")
+					((TCSettingBool)tmp).setTempValue(((TCSettingBool)tmp).getTempValue() && tmp.enabled());
 			}
 		}
-		this.sendToTabName.enabled(this.sendToTabBool.getTempValue() && !this.sendToAllTabs.getTempValue());
+		this.sendToTabName.setEnabled(this.sendToTabBool.getTempValue() && !this.sendToAllTabs.getTempValue());
 	}
 
 }

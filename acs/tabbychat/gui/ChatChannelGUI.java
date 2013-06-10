@@ -9,7 +9,7 @@ import org.lwjgl.input.Keyboard;
 import acs.tabbychat.core.ChatChannel;
 import acs.tabbychat.core.GuiNewChatTC;
 import acs.tabbychat.core.TabbyChat;
-import acs.tabbychat.settings.TCSetting;
+import acs.tabbychat.settings.ITCSetting;
 import acs.tabbychat.settings.TCSettingBool;
 import acs.tabbychat.settings.TCSettingTextBox;
 import acs.tabbychat.util.TabbyChatUtils;
@@ -148,9 +148,9 @@ public class ChatChannelGUI extends GuiScreen {
 	
 	protected void keyTyped(char par1, int par2) {
 		for (int i = 0; i < this.buttonList.size(); i++) {
-			if (TCSetting.class.isInstance(this.buttonList.get(i))) {
-				TCSetting tmp = (TCSetting)this.buttonList.get(i);
-				if (tmp.type == "textbox") {
+			if (ITCSetting.class.isInstance(this.buttonList.get(i))) {
+				ITCSetting tmp = (ITCSetting)this.buttonList.get(i);
+				if (tmp.getType() == "textbox") {
 					((TCSettingTextBox)tmp).keyTyped(par1, par2);
 				}
 			}
@@ -160,9 +160,9 @@ public class ChatChannelGUI extends GuiScreen {
 	
 	public void mouseClicked(int par1, int par2, int par3) {
 		for (int i = 0; i < this.buttonList.size(); i++) {
-			if (TCSetting.class.isInstance(this.buttonList.get(i))) {
-				TCSetting tmp = (TCSetting)this.buttonList.get(i);
-				if (tmp.type == "textbox") {
+			if (ITCSetting.class.isInstance(this.buttonList.get(i))) {
+				ITCSetting tmp = (ITCSetting)this.buttonList.get(i);
+				if (tmp.getType() == "textbox") {
 					tmp.mouseClicked(par1, par2, par3);
 				}
 			}

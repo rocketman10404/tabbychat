@@ -83,7 +83,6 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 	
 	public void initGui() {
 		super.initGui();
-		
 		int effLeft = (this.width - this.displayWidth)/2;
 		int absLeft = effLeft - this.margin;
 		int effTop = (this.height - this.displayHeight)/2;
@@ -128,7 +127,6 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 		this.unreadFlashing.setLabelLoc(col1x + 19);
 		this.unreadFlashing.buttonColor = buttonColor;
 		this.buttonList.add(this.unreadFlashing);
-		
 		this.validateButtonStates();
 	}
 
@@ -155,7 +153,7 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 		this.groupSpam.setCleanValue(settingsTable.get("groupSpam"));
 		this.unreadFlashing.setCleanValue(settingsTable.get("unreadFlashing"));
 		this.timeStampColor.setCleanValue(TabbyChatUtils.parseColor(settingsTable.get("timeStampColor")));
-
+		
 		this.applyTimestampPattern();
 		this.resetTempVars();
 		return;

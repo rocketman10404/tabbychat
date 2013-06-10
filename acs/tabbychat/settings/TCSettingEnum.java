@@ -7,10 +7,10 @@ import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.Minecraft;
 
-public class TCSettingEnum extends TCSetting {
-	protected volatile Enum value;
-	protected Enum tempValue;
-	private Enum theDefault;
+public class TCSettingEnum extends TCSetting implements ITCSetting {
+	{
+		this.type = "enum";
+	}
 	
 	public TCSettingEnum(Enum theVar, String theLabel, int theID) {
 		super(theLabel, theID);
@@ -19,7 +19,6 @@ public class TCSettingEnum extends TCSetting {
 		this.tempValue = theVar;
 		this.theDefault = theVar;
 		this.description = theLabel;
-		this.type = "enum";
 		this.labelX = 0;
 		this.width = 30;
 		this.height = 11;
@@ -30,14 +29,6 @@ public class TCSettingEnum extends TCSetting {
 		this.value = null;
 		this.tempValue = null;
 		this.theDefault = null;
-	}
-	
-	public void actionPerformed() {
-	}
-	
-	public void clear() {
-		this.value = this.theDefault;
-		this.tempValue = this.theDefault;
 	}
 	
 	public void drawButton(Minecraft par1, int cursorX, int cursorY) {
@@ -63,11 +54,11 @@ public class TCSettingEnum extends TCSetting {
 	}
 
 	public Enum getTempValue() {
-		return this.tempValue;
+		return (Enum)this.tempValue;
 	}
 	
 	public Enum getValue() {
-		return this.value;
+		return (Enum)this.value;
 	}
 	
 	public void mouseClicked(int par1, int par2, int par3) {
@@ -80,44 +71,24 @@ public class TCSettingEnum extends TCSetting {
 	}
 	
 	public void next() {
-		Enum[] E = this.tempValue.getClass().getEnumConstants();
+		Enum eCast = (Enum)this.tempValue;
+		Enum[] E = eCast.getClass().getEnumConstants();
 		Enum tmp;
-		if (this.tempValue.ordinal() == E.length - 1)
-			tmp = Enum.valueOf(this.tempValue.getClass(), E[0].name());
+		if (eCast.ordinal() == E.length - 1)
+			tmp = Enum.valueOf(eCast.getClass(), E[0].name());
 		else {
-			tmp = Enum.valueOf(this.tempValue.getClass(), E[this.tempValue.ordinal()+1].name());
+			tmp = Enum.valueOf(eCast.getClass(), E[eCast.ordinal()+1].name());
 		}
 		this.tempValue = tmp;
 	}
 	
 	public void previous() {
-		Enum E[] = this.tempValue.getClass().getEnumConstants();
-		if (this.tempValue.ordinal() == 0)
-			this.tempValue = Enum.valueOf(this.tempValue.getClass(), E[E.length-1].name());
+		Enum eCast = (Enum)this.tempValue;
+		Enum E[] = eCast.getClass().getEnumConstants();
+		if (eCast.ordinal() == 0)
+			this.tempValue = Enum.valueOf(eCast.getClass(), E[E.length-1].name());
 		else {
-			this.tempValue = Enum.valueOf(this.tempValue.getClass(), E[this.tempValue.ordinal()-1].name());
+			this.tempValue = Enum.valueOf(eCast.getClass(), E[eCast.ordinal()-1].name());
 		}
 	}
-	
-	public void reset() {
-		this.tempValue = this.value;
-	}
-	
-	public void save() {
-		this.value = this.tempValue;
-	}
-	
-	public void setCleanValue(Enum theVal) {
-		if(theVal == null) this.clear();
-		else this.value = theVal;
-	}
-	
-	public void setTempValue(Enum theVal) {
-		this.tempValue = theVal;
-	}
-	
-	public void setValue(Enum theVal) {
-		this.value = theVal;
-	}
-
 }

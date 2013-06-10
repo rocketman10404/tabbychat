@@ -3,12 +3,12 @@ package acs.tabbychat.settings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.src.GuiTextField;
 
-public class TCSettingTextBox extends TCSetting {
-
-	protected volatile String value;
-	private String theDefault;
+public class TCSettingTextBox extends TCSetting implements ITCSetting {
 	protected GuiTextField textBox;
 	protected int charLimit = 32;
+	{
+		this.type = "textbox";
+	}
 	
 	public TCSettingTextBox(String theLabel, int theID) {
 		this("", theLabel, theID);
@@ -16,25 +16,23 @@ public class TCSettingTextBox extends TCSetting {
 	
 	public TCSettingTextBox(String theSetting, String theLabel, int theID) {
 		super(theID, 0, 0, "");
-		this.type = "textbox";
-		mc = Minecraft.getMinecraft();
 		this.value = theSetting;
 		this.description = theLabel;
 		this.labelX = 0;
 		this.width = 50;
 		this.height = 11;
 		this.textBox = new GuiTextField(mc.fontRenderer, 0, 0, this.width, this.height);
-		this.textBox.setText(this.value);
+		this.textBox.setText((String)this.value);
 		this.theDefault = theSetting;
 	}
 	
 	public void clear() {
-		this.value = this.theDefault;
-		this.textBox.setText(this.theDefault);
+		super.clear();
+		this.textBox.setText((String)this.theDefault);
 	}
 	
 	public void disable() {
-		this.enabled = false;
+		super.disable();
 		this.textBox.setEnabled(false);
 	}
 	
@@ -46,11 +44,11 @@ public class TCSettingTextBox extends TCSetting {
 	}
 	
 	public void enable() {
-		this.enabled = true;
+		super.enable();
 		this.textBox.setEnabled(true);
 	}
 	
-	public void enabled(boolean val) {
+	public void setEnabled(boolean val) {
 		this.enabled = val;
 		this.textBox.setEnabled(val);
 	}
@@ -60,7 +58,7 @@ public class TCSettingTextBox extends TCSetting {
 	}
 	
 	public String getValue() {
-		return this.value;
+		return (String)this.value;
 	}
 	
 	public void keyTyped(char par1, int par2) {
@@ -80,7 +78,7 @@ public class TCSettingTextBox extends TCSetting {
 	
 	public void reset() {
 		if(this.value == null) this.value = "";
-		this.textBox.setText(this.value);
+		this.textBox.setText((String)this.value);
 	}
 	
 	public void save() {
@@ -88,14 +86,12 @@ public class TCSettingTextBox extends TCSetting {
 	}
 	
 	public void setButtonDims(int wide, int tall) {
-		this.width = wide;
-		this.height = tall;
+		super.setButtonDims(wide, tall);
 		this.reassignField();
 	}
 	
 	public void setButtonLoc(int bx, int by) {
-		this.xPosition = bx;
-		this.yPosition = by;
+		super.setButtonLoc(bx, by);
 		this.reassignField();
 	}
 	
@@ -104,17 +100,7 @@ public class TCSettingTextBox extends TCSetting {
 		this.textBox.setMaxStringLength(newLimit);
 	}
 	
-	public void setCleanValue(Object theVal) {
-		if(theVal == null) this.clear();
-		else this.value = (String)theVal;
-	}
-	
 	public void setTempValue(String theVal) {
 		this.textBox.setText(theVal);
-	}
-	
-	public void setValue(String theVal) {
-		this.value = theVal;
-	}
-	
+	}	
 }

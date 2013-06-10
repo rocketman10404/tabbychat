@@ -5,16 +5,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.src.FontRenderer;
 import net.minecraft.src.GuiButton;
 
-public class TCSetting extends GuiButton {
+abstract class TCSetting extends GuiButton implements ITCSetting {
 	public int buttonColor = 0xbba5e7e4;
 	private int buttonOffColor = 0x99000000;
 	protected int labelX;
 	public String description;
-	public String type;
-	protected volatile Object value;
+	protected String type;
+	protected Object value;
 	protected Object tempValue;
-	private Object theDefault;
-	protected static Minecraft mc;
+	protected Object theDefault;
+	protected static Minecraft mc = Minecraft.getMinecraft();
 		
 	public TCSetting(int theID, int theX, int theY, String theLabel) {
 		super(theID, theX, theY, theLabel);
@@ -40,9 +40,17 @@ public class TCSetting extends GuiButton {
 	public void enable() {
 		this.enabled = true;
 	}
+	
+	public boolean enabled() {
+		return this.enabled;
+	}
 		
-	protected Object getTempValue() {
+	public Object getTempValue() {
 		return this.tempValue;
+	}
+	
+	public String getType() {
+		return this.type;
 	}
 		
 	protected Object getValue() {
@@ -56,9 +64,11 @@ public class TCSetting extends GuiButton {
 	public void mouseClicked(int par1, int par2, int par3) { }
 		
 	public void reset() {
+		this.tempValue = this.value;
 	}
-		
+	
 	public void save() {
+		this.value = this.tempValue;
 	}
 		
 	public void setButtonDims(int wide, int tall) {
@@ -75,13 +85,16 @@ public class TCSetting extends GuiButton {
 		this.labelX = _x;
 	}
 			
-	protected void setTempValue(Object updateVal) {
+	public void setTempValue(Object updateVal) {
 		this.tempValue = updateVal;
 	}
 	
-	protected void setCleanValue(Object updateVal) {}
+	public void setCleanValue(Object updateVal) {
+		if(updateVal == null) this.clear();
+		else this.value = updateVal;
+	}
 	
-	protected void setValue(Object updateVal) {
+	public void setValue(Object updateVal) {
 		this.value = updateVal;
 	}
 

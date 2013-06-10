@@ -8,7 +8,7 @@ import java.io.FileOutputStream;
 import java.util.Properties;
 
 import acs.tabbychat.core.TabbyChat;
-import acs.tabbychat.settings.TCSetting;
+import acs.tabbychat.settings.ITCSetting;
 import acs.tabbychat.settings.TCSettingBool;
 import acs.tabbychat.settings.TCSettingSlider;
 import acs.tabbychat.settings.TCSettingTextBox;
@@ -46,19 +46,7 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		this();
 		tc = _tc;
 	}
-	
-	public void handleMouseInput() {
-		super.handleMouseInput();
-		for (int i = 0; i < this.buttonList.size(); i++) {
-			if (TCSetting.class.isInstance(this.buttonList.get(i))) {
-				TCSetting tmp = (TCSetting)this.buttonList.get(i);
-				if (tmp.type == "slider") {
-					((TCSettingSlider)tmp).handleMouseInput();
-				}
-			}
-		}
-	}
-	
+		
 	public void initGui() {
 		super.initGui();
 		
