@@ -486,7 +486,7 @@ public class TabbyChat {
 		for (TCChatLine cl : theChat)
 			coloredChat = coloredChat + cl.getChatLineString();
 		String cleanedChat = StringUtils.stripControlCodes(coloredChat);
-		if (generalSettings.saveChatLog.getValue()) TabbyChatUtils.logChat(this.withTimeStamp(cleanedChat));
+		if (generalSettings.saveChatLog.getValue()) TabbyChatUtils.logChat(this.withTimeStamp(cleanedChat, true));
 		
 		Matcher findChannelClean = this.chatChannelPatternClean.matcher(cleanedChat);
 		Matcher findChannelDirty = this.chatChannelPatternDirty.matcher(coloredChat);
@@ -701,10 +701,14 @@ public class TabbyChat {
 			stamped.add(0, this.withTimeStamp(cl));
 		return stamped;
 	}
+	
+	private String withTimeStamp(String _orig) {
+		return this.withTimeStamp(_orig, false);
+	}
 
- 	private String withTimeStamp(String _orig) {
+ 	private String withTimeStamp(String _orig, boolean forceTimeStamp) {
 		String stamped = _orig;
-		if (generalSettings.timeStampEnable.getValue()) {
+		if (generalSettings.timeStampEnable.getValue() || forceTimeStamp) {
 			this.cal = Calendar.getInstance();
 			stamped = generalSettings.timeStamp.format(this.cal.getTime()) + _orig;
 		}

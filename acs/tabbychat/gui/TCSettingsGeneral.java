@@ -206,7 +206,6 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 	}
 	
 	public void validateButtonStates() {
-		this.timeStampStyle.enabled = this.timeStampEnable.getTempValue();
 		this.timeStampColor.enabled = this.timeStampEnable.getTempValue();
 	}
 }
