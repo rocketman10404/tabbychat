@@ -451,11 +451,18 @@ public class GuiChatTC extends GuiChat {
 			if(this.inputField.isFocused()) this.inputField.textboxKeyTyped(_char, _code);
 			else this.removeCharsAtCursor(1);
 		} else if(_code == Keyboard.KEY_LEFT || _code == Keyboard.KEY_RIGHT) {
+			if(Keyboard.isKeyDown(Keyboard.KEY_LMENU)) {
+				if(_code == Keyboard.KEY_LEFT) tc.activatePrev();
+				else tc.activateNext();
+			}
 			this.inputList.get(this.getFocusedFieldInd()).textboxKeyTyped(_char, _code);
+		} else if(Keyboard.isKeyDown(Keyboard.KEY_LMENU) && _code > 1 && _code < 12) {
+			tc.activateIndex(_code-1);
 		} else if(this.inputField.isFocused() && this.fontRenderer.getStringWidth(this.inputField.getText()) < sr.getScaledWidth()-20) {
 			this.inputField.textboxKeyTyped(_char, _code);
-		} else
+		} else {
 			this.insertCharsAtCursor(Character.toString(_char));
+		}
 	}
 
 	public @Override void mouseClicked(int _x, int _y, int _button) {		

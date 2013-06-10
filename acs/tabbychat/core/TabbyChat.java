@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -189,6 +190,62 @@ public class TabbyChat {
 		if (theChan.active || this.channelMap.get("*").active)
 			return 1;
 		return 0;
+	}
+	
+	public void activateNext() {
+		List actives = this.getActive();
+		if(actives.size() == 1) {
+			Iterator<ChatChannel> iter = this.channelMap.values().iterator();
+			ChatChannel chan = iter.next();
+			while(iter.hasNext()) {
+				if(chan.getTitle().equals(actives.get(0)) && iter.hasNext()) {
+					//chan.active = false;
+					if(mc.currentScreen instanceof GuiChatTC) {
+						((GuiChatTC)mc.currentScreen).actionPerformed(iter.next().tab);
+					}
+					return;
+				}
+				chan = iter.next();
+			}
+		}
+	}
+	
+	public void activatePrev() {
+		List actives = this.getActive();
+		if(actives.size() == 1) {
+			ListIterator<ChatChannel> iter = new ArrayList(this.channelMap.values()).listIterator(this.channelMap.size());
+			ChatChannel chan = iter.previous();
+			while(iter.hasPrevious()) {
+				if(chan.getTitle().equals(actives.get(0)) && iter.hasPrevious()) {
+					//chan.active = false;
+					if(mc.currentScreen instanceof GuiChatTC) {
+						((GuiChatTC)mc.currentScreen).actionPerformed(iter.previous().tab);
+					}
+					return;
+				}
+				chan = iter.previous();
+			}
+		}
+	}
+	
+	public void activateIndex(int ind) {
+		List actives = this.getActive();
+		if(actives.size() == 1) {
+			int i = 1;
+			Iterator<ChatChannel> iter = this.channelMap.values().iterator();
+			ChatChannel chan;
+			while(iter.hasNext()) {
+				chan = iter.next();
+				if(i == ind) {
+					if(mc.currentScreen instanceof GuiChatTC) {
+						//this.channelMap.get(actives.get(0)).active = false;
+						((GuiChatTC)mc.currentScreen).actionPerformed(chan.tab);
+					}
+					return;
+				}
+				i++;
+			}
+		}
 	}
 	
 	public boolean channelExists(String name) {
