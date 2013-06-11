@@ -92,11 +92,11 @@ public class TCSettingTextBox extends TCSetting implements ITCSetting {
 		this.textBox.setMaxStringLength(newLimit);
 	}
 	
-	public void setDefault(String newDefault) {
+	public void setDefault(Object newDefault) {
 		this.theDefault = newDefault;
 	}
 	
-	public void setTempValue(String theVal) {
-		this.textBox.setText(theVal);
+	public void setTempValue(Object theVal) {
+		this.textBox.setText((String)theVal);
 	}	
 }

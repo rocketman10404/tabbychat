@@ -61,13 +61,13 @@ public class TCSettingEnum extends TCSetting implements ITCSetting {
 			this.clear();
 			return;
 		}
-		if(found.contains("Color")) {
+		if(this.propertyName.contains("Color")) {
 			this.value = TabbyChatUtils.parseColor(found);
-		} else if(found.contains("Format")) {
+		} else if(this.propertyName.contains("Format")) {
 			this.value = TabbyChatUtils.parseFormat(found);
-		} else if(found.contains("Sound")) {
+		} else if(this.propertyName.contains("Sound")) {
 			this.value = TabbyChatUtils.parseSound(found);
-		} else if(found.contains("Delim")) {
+		} else if(this.propertyName.contains("Delim")) {
 			this.value = TabbyChatUtils.parseDelimiters(found);
 		}
 	}
