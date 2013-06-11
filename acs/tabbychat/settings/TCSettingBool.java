@@ -10,19 +10,14 @@ public class TCSettingBool extends TCSetting implements ITCSetting {
 		this.type = "bool";
 	}
 	
-	public TCSettingBool(Boolean theSetting, String theLabel, int theID) {
-		super(theID, 0, 0, "");
-		this.value = theSetting;
-		this.tempValue = this.value;
-		this.theDefault = this.value;
-		this.description = theLabel;
-		this.labelX = 0;
+	public TCSettingBool(Object theSetting, String theProperty, String theCategory, int theID) {
+		super(theSetting, theProperty, theCategory, theID);
 		this.width = 9;
 		this.height = 9;
 	}
 	
-	public TCSettingBool(String theLabel, int theID) {
-		this((Boolean)false, theLabel, theID);
+	public TCSettingBool(Object theSetting, String theProperty, String theCategory, int theID, FormatCodeEnum theFormat) {
+		super(theSetting, theProperty, theCategory, theID, theFormat);
 	}
 	
 	public void actionPerformed() {

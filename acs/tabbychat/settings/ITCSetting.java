@@ -1,5 +1,7 @@
 package acs.tabbychat.settings;
 
+import java.util.Properties;
+
 import net.minecraft.client.Minecraft;
 
 public interface ITCSetting {
@@ -16,17 +18,25 @@ public interface ITCSetting {
 	
 	public boolean enabled();
 	
+	public Object getDefault();
+	
+	public String getProperty();
+	
 	public Object getTempValue();
 	
 	public String getType();
 	
 	public Boolean hovered(int cursorX, int cursorY);
 	
+	public void loadSelfFromProps(Properties readProps);
+	
 	public void mouseClicked(int par1, int par2, int par3);
 	
 	public void reset();
 	
 	public void save();
+	
+	public void saveSelfToProps(Properties writeProps);
 	
 	public void setButtonDims(int wide, int tall);
 	

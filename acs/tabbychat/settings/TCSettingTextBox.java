@@ -9,21 +9,13 @@ public class TCSettingTextBox extends TCSetting implements ITCSetting {
 	{
 		this.type = "textbox";
 	}
-	
-	public TCSettingTextBox(String theLabel, int theID) {
-		this("", theLabel, theID);
-	}
-	
-	public TCSettingTextBox(String theSetting, String theLabel, int theID) {
-		super(theID, 0, 0, "");
-		this.value = theSetting;
-		this.description = theLabel;
-		this.labelX = 0;
+		
+	public TCSettingTextBox(Object theSetting, String theProperty, String theCategory, int theID) {
+		super(theSetting, theProperty, theCategory, theID);
 		this.width = 50;
 		this.height = 11;
 		this.textBox = new GuiTextField(mc.fontRenderer, 0, 0, this.width, this.height);
 		this.textBox.setText((String)this.value);
-		this.theDefault = theSetting;
 	}
 	
 	public void clear() {
@@ -98,6 +90,10 @@ public class TCSettingTextBox extends TCSetting implements ITCSetting {
 	public void setCharLimit(int newLimit) {
 		this.charLimit = newLimit;
 		this.textBox.setMaxStringLength(newLimit);
+	}
+	
+	public void setDefault(String newDefault) {
+		this.theDefault = newDefault;
 	}
 	
 	public void setTempValue(String theVal) {

@@ -5,6 +5,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.Map;
 import java.util.Properties;
 
 import acs.tabbychat.core.TabbyChat;
@@ -15,159 +16,93 @@ import acs.tabbychat.settings.TCSettingTextBox;
 import acs.tabbychat.util.TabbyChatUtils;
 
 public class TCSettingsAdvanced extends TCSettingsGUI {
-
-	private static final int chatScrollHistoryID = 9401;
-	private static final int maxLengthChannelNameID = 9402;
-	private static final int multiChatDelayID = 9403;
-	private static final int chatBoxWidthID = 9404;
-	private static final int chatBoxFocHeightID = 9405;
-	private static final int chatBoxUnfocHeightID = 9406;
-	private static final int customChatBoxSizeID = 9407;
-	private static final int chatFadeTicksID = 9408;
-	private static final int forceUnicodeID = 9409;
+	private static final int CHAT_SCROLL_HISTORY_ID = 9401;
+	private static final int MAXLENGTH_CHANNEL_NAME_ID = 9402;
+	private static final int MULTICHAT_DELAY_ID = 9403;
+	private static final int CHATBOX_UNFOC_HEIGHT_ID = 9406;
+	private static final int CHAT_FADE_TICKS_ID = 9408;
+	private static final int FORCE_UNICODE_ID = 9409;
 	
-	public TCSettingTextBox chatScrollHistory = new TCSettingTextBox("100", TabbyChat.translator.getString("settings.advanced.chatscrollhistory"), chatScrollHistoryID);
-	public TCSettingTextBox maxLengthChannelName = new TCSettingTextBox("10", TabbyChat.translator.getString("settings.advanced.maxlengthchannelname"), maxLengthChannelNameID);
-	public TCSettingTextBox multiChatDelay = new TCSettingTextBox("100", TabbyChat.translator.getString("settings.advanced.multichatdelay"), multiChatDelayID);
-	public TCSettingSlider chatBoxUnfocHeight = new TCSettingSlider(20.0f, TabbyChat.translator.getString("settings.advanced.chatboxunfocheight"), chatBoxUnfocHeightID, 20.0f, 100.0f);
-	public TCSettingSlider chatFadeTicks = new TCSettingSlider(200.0f, TabbyChat.translator.getString("settings.advanced.chatfadeticks"), chatFadeTicksID, 10.0f, 2000.0f);
-	public TCSettingBool forceUnicode = new TCSettingBool(false, TabbyChat.translator.getString("settings.advanced.forceunicode"), forceUnicodeID);
+	{
+		this.propertyPrefix = "settings.advanced";
+	}
+		
+	public TCSettingTextBox chatScrollHistory = new TCSettingTextBox("100", "chatScrollHistory", this.propertyPrefix, CHAT_SCROLL_HISTORY_ID);
+	public TCSettingTextBox maxLengthChannelName = new TCSettingTextBox("10", "maxLengthChannelName", this.propertyPrefix, MAXLENGTH_CHANNEL_NAME_ID);
+	public TCSettingTextBox multiChatDelay = new TCSettingTextBox("500", "multiChatDelay", this.propertyPrefix, MULTICHAT_DELAY_ID);
+	public TCSettingSlider chatBoxUnfocHeight = new TCSettingSlider(50.0f, "chatBoxUnfocHeight", this.propertyPrefix, CHATBOX_UNFOC_HEIGHT_ID, 20.0f, 100.0f);
+	public TCSettingSlider chatFadeTicks = new TCSettingSlider(200.0f, "chatFadeTicks", this.propertyPrefix, CHAT_FADE_TICKS_ID, 10.0f, 2000.0f);
+	public TCSettingBool forceUnicode = new TCSettingBool(false, "forceUnicode", this.propertyPrefix, FORCE_UNICODE_ID);
 	
-	public TCSettingsAdvanced() {
-		super();
+	public TCSettingsAdvanced(TabbyChat _tc) {
+		super(_tc);
 		this.name = TabbyChat.translator.getString("settings.advanced.name");
+		this.settingsFile = new File(tabbyChatDir, "advanced.cfg");
 		this.bgcolor = 0x66802e94;
 		this.chatScrollHistory.setCharLimit(3);
 		this.maxLengthChannelName.setCharLimit(2);
 		this.multiChatDelay.setCharLimit(4);
+		this.defineDrawableSettings();
 	}
 	
-	public TCSettingsAdvanced(TabbyChat _tc) {
-		this();
-		tc = _tc;
+	public void defineDrawableSettings() {
+		this.buttonList.add(this.chatScrollHistory);
+		this.buttonList.add(this.maxLengthChannelName);
+		this.buttonList.add(this.multiChatDelay);
+		this.buttonList.add(this.chatBoxUnfocHeight);
+		this.buttonList.add(this.chatFadeTicks);
+		this.buttonList.add(this.forceUnicode);
 	}
 		
-	public void initGui() {
-		super.initGui();
-		
-		int effLeft = (this.width - this.displayWidth)/2;
-		int absLeft = effLeft - this.margin;
-		int effTop = (this.height - this.displayHeight)/2;
-		int absTop = effTop - this.margin;
-		int effRight = (this.width + this.displayWidth)/2;
-		int col1x = (this.width - this.displayWidth)/2 + 100;
-		int col2x = (this.width + this.displayWidth)/2 - 65;
+	public void initDrawableSettings() {
+		int col1x = (this.width - DISPLAY_WIDTH)/2 + 100;
+		int col2x = (this.width + DISPLAY_WIDTH)/2 - 65;
 		
 		int buttonColor = (this.bgcolor & 0x00ffffff) + 0xff000000;
 		
 		this.chatScrollHistory.setLabelLoc(col1x);
 		this.chatScrollHistory.setButtonLoc(col1x + 5 + mc.fontRenderer.getStringWidth(this.chatScrollHistory.description), this.rowY(1));
 		this.chatScrollHistory.setButtonDims(30, 11);
-		this.buttonList.add(this.chatScrollHistory);
 		
 		this.maxLengthChannelName.setLabelLoc(col1x);
 		this.maxLengthChannelName.setButtonLoc(col1x + 5 + mc.fontRenderer.getStringWidth(this.maxLengthChannelName.description), this.rowY(2));
 		this.maxLengthChannelName.setButtonDims(20, 11);
-		this.buttonList.add(this.maxLengthChannelName);
 		
 		this.multiChatDelay.setLabelLoc(col1x);
 		this.multiChatDelay.setButtonLoc(col1x + 5 + mc.fontRenderer.getStringWidth(this.multiChatDelay.description), this.rowY(3));
 		this.multiChatDelay.setButtonDims(40,11);
-		this.buttonList.add(this.multiChatDelay);
 				
 		this.chatBoxUnfocHeight.setLabelLoc(col1x);
 		this.chatBoxUnfocHeight.setButtonLoc(col1x + 5 + mc.fontRenderer.getStringWidth(this.chatBoxUnfocHeight.description), this.rowY(4));
 		this.chatBoxUnfocHeight.buttonColor = buttonColor;
-		this.buttonList.add(this.chatBoxUnfocHeight);
 		
 		this.chatFadeTicks.setLabelLoc(col1x);
 		this.chatFadeTicks.setButtonLoc(col1x + 5 + mc.fontRenderer.getStringWidth(this.chatFadeTicks.description), this.rowY(5));
 		this.chatFadeTicks.buttonColor = buttonColor;
 		this.chatFadeTicks.units = "";
-		this.buttonList.add(this.chatFadeTicks);
 		
 		this.forceUnicode.setButtonLoc(col1x, this.rowY(6));
 		this.forceUnicode.setLabelLoc(col1x + 19);
 		this.forceUnicode.buttonColor = buttonColor;
-		this.buttonList.add(this.forceUnicode);
-		
-		this.validateButtonStates();		
 	}
 
-	public void loadSettingsFile() {
-		this.settingsFile = new File(tabbyChatDir, "advanced.cfg");
-		if (!this.settingsFile.exists())
-			return;		
-		Properties settingsTable = new Properties();
-
-		try {
-			FileInputStream fInStream = new FileInputStream(this.settingsFile);
-			BufferedInputStream bInStream = new BufferedInputStream(fInStream);
-			settingsTable.load(bInStream);
-			bInStream.close();
-		} catch (Exception e) {
-			TabbyChat.printErr("Unable to read from advanced settings file : '" + e.getLocalizedMessage() + "' : " + e.toString());
-		}
-
-		this.chatScrollHistory.setCleanValue(settingsTable.getProperty("chatScrollHistory"));
-		this.maxLengthChannelName.setCleanValue(settingsTable.getProperty("maxLengthChannelName"));
-		this.multiChatDelay.setCleanValue(settingsTable.getProperty("multiChatDelay"));
-		this.chatBoxUnfocHeight.setCleanValue(TabbyChatUtils.parseFloat(settingsTable.getProperty("chatBoxUnfocHeight"), 20.0f, 100.0f));
-		this.chatFadeTicks.setCleanValue(TabbyChatUtils.parseFloat(settingsTable.getProperty("chatFadeTicks"), 10.0f, 2000.0f));
-		this.forceUnicode.setCleanValue(settingsTable.getProperty("forceUnicode"));
-		ChatBox.current.x = TabbyChatUtils.parseInteger(settingsTable.getProperty("chatbox.x"), ChatBox.absMinX, 10000, ChatBox.absMinX);
-		ChatBox.current.y = TabbyChatUtils.parseInteger(settingsTable.getProperty("chatbox.y"), -10000, ChatBox.absMinY, ChatBox.absMinY);
-		ChatBox.current.width = TabbyChatUtils.parseInteger(settingsTable.getProperty("chatbox.width"), ChatBox.absMinW, 10000, 320);
-		ChatBox.current.height = TabbyChatUtils.parseInteger(settingsTable.getProperty("chatbox.height"), ChatBox.absMinH, 10000, 180);
-		ChatBox.anchoredTop = Boolean.parseBoolean(settingsTable.getProperty("chatbox.anchoredtop"));		
-		this.resetTempVars();
-		return;
-	}
-		
-	protected void resetTempVars() {
-		this.chatScrollHistory.reset();
-		this.maxLengthChannelName.reset();
-		this.multiChatDelay.reset();
-		this.chatBoxUnfocHeight.reset();
-		this.chatFadeTicks.reset();
-		this.forceUnicode.reset();
+	public Properties loadSettingsFile() {
+		Properties result = super.loadSettingsFile();
+		ChatBox.current.x = TabbyChatUtils.parseInteger(result.getProperty("chatbox.x"), ChatBox.absMinX, 10000, ChatBox.absMinX);
+		ChatBox.current.y = TabbyChatUtils.parseInteger(result.getProperty("chatbox.y"), -10000, ChatBox.absMinY, ChatBox.absMinY);
+		ChatBox.current.width = TabbyChatUtils.parseInteger(result.getProperty("chatbox.width"), ChatBox.absMinW, 10000, 320);
+		ChatBox.current.height = TabbyChatUtils.parseInteger(result.getProperty("chatbox.height"), ChatBox.absMinH, 10000, 180);
+		ChatBox.anchoredTop = Boolean.parseBoolean(result.getProperty("chatbox.anchoredtop"));
+		return null;
 	}
 	
 	public void saveSettingsFile() {
-		if (!tabbyChatDir.exists())
-			tabbyChatDir.mkdirs();
 		Properties settingsTable = new Properties();
-		settingsTable.put("chatScrollHistory", this.chatScrollHistory.getValue());
-		settingsTable.put("maxLengthChannelName", this.maxLengthChannelName.getValue());
-		settingsTable.put("multiChatDelay", this.multiChatDelay.getValue());
-		settingsTable.put("chatBoxUnfocHeight", this.chatBoxUnfocHeight.getValue().toString());
-		settingsTable.put("chatFadeTicks", this.chatFadeTicks.getValue().toString());
-		settingsTable.put("forceUnicode", this.forceUnicode.getValue().toString());
 		settingsTable.put("chatbox.x", Integer.toString(ChatBox.current.x));
 		settingsTable.put("chatbox.y", Integer.toString(ChatBox.current.y));
 		settingsTable.put("chatbox.width", Integer.toString(ChatBox.current.width));
 		settingsTable.put("chatbox.height", Integer.toString(ChatBox.current.height));
 		settingsTable.put("chatbox.anchoredtop", Boolean.toString(ChatBox.anchoredTop));
-		
-		try {
-			FileOutputStream fOutStream = new FileOutputStream(this.settingsFile);
-			BufferedOutputStream bOutStream = new BufferedOutputStream(fOutStream);
-			settingsTable.store(bOutStream, "Advanced settings");
-			bOutStream.close();
-		} catch (Exception e) {
-			TabbyChat.printErr("Unable to write to advanced settings file : '" + e.getLocalizedMessage() + "' : " + e.toString());
-		}
-	}
-	
-	protected void storeTempVars() {
-		this.chatScrollHistory.save();
-		this.maxLengthChannelName.save();
-		this.multiChatDelay.save();
-		this.chatBoxUnfocHeight.save();
-		this.chatFadeTicks.save();
-		this.forceUnicode.save();
-	}
-
-	public void validateButtonStates() {
+		super.saveSettingsFile(settingsTable);
 	}
 }

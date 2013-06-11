@@ -1,8 +1,11 @@
 package acs.tabbychat.settings;
 
 import java.lang.reflect.Array;
+import java.util.Properties;
 
 import org.lwjgl.input.Mouse;
+
+import acs.tabbychat.util.TabbyChatUtils;
 
 
 import net.minecraft.client.Minecraft;
@@ -12,23 +15,14 @@ public class TCSettingEnum extends TCSetting implements ITCSetting {
 		this.type = "enum";
 	}
 	
-	public TCSettingEnum(Enum theVar, String theLabel, int theID) {
-		super(theLabel, theID);
-		mc = Minecraft.getMinecraft();
-		this.value = theVar;
-		this.tempValue = theVar;
-		this.theDefault = theVar;
-		this.description = theLabel;
-		this.labelX = 0;
+	public TCSettingEnum(Object theSetting, String theProperty, String theCategory, int theID) {
+		super(theSetting, theProperty, theCategory, theID);
 		this.width = 30;
 		this.height = 11;
 	}
 	
-	public TCSettingEnum(String theLabel, int theID) {
-		super(theLabel, theID);
-		this.value = null;
-		this.tempValue = null;
-		this.theDefault = null;
+	public TCSettingEnum(Object theSetting, String theProperty, String theCategory, int theID, FormatCodeEnum theFormat) {
+		super(theSetting, theProperty, theCategory, theID, theFormat);
 	}
 	
 	public void drawButton(Minecraft par1, int cursorX, int cursorY) {
@@ -59,6 +53,23 @@ public class TCSettingEnum extends TCSetting implements ITCSetting {
 	
 	public Enum getValue() {
 		return (Enum)this.value;
+	}
+	
+	public void loadSelfFromProps(Properties readProps) {
+		String found = (String)readProps.get(this.propertyName);
+		if(found == null) {
+			this.clear();
+			return;
+		}
+		if(found.contains("Color")) {
+			this.value = TabbyChatUtils.parseColor(found);
+		} else if(found.contains("Format")) {
+			this.value = TabbyChatUtils.parseFormat(found);
+		} else if(found.contains("Sound")) {
+			this.value = TabbyChatUtils.parseSound(found);
+		} else if(found.contains("Delim")) {
+			this.value = TabbyChatUtils.parseDelimiters(found);
+		}
 	}
 	
 	public void mouseClicked(int par1, int par2, int par3) {

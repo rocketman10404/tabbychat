@@ -43,7 +43,7 @@ import acs.tabbychat.gui.ChatBox;
 import acs.tabbychat.gui.ChatButton;
 import acs.tabbychat.gui.TCSettingsAdvanced;
 import acs.tabbychat.gui.TCSettingsFilters;
-import acs.tabbychat.gui.TCSettingsGUI;
+import acs.tabbychat.gui.ITCSettingsGUI;
 import acs.tabbychat.gui.TCSettingsGeneral;
 import acs.tabbychat.gui.TCSettingsServer;
 import acs.tabbychat.lang.TCTranslate;
@@ -340,7 +340,7 @@ public class TabbyChat {
 		String pName = "";
 		if(mc.thePlayer != null && mc.thePlayer.username != null) pName = mc.thePlayer.username;
 		
-		File settingsDir = new File(TCSettingsGUI.tabbyChatDir, ip);
+		File settingsDir = new File(ITCSettingsGUI.tabbyChatDir, ip);
 		chanDataFile = new File(settingsDir, pName+"_chanData.ser");
 		if(!chanDataFile.exists()) return;
 		
@@ -702,7 +702,7 @@ public class TabbyChat {
 		String pName = "";
 		if(mc.thePlayer != null && mc.thePlayer.username != null) pName = mc.thePlayer.username;
 		
-		File settingsDir = new File(TCSettingsGUI.tabbyChatDir, ip);
+		File settingsDir = new File(ITCSettingsGUI.tabbyChatDir, ip);
 	
 		if (!settingsDir.exists())
 			settingsDir.mkdirs();

@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import acs.tabbychat.core.TabbyChat;
-import acs.tabbychat.gui.TCSettingsGUI;
+import acs.tabbychat.gui.ITCSettingsGUI;
 
 public class TCTranslate {
 	private final HashMap<String, String> dict = new HashMap();
@@ -27,7 +27,7 @@ public class TCTranslate {
 	private void loadDictionary() {
 		if(this.provides == null) return;
 		
-		File languageDir = new File(TCSettingsGUI.tabbyChatDir, "lang");
+		File languageDir = new File(ITCSettingsGUI.tabbyChatDir, "lang");
 		File languageFile = new File(languageDir, "tabbychat.dictionary."+this.provides);
 		if(!languageFile.canRead()) {
 			this.dict.clear();

@@ -106,6 +106,12 @@ public class TabbyChatUtils extends Thread {
 			return;
 		}
 	}
+	
+	public static Float median(float val1, float val2, float val3) {
+		if(val1 < val2 && val1 < val3) return Math.min(val2, val3);
+		else if(val1 > val2 && val1 > val3) return Math.max(val2, val3);
+		else return val1;
+	}
 
 	public static Integer parseInteger(String _input, int min, int max, int fallback) {
 		Integer result;

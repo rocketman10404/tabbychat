@@ -3,6 +3,8 @@ package acs.tabbychat.settings;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
+import acs.tabbychat.util.TabbyChatUtils;
+
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.src.GuiTextField;
@@ -19,27 +21,18 @@ public class TCSettingSlider extends TCSetting implements ITCSetting {
 		this.type = "slider";
 	}
 	
-	public TCSettingSlider(Float theSetting, String theLabel, int theID) {
-		super(theID, 0, 0, "");
-		this.value = theSetting;
-		this.description = theLabel;
-		this.labelX = 0;
+	private TCSettingSlider(Object theSetting, String theProperty, String theCategory, int theID) {
+		super(theSetting, theProperty, theCategory, theID);
 		this.width = 100;
 		this.height = 11;
-		this.tempValue = this.value;
-		this.theDefault = this.value;
 		this.sliderValue = ((Float)this.tempValue - this.minValue) / (this.maxValue - this.minValue);
 	}
 	
-	public TCSettingSlider(Float theSetting, String theLabel, int theID, float minVal, float maxVal) {
-		this(theSetting, theLabel, theID);
+	public TCSettingSlider(Float theSetting, String theProperty, String theCategory, int theID, float minVal, float maxVal) {
+		this(theSetting, theProperty, theCategory, theID);
 		this.minValue = minVal;
 		this.maxValue = maxVal;
 		this.sliderValue = ((Float)this.tempValue - this.minValue) / (this.maxValue - this.minValue);
-	}
-	
-	public TCSettingSlider(String theLabel, int theID) {
-		this(0.0f, theLabel, theID);
 	}
 	
 	public void clear() {
@@ -159,6 +152,11 @@ public class TCSettingSlider extends TCSetting implements ITCSetting {
 	public void save() {
 		this.tempValue = this.sliderValue * (this.maxValue - this.minValue) + this.minValue;
 		super.save();
+	}
+	
+	public void setCleanValue(Object updateVal) {
+		if(updateVal == null) this.clear();
+		else this.value = TabbyChatUtils.median(this.minValue, this.maxValue, Float.valueOf((String)updateVal));
 	}
 	
 	public void setRange(float theMin, float theMax) {

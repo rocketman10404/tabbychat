@@ -12,32 +12,30 @@ import acs.tabbychat.settings.ITCSetting;
 import acs.tabbychat.settings.TCSettingSlider;
 import acs.tabbychat.settings.TCSettingTextBox;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
-public class TCSettingsGUI extends GuiScreen {
+abstract class TCSettingsGUI extends GuiScreen implements ITCSettingsGUI {
 	protected static TabbyChat tc;
 	protected static Minecraft mc;
-	protected final int margin = 4;
-	protected final int line_height = 14;
-	public final int displayWidth = 325;
-	public final int displayHeight = 180;
 	protected int lastOpened = 0;
-	protected String name = "";
+	protected String name;
+	protected String propertyPrefix;
 	protected int bgcolor = 0x66a5e7e4;
 	protected int id = 9000;
 	protected static List<TCSettingsGUI> ScreenList = new ArrayList<TCSettingsGUI>();
-	public static File tabbyChatDir = new File(Minecraft.getMinecraftDir(), new StringBuilder().append("config").append(File.separatorChar).append("tabbychat").toString());
 	protected File settingsFile;
 	
-	private static final int SAVEBUTTON = 8901;
-	private static final int CANCELBUTTON = 8902;
-	
-	public TCSettingsGUI() {
+	private TCSettingsGUI() {
 		mc = Minecraft.getMinecraft();
 		ScreenList.add(this);
 	}
@@ -75,28 +73,30 @@ public class TCSettingsGUI extends GuiScreen {
 		this.validateButtonStates();
 	}
 	
+	public void defineDrawableSettings() {}
+	
 	public void drawScreen(int x, int y, float f) {
 		if(TabbyChat.generalSettings.tabbyChatEnable.getValue() && tc.advancedSettings.forceUnicode.getValue()) mc.fontRenderer.setUnicodeFlag(true);
-		int iMargin = (this.line_height - mc.fontRenderer.FONT_HEIGHT)/2;
-		int effLeft = (this.width - this.displayWidth)/2;
-		int absLeft = effLeft - this.margin;
-		int effTop = (this.height - this.displayHeight)/2;
-		int absTop = effTop - this.margin;
+		int iMargin = (LINE_HEIGHT - mc.fontRenderer.FONT_HEIGHT)/2;
+		int effLeft = (this.width - DISPLAY_WIDTH)/2;
+		int absLeft = effLeft - MARGIN;
+		int effTop = (this.height - DISPLAY_HEIGHT)/2;
+		int absTop = effTop - MARGIN;
 		
-		drawRect(absLeft, absTop, absLeft + this.displayWidth + 2*this.margin, absTop + this.displayHeight + 2*this.margin, 0x88000000);
+		drawRect(absLeft, absTop, absLeft + DISPLAY_WIDTH + 2*MARGIN, absTop + DISPLAY_HEIGHT + 2*MARGIN, 0x88000000);
 		
 		for (int i = 0; i < ScreenList.size(); i++) {
 			if (ScreenList.get(i) == this) {
 				int delta = mc.ingameGUI.getUpdateCounter() - this.lastOpened;
 				int curWidth;
-				int tabDist = mc.fontRenderer.getStringWidth(ScreenList.get(i).name) + 2*this.margin - 40;
+				int tabDist = mc.fontRenderer.getStringWidth(ScreenList.get(i).name) + 2*MARGIN - 40;
 				if (delta <= 5)
 					curWidth = 45 + (delta * tabDist) / 5;
 				else
 					curWidth = tabDist + 45;
 				drawRect(absLeft, effTop + 30*i, absLeft + curWidth, effTop + 30*i + 20, ScreenList.get(i).bgcolor);
 				drawRect(absLeft + 45, absTop, absLeft + 46, effTop + 30*i, 0x66ffffff);
-				drawRect(absLeft + 45, effTop + 30*i + 20, absLeft + 46, absTop + this.displayHeight, 0x66ffffff);
+				drawRect(absLeft + 45, effTop + 30*i + 20, absLeft + 46, absTop + DISPLAY_HEIGHT, 0x66ffffff);
 				this.drawString(mc.fontRenderer, mc.fontRenderer.trimStringToWidth(ScreenList.get(i).name, curWidth), effLeft, effTop + 6 + 30 * i, 0xffffff);
 			} else {
 				drawRect(absLeft, effTop + 30*i, absLeft + 45, effTop + 30*i + 20, ScreenList.get(i).bgcolor);
@@ -120,22 +120,24 @@ public class TCSettingsGUI extends GuiScreen {
 		}
 	}
 	
+	public void initDrawableSettings() {}
+	
 	public void initGui() {
 		Keyboard.enableRepeatEvents(true);
 		this.buttonList.clear();
 		
-		int effLeft = (this.width - this.displayWidth)/2;
-		int absLeft = effLeft - this.margin;
-		int effTop = (this.height - this.displayHeight)/2;
-		int absTop = effTop - this.margin;
+		int effLeft = (this.width - DISPLAY_WIDTH)/2;
+		int absLeft = effLeft - MARGIN;
+		int effTop = (this.height - DISPLAY_HEIGHT)/2;
+		int absTop = effTop - MARGIN;
 		
 		this.lastOpened = mc.ingameGUI.getUpdateCounter();
-		int effRight = (this.width + this.displayWidth)/2;
+		int effRight = (this.width + DISPLAY_WIDTH)/2;
 		int bW = 40;
-		int bH = this.line_height;
-		PrefsButton savePrefs = new PrefsButton(SAVEBUTTON, effRight - bW, (this.height + this.displayHeight)/2 - bH, bW, bH, TabbyChat.translator.getString("settings.save"));
+		int bH = LINE_HEIGHT;
+		PrefsButton savePrefs = new PrefsButton(SAVEBUTTON, effRight - bW, (this.height + DISPLAY_HEIGHT)/2 - bH, bW, bH, TabbyChat.translator.getString("settings.save"));
 		this.buttonList.add(savePrefs);
-		PrefsButton cancelPrefs = new PrefsButton(CANCELBUTTON, effRight - 2*bW - 2, (this.height + this.displayHeight)/2 - bH, bW, bH, TabbyChat.translator.getString("settings.cancel"));
+		PrefsButton cancelPrefs = new PrefsButton(CANCELBUTTON, effRight - 2*bW - 2, (this.height + DISPLAY_HEIGHT)/2 - bH, bW, bH, TabbyChat.translator.getString("settings.cancel"));
 		this.buttonList.add(cancelPrefs);
 		
 		for (int i = 0; i < ScreenList.size(); i++) {
@@ -145,6 +147,9 @@ public class TCSettingsGUI extends GuiScreen {
 				((PrefsButton)this.buttonList.get(this.buttonList.size()-1)).bgcolor = 0x00000000;
 			}
 		}
+		this.defineDrawableSettings();
+		this.initDrawableSettings();
+		this.validateButtonStates();	
 	}
 	
 	public void keyTyped(char par1, int par2) {
@@ -159,7 +164,34 @@ public class TCSettingsGUI extends GuiScreen {
 		super.keyTyped(par1, par2);
 	}
 	
-	public void loadSettingsFile() { }
+	public Properties loadSettingsFile() {
+		if(this.settingsFile == null) return null;
+		if(!this.settingsFile.exists()) return null;
+		
+		Properties settingsTable = new Properties();
+		
+		FileInputStream fInStream = null;
+		BufferedInputStream bInStream = null;
+		try {
+			fInStream = new FileInputStream(this.settingsFile);
+			bInStream = new BufferedInputStream(fInStream);
+			settingsTable.load(bInStream);
+		} catch (Exception e) {
+			TabbyChat.printException("Error while reading settings from file '"+this.settingsFile+"'", e);
+		} finally {
+			try {
+				bInStream.close();
+				fInStream.close();
+			} catch (Exception e) {}
+		}
+		for(Object drawable : this.buttonList) {
+			if(drawable instanceof ITCSetting) {
+				((ITCSetting)drawable).loadSelfFromProps(settingsTable);
+			}
+		}
+		this.resetTempVars();
+		return settingsTable;
+	}
 	
 	public void mouseClicked(int par1, int par2, int par3) {
 		for (int i = 0; i < this.buttonList.size(); i++) {
@@ -173,16 +205,55 @@ public class TCSettingsGUI extends GuiScreen {
 		super.mouseClicked(par1, par2, par3);
 	}
 	
-	protected void resetTempVars() {
+	public void resetTempVars() {
+		for(Object drawable : this.buttonList) {
+			if(drawable instanceof ITCSetting) {
+				((ITCSetting)drawable).reset();
+			}
+		}
 	}
 	
-	protected int rowY(int rowNum) {
-		return (this.height - this.displayHeight)/2 + (rowNum - 1) * (this.line_height + this.margin);
+	public int rowY(int rowNum) {
+		return (this.height - DISPLAY_HEIGHT)/2 + (rowNum - 1) * (LINE_HEIGHT + MARGIN);
 	}
 	
-	protected void saveSettingsFile() { }
+	public void saveSettingsFile(Properties settingsTable) {
+		if(this.settingsFile == null) return;
+		if(!tabbyChatDir.exists()) tabbyChatDir.mkdirs();
+		
+		for(Object drawable : this.buttonList) {
+			if(drawable instanceof ITCSetting) {
+				((ITCSetting)drawable).saveSelfToProps(settingsTable);
+			}
+		}
+		
+		FileOutputStream fOutStream = null;
+		BufferedOutputStream bOutStream = null;
+		try {
+			fOutStream = new FileOutputStream(this.settingsFile);
+			bOutStream = new BufferedOutputStream(fOutStream);
+			settingsTable.store(bOutStream, this.propertyPrefix);
+		} catch (Exception e) {
+			TabbyChat.printException("Error while writing settings to file '"+this.settingsFile+"'", e);
+		} finally {
+			try {
+				bOutStream.close();
+				fOutStream.close();
+			} catch (Exception e) {}
+		}
+	}
 	
-	protected void storeTempVars() {}
+	public void saveSettingsFile() {
+		this.saveSettingsFile(new Properties());
+	}
 	
-	public void validateButtonStates() { }
+	public void storeTempVars() {
+		for(Object drawable : this.buttonList) {
+			if(drawable instanceof ITCSetting) {
+				((ITCSetting)drawable).save();
+			}
+		}
+	}
+	
+	public void validateButtonStates() {}
 }
