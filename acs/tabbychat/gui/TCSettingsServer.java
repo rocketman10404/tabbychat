@@ -90,9 +90,12 @@ public class TCSettingsServer extends TCSettingsGUI {
 		this.delimiterChars.setButtonLoc(col1x + 20 + mc.fontRenderer.getStringWidth(this.delimiterChars.description), this.rowY(2));
 		this.delimiterChars.setButtonDims(80, 11);
 		
+		System.out.println("Current checkbox dims: ("+this.delimColorBool.xPosition+","+this.delimColorBool.yPosition+")");
+		System.out.println("Setting checkbox to ("+(col1x + 20)+","+this.rowY(3)+"), label at "+(col1x+49));
 		this.delimColorBool.setButtonLoc(col1x + 20, this.rowY(3));
-		this.delimColorBool.setLabelLoc(col1x + 39);
+		this.delimColorBool.setLabelLoc(col1x + 49);
 		this.delimColorBool.buttonColor = buttonColor;
+		System.out.println("New checkbox dims: ("+this.delimColorBool.xPosition+","+this.delimColorBool.yPosition+")");
 		
 		this.delimColorCode.setButtonLoc(effRight - 70, this.rowY(3));
 		this.delimColorCode.setButtonDims(70, 11);

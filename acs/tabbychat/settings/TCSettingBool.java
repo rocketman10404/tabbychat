@@ -18,6 +18,8 @@ public class TCSettingBool extends TCSetting implements ITCSetting {
 	
 	public TCSettingBool(Object theSetting, String theProperty, String theCategory, int theID, FormatCodeEnum theFormat) {
 		super(theSetting, theProperty, theCategory, theID, theFormat);
+		this.width = 9;
+		this.height = 9;
 	}
 	
 	public void actionPerformed() {
