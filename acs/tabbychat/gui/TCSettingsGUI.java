@@ -87,13 +87,14 @@ abstract class TCSettingsGUI extends GuiScreen implements ITCSettingsGUI {
 		
 		for (int i = 0; i < ScreenList.size(); i++) {
 			if (ScreenList.get(i) == this) {
-				int delta = mc.ingameGUI.getUpdateCounter() - this.lastOpened;
 				int curWidth;
 				int tabDist = mc.fontRenderer.getStringWidth(ScreenList.get(i).name) + 2*MARGIN - 40;
-				if (delta <= 5)
-					curWidth = 45 + (delta * tabDist) / 5;
-				else
+				if (0 <= this.lastOpened && this.lastOpened <= 5) {
+					curWidth = 45 + (this.lastOpened * tabDist) / 5;
+					this.lastOpened++;
+				} else {
 					curWidth = tabDist + 45;
+				}
 				drawRect(absLeft, effTop + 30*i, absLeft + curWidth, effTop + 30*i + 20, ScreenList.get(i).bgcolor);
 				drawRect(absLeft + 45, absTop, absLeft + 46, effTop + 30*i, 0x66ffffff);
 				drawRect(absLeft + 45, effTop + 30*i + 20, absLeft + 46, absTop + DISPLAY_HEIGHT, 0x66ffffff);
@@ -131,7 +132,7 @@ abstract class TCSettingsGUI extends GuiScreen implements ITCSettingsGUI {
 		int effTop = (this.height - DISPLAY_HEIGHT)/2;
 		int absTop = effTop - MARGIN;
 		
-		this.lastOpened = mc.ingameGUI.getUpdateCounter();
+		this.lastOpened = 0;
 		int effRight = (this.width + DISPLAY_WIDTH)/2;
 		int bW = 40;
 		int bH = LINE_HEIGHT;
@@ -165,10 +166,9 @@ abstract class TCSettingsGUI extends GuiScreen implements ITCSettingsGUI {
 	}
 	
 	public Properties loadSettingsFile() {
-		if(this.settingsFile == null) return null;
-		if(!this.settingsFile.exists()) return null;
-		
 		Properties settingsTable = new Properties();
+		if(this.settingsFile == null) return settingsTable;
+		if(!this.settingsFile.exists()) return settingsTable;
 		
 		FileInputStream fInStream = null;
 		BufferedInputStream bInStream = null;

@@ -202,7 +202,7 @@ public class GuiNewChatTC extends GuiNewChat {
 			if(tc.enabled()) {
 				GL11.glTranslatef((float)ChatBox.current.x, 48.0f + (float)ChatBox.current.y, 0.0f);
 			} else {
-				GL11.glTranslatef(2.0f, 20.0f, 0.0f);
+				GL11.glTranslatef(2.0f, 29.0f, 0.0f);
 			}
 			GL11.glScalef(chatScaling, chatScaling, 1.0f);
 			
@@ -237,7 +237,7 @@ public class GuiNewChatTC extends GuiNewChat {
 					if(currentOpacity > 3) {
 						visLineCounter++;
 						byte xOrigin = 0;
-						int yOrigin = ChatBox.anchoredTop ? (visLineCounter-1)*9 : -visLineCounter * 9;
+						int yOrigin = ChatBox.anchoredTop && tc.enabled() ? (visLineCounter-1)*9 : -visLineCounter * 9;
 						drawRect(xOrigin, yOrigin, xOrigin + this.chatWidth + timeStampOffset, yOrigin+9, currentOpacity / 2 << 24);
 						GL11.glEnable(GL11.GL_BLEND);
 						String _chat = _line.getChatLineString();

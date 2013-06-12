@@ -41,9 +41,24 @@ public class TabbyChatUtils extends Thread {
 	private static File logDir = new File(Minecraft.getMinecraftDir(), "TabbyChatLogs");
 	private static File logFile;
 	private static SimpleDateFormat logNameFormat = new SimpleDateFormat("'TabbyChatLog_'MM-dd-yyyy'.txt'");
-	public static String version = "1.8.01";
+	public static String version = "1.8.02";
 	
 	private TabbyChatUtils() {}
+	
+	public static String getServerIp() {		
+		String ip;
+		if(Minecraft.getMinecraft().isSingleplayer()) {
+			ip = "singleplayer";
+		} else if (Minecraft.getMinecraft().getServerData() == null) {
+			ip = "unknown";
+		} else {
+			ip = Minecraft.getMinecraft().getServerData().serverIP;
+			if (ip.contains(":")) {
+				ip = ip.replaceAll(":", "(") + ")";
+			}
+		}
+		return ip;
+	}
 	
 	public static String join(String[] arr, String glue) {
 		if (arr.length < 1)

@@ -51,7 +51,7 @@ public class TCSettingsServer extends TCSettingsGUI {
 	
 	public ServerData server = null;
 	public String serverName = null;
-	public String serverIP = null;
+	public String serverIP = "";
 	
 	public TCSettingsServer(TabbyChat _tc) {
 		super(_tc);
@@ -61,7 +61,6 @@ public class TCSettingsServer extends TCSettingsGUI {
 		this.defaultChannels.setCharLimit(300);
 		this.ignoredChannels.setCharLimit(300);
 		this.defineDrawableSettings();
-		this.updateForServer();
 	}
 	
 	public void defineDrawableSettings() {
@@ -89,13 +88,10 @@ public class TCSettingsServer extends TCSettingsGUI {
 		this.delimiterChars.setLabelLoc(col1x);
 		this.delimiterChars.setButtonLoc(col1x + 20 + mc.fontRenderer.getStringWidth(this.delimiterChars.description), this.rowY(2));
 		this.delimiterChars.setButtonDims(80, 11);
-		
-		System.out.println("Current checkbox dims: ("+this.delimColorBool.xPosition+","+this.delimColorBool.yPosition+")");
-		System.out.println("Setting checkbox to ("+(col1x + 20)+","+this.rowY(3)+"), label at "+(col1x+49));
+
 		this.delimColorBool.setButtonLoc(col1x + 20, this.rowY(3));
 		this.delimColorBool.setLabelLoc(col1x + 49);
 		this.delimColorBool.buttonColor = buttonColor;
-		System.out.println("New checkbox dims: ("+this.delimColorBool.xPosition+","+this.delimColorBool.yPosition+")");
 		
 		this.delimColorCode.setButtonLoc(effRight - 70, this.rowY(3));
 		this.delimColorCode.setButtonDims(70, 11);
@@ -131,22 +127,27 @@ public class TCSettingsServer extends TCSettingsGUI {
 		this.ignoredChanList = Arrays.asList(Pattern.compile("[ ]?,[ ]?").split(this.ignoredChannels.getValue()));
 	}
 
-	public void updateForServer() {	
-		if (Minecraft.getMinecraft().isSingleplayer() || Minecraft.getMinecraft().getServerData() == null) {
+	public void updateForServer() {
+		String ip;
+		if(Minecraft.getMinecraft().isSingleplayer()) {
+			this.server = null;
+			this.serverIP = "singleplayer";
+			ip = "singleplayer";
+		} else if (Minecraft.getMinecraft().getServerData() == null) {
 			this.server = null;
 			this.settingsFile = null;
-			this.serverName = "";
-			this.serverIP = "";
+			this.serverIP = "unknown";
+			ip = "unknown";
 		} else {
 			this.server = Minecraft.getMinecraft().getServerData();
 			this.serverName = this.server.serverName;
 			this.serverIP = this.server.serverIP;
-			String ip = this.serverIP;
+			ip = this.serverIP;
 			if (ip.contains(":")) {
 				ip = ip.replaceAll(":", "(") + ")";
 			}
-			this.settingsFile = new File(tabbyChatDir, new StringBuilder(ip).append(File.separatorChar).append("settings.cfg").toString());
 		}
+		this.settingsFile = new File(tabbyChatDir, new StringBuilder(ip).append(File.separatorChar).append("settings.cfg").toString());
 	}
 	
 	public void validateButtonStates() {

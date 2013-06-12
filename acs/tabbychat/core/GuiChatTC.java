@@ -188,7 +188,7 @@ public class GuiChatTC extends GuiChat {
 		}
 		
 		// Update chat tabs (add to buttonlist)
-		if(!this.mc.isSingleplayer()) ChatBox.updateTabs(this.tc.channelMap);
+		ChatBox.updateTabs(this.tc.channelMap);
 
 		// Determine appropriate scaling for chat tab size and location
 		float scaleSetting = this.gnc.getScaleSetting();
@@ -333,7 +333,7 @@ public class GuiChatTC extends GuiChat {
 			for(ChatChannel chan : this.tc.channelMap.values()) {
 				this.buttonList.add(chan.tab);
 			}
-		} else if(!Minecraft.getMinecraft().isSingleplayer()) {
+		} else {
 			this.buttonList.add(this.tc.channelMap.get("*").tab);
 		}
 		
