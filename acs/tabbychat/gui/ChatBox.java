@@ -107,22 +107,22 @@ public class ChatBox {
 		} else if (unfocusedHeight > 0) {			
 			if(!anchoredTop) {
 				// Draw border around unfocused chatbox
-				overlay.drawRect(-1, -unfocusedHeight, current.width+1, -unfocusedHeight+1, borderColor);
-				overlay.drawRect(-1, -unfocusedHeight+1, 0, 0, borderColor);
-				overlay.drawRect(current.width, -unfocusedHeight+1, current.width+1, 0, borderColor);
+				overlay.drawRect(-1, -unfocusedHeight-1, current.width+1, -unfocusedHeight, borderColor);
+				overlay.drawRect(-1, -unfocusedHeight, 0, 0, borderColor);
+				overlay.drawRect(current.width, -unfocusedHeight, current.width+1, 0, borderColor);
 				overlay.drawRect(-1, 0, current.width+1, 1, borderColor);
 				
 				// Draw filler for scrollbar
-				overlay.drawRect(current.width-ChatScrollBar.barWidth-2, -unfocusedHeight+1, current.width, 0, opacity / 2 << 24);
+				overlay.drawRect(current.width-ChatScrollBar.barWidth-2, -unfocusedHeight, current.width, 0, opacity / 2 << 24);
 			} else {
 				// Draw border around unfocused chatbox
-				overlay.drawRect(-1, unfocusedHeight, current.width+1, unfocusedHeight-1, borderColor);
-				overlay.drawRect(-1, unfocusedHeight-1, 0, 0, borderColor);
-				overlay.drawRect(current.width, unfocusedHeight-1, current.width+1, 0, borderColor);
+				overlay.drawRect(-1, unfocusedHeight, current.width+1, unfocusedHeight+1, borderColor);
+				overlay.drawRect(-1, unfocusedHeight, 0, 0, borderColor);
+				overlay.drawRect(current.width, unfocusedHeight, current.width+1, 0, borderColor);
 				overlay.drawRect(-1, 0, current.width+1, -1, borderColor);
 				
 				// Draw filler for scrollbar
-				overlay.drawRect(current.width-ChatScrollBar.barWidth-2, unfocusedHeight-1, current.width, 0, opacity / 2 << 24);
+				overlay.drawRect(current.width-ChatScrollBar.barWidth-2, unfocusedHeight, current.width, 0, opacity / 2 << 24);
 			}
 		}
 	}

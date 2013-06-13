@@ -186,7 +186,7 @@ public class ChatChannel implements Serializable {
 		GuiNewChatTC gnc = GuiNewChatTC.getInstance();
 		float scaleSetting = gnc.getScaleSetting();
 		int tabY = this.tab.yPosition - gnc.sr.getScaledHeight() - ChatBox.current.y;
-		tabY = ChatBox.anchoredTop ? tabY - ChatBox.getChatHeight() + ChatBox.getUnfocusedHeight() - 1: tabY + ChatBox.getChatHeight() - ChatBox.getUnfocusedHeight() + 1;
+		tabY = ChatBox.anchoredTop ? tabY - ChatBox.getChatHeight() + ChatBox.getUnfocusedHeight(): tabY + ChatBox.getChatHeight() - ChatBox.getUnfocusedHeight() + 1;
 		
 		mc.ingameGUI.getChatGUI().drawRect(this.tab.xPosition, tabY, this.tab.xPosition + this.tab.width(), tabY + this.tab.height(), 0x720000 + (_opacity/2 << 24));
 		GL11.glEnable(GL11.GL_BLEND);
