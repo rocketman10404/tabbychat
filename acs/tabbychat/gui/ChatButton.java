@@ -88,7 +88,7 @@ public class ChatButton extends net.minecraft.src.GuiButton {
 	          drawRect(this.xPosition, this.yPosition, this.xPosition + this.width, this.yPosition + this.height, var8 + (_opacity / 2 << 24));
 	          GL11.glEnable(GL11.GL_BLEND);
 	          if(hovered && Keyboard.isKeyDown(42)) {
-	        	  String special = (this.channel.getTitle().equalsIgnoreCase("*") ? "\u2611" : "X");
+	        	  String special = (this.channel.getTitle().equalsIgnoreCase("*") ? "\u2398" : "\u26A0");
 	        	  this.drawCenteredString(fr, special, this.xPosition + this.width / 2, this.yPosition + (this.height-8) / 2, var7 + (_opacity << 24));
 	          } else {
 	        	  this.drawCenteredString(fr, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height-8) / 2, var7 + (_opacity << 24));
