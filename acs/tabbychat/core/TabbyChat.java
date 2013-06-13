@@ -272,25 +272,22 @@ public class TabbyChat {
 		return;
 	}
 
-	public void copyTab(String toName, String fromName) {
-		this.channelMap.put(toName, this.channelMap.get(fromName));
-	}
-
 	public void disable() {
 		this.channelMap.clear();
 		this.channelMap.put("*", new ChatChannel("*"));
 	}
 
 	public void enable() {
-		if(firstRun) {
-			firstRun = false;
-			return;
-		}
 		if (!this.channelMap.containsKey("*")) {
 			this.channelMap.put("*", new ChatChannel("*"));
 			this.channelMap.get("*").active = true;
 		}
 
+		if(firstRun) {
+			firstRun = false;
+			return;
+		}
+		
 		this.serverDataLock.tryAcquire();
 		serverSettings.updateForServer();
 		this.reloadServerData();
@@ -684,10 +681,10 @@ public class TabbyChat {
 	}
 
 	public void storeChannelData() {
-		LinkedHashMap<String, ChatChannel> chanData = TabbyChat.instance.channelMap;
+		LinkedHashMap<String, ChatChannel> chanData = instance.channelMap;
 		File chanDataFile;
 
-		String ip = TabbyChat.serverSettings.serverIP;
+		String ip = serverSettings.serverIP;
 		if (ip == null || ip.length() == 0) return;
 		if (ip.contains(":")) {
 			ip = ip.replaceAll(":", "(") + ")";
@@ -711,10 +708,13 @@ public class TabbyChat {
 			cObjStream = new ObjectOutputStream(cBuffStream);
 			cObjStream.writeObject(chanData);
 			cObjStream.flush();
-			cObjStream.close();
-			cBuffStream.close();
 		} catch (Exception e) {
 			printErr("Unable to write channel data to file : '" + e.getLocalizedMessage() + "' : " + e.toString());
+		} finally {
+			try {
+				cObjStream.close();
+				cBuffStream.close();
+			} catch (Exception e) {}
 		}
 	}
 

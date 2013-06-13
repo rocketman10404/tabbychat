@@ -56,7 +56,7 @@ public class TCSettingsServer extends TCSettingsGUI {
 	public TCSettingsServer(TabbyChat _tc) {
 		super(_tc);
 		this.name = TabbyChat.translator.getString("settings.server.name");
-		this.settingsFile = new File(tabbyChatDir, "server.cfg");
+		this.settingsFile = new File(tabbyChatDir, "settings.cfg");
 		this.bgcolor = 0x66d6d643;
 		this.defaultChannels.setCharLimit(300);
 		this.ignoredChannels.setCharLimit(300);

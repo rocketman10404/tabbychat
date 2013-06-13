@@ -67,7 +67,7 @@ public class TCSettingEnum extends TCSetting implements ITCSetting {
 			this.value = TabbyChatUtils.parseFormat(found);
 		} else if(this.propertyName.contains("Sound")) {
 			this.value = TabbyChatUtils.parseSound(found);
-		} else if(this.propertyName.contains("Delim")) {
+		} else if(this.propertyName.contains("delim")) {
 			this.value = TabbyChatUtils.parseDelimiters(found);
 		}
 	}
