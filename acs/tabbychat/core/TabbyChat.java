@@ -69,10 +69,9 @@ public class TabbyChat {
 	public LinkedHashMap<String, ChatChannel> channelMap = new LinkedHashMap();
 
 	protected Calendar cal = Calendar.getInstance();
-	protected Semaphore serverDataLock = new Semaphore(0, true);
-
-	private Pattern chatChannelPatternClean = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
-	private Pattern chatChannelPatternDirty = Pattern.compile("^\\[([A-Za-z0-9_]{1,10})\\]");
+	protected Semaphore serverDataLock = new Semaphore(0, true);	
+	private Pattern chatChannelPatternClean = Pattern.compile("^\\[([\\p{L}0-9_]{1,10})\\]");
+	private Pattern chatChannelPatternDirty = Pattern.compile("^\\[([\\p{L}0-9_]{1,10})\\]");
 	private Pattern chatPMfromMePattern = null;
 	private Pattern chatPMtoMePattern = null;
 	private final ReentrantReadWriteLock lastChatLock = new ReentrantReadWriteLock(true);
@@ -402,10 +401,9 @@ public class TabbyChat {
 			frmt = "(?i:"+frmt+")";
 		if (frmt.length() == 0)
 			frmt = "(?i:\u00A7[0-9A-FK-OR])*";
-
-
-		this.chatChannelPatternDirty = Pattern.compile("^(\u00A7r)?"+frmt+"\\"+delims.open()+"([A-Za-z0-9_\u00A7]+)\\"+delims.close());
-		this.chatChannelPatternClean = Pattern.compile("^"+"\\"+delims.open()+"([A-Za-z0-9_]{1,"+TabbyChat.advancedSettings.maxLengthChannelName.getValue()+"})\\"+delims.close());
+		
+		this.chatChannelPatternDirty = Pattern.compile("^(\u00A7r)?"+frmt+"\\"+delims.open()+"([\\p{L}0-9_\u00A7]+)\\"+delims.close());
+		this.chatChannelPatternClean = Pattern.compile("^"+"\\"+delims.open()+"([\\p{L}0-9_]{1,"+this.advancedSettings.maxLengthChannelName.getValue()+"})\\"+delims.close());
 	}
 
 	protected void loadPMPatterns() {
@@ -413,23 +411,23 @@ public class TabbyChat {
 		StringBuilder fromMePM = new StringBuilder();
 
 		// Matches '[Player -> me]' and '[me -> Player]'
-		toMePM.append("^\\[(\\w{3,16})[ ]?\\-\\>[ ]?me\\]");
-		fromMePM.append("^\\[me[ ]?\\-\\>[ ]?(\\w{3,16})\\]");
+		toMePM.append("^\\[(\\p{L}{3,16})[ ]?\\-\\>[ ]?me\\]");
+		fromMePM.append("^\\[me[ ]?\\-\\>[ ]?(\\p{L}{3,16})\\]");
 
 		// Matches 'From Player' and 'From Player'
-		toMePM.append("|^From (\\w{3,16})[ ]?:");
-		fromMePM.append("|^To (\\w{3,16})[ ]?:");
-
+		toMePM.append("|^From (\\p{L}{3,16})[ ]?:");
+		fromMePM.append("|^To (\\p{L}{3,16})[ ]?:");
+		
 		// Matches 'Player whispers to you' and 'You whisper to Player'
-		toMePM.append("|^(\\w{3,16}) whispers to you");
-		fromMePM.append("|^You whisper to (\\w{3,16})");
-
+		toMePM.append("|^(\\p{L}{3,16}) whispers to you");
+		fromMePM.append("|^You whisper to (\\p{L}{3,16})");
+		
 		if(mc.thePlayer != null && mc.thePlayer.username != null) {
 			String me = mc.thePlayer.username;
 
 			// Matches '[Player->Player1]' and '[Player1->Player]'
-			toMePM.append("|^\\[(\\w{3,16})[ ]?\\-\\>[ ]?").append(me).append("\\]");
-			fromMePM.append("|^\\[").append(me).append("[ ]?\\-\\>[ ]?(\\w{3,16})\\]");
+			toMePM.append("|^\\[(\\p{L}{3,16})[ ]?\\-\\>[ ]?").append(me).append("\\]");
+			fromMePM.append("|^\\[").append(me).append("[ ]?\\-\\>[ ]?(\\p{L}{3,16})\\]");
 		}
 
 		this.chatPMtoMePattern = Pattern.compile(toMePM.toString());
