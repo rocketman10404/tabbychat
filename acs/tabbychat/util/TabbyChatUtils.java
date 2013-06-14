@@ -41,7 +41,7 @@ public class TabbyChatUtils extends Thread {
 	private static File logDir = new File(Minecraft.getMinecraftDir(), "TabbyChatLogs");
 	private static File logFile;
 	private static SimpleDateFormat logNameFormat = new SimpleDateFormat("'TabbyChatLog_'MM-dd-yyyy'.txt'");
-	public static String version = "1.8.02";
+	public static String version = "1.8.03";
 	
 	private TabbyChatUtils() {}
 	
@@ -266,20 +266,25 @@ public class TabbyChatUtils extends Thread {
 	
 	public static void chatGuiTick(Minecraft mc) {
 		if(mc.currentScreen == null) return;
-		if(mc.currentScreen.getClass() != GuiChat.class) return;
+		if(!(mc.currentScreen instanceof GuiChat)) return;
+		if(mc.currentScreen.getClass() == GuiChatTC.class) return;
 		
-		String defText = "";
+		String inputBuffer = "";
 		try {
-			for(Field fields : mc.currentScreen.getClass().getDeclaredFields()) {
-				if(fields.getType() == GuiTextField.class) {
-					fields.setAccessible(true);
-					GuiTextField inputObj = (GuiTextField)fields.get(mc.currentScreen);
-					defText = inputObj.getText();
-				}
+			int ind = 0;
+			for(Field fields : GuiChat.class.getDeclaredFields()) {
+				if(fields.getType() == String.class) {
+					if(ind == 1) {
+						fields.setAccessible(true);
+						inputBuffer = (String)fields.get(mc.currentScreen);
+						break;
+					}
+					ind++;
+				}				
 			}
 		} catch (Exception e) {
 			TabbyChat.printException("Unable to display chat interface", e);
 		}
-		mc.displayGuiScreen(new GuiChatTC(defText));
+		mc.displayGuiScreen(new GuiChatTC(inputBuffer));
 	}
 }
