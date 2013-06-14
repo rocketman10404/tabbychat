@@ -132,6 +132,11 @@ public class TCSettingsGeneral extends TCSettingsGUI {
 		return null;
 	}
 	
+	public void storeTempVars() {
+		super.storeTempVars();
+		this.applyTimestampPattern();
+	}
+	
 	public void validateButtonStates() {
 		this.timeStampColor.enabled = this.timeStampEnable.getTempValue();
 	}
