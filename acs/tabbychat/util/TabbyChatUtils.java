@@ -35,7 +35,7 @@ import net.minecraft.src.GuiIngame;
 import net.minecraft.src.GuiNewChat;
 import net.minecraft.src.GuiTextField;
 
-public class TabbyChatUtils extends Thread {
+public class TabbyChatUtils {
 	
 	private static Calendar logDay = Calendar.getInstance();
 	private static File logDir = new File(Minecraft.getMinecraftDir(), "TabbyChatLogs");

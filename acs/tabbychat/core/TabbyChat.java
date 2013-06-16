@@ -191,14 +191,17 @@ public class TabbyChat {
 			Iterator<ChatChannel> iter = this.channelMap.values().iterator();
 			ChatChannel chan = iter.next();
 			while(iter.hasNext()) {
-				if(chan.getTitle().equals(actives.get(0)) && iter.hasNext()) {
-					//chan.active = false;
-					if(mc.currentScreen instanceof GuiChatTC) {
-						((GuiChatTC)mc.currentScreen).actionPerformed(iter.next().tab);
-					}
+				if(chan.getTitle().equals(actives.get(0))) {
+					if(mc.currentScreen instanceof GuiChatTC) ((GuiChatTC)mc.currentScreen).checkCommandPrefixChange(chan, iter.next());
+					this.resetDisplayedChat();
 					return;
 				}
 				chan = iter.next();
+			}
+			if(chan.getTitle().equals(actives.get(0))) {
+				iter = this.channelMap.values().iterator();
+				if(iter.hasNext() && mc.currentScreen instanceof GuiChatTC) ((GuiChatTC)mc.currentScreen).checkCommandPrefixChange(chan, iter.next());
+				this.resetDisplayedChat();
 			}
 		}
 	}
@@ -208,15 +211,20 @@ public class TabbyChat {
 		if(actives.size() == 1) {
 			ListIterator<ChatChannel> iter = new ArrayList(this.channelMap.values()).listIterator(this.channelMap.size());
 			ChatChannel chan = iter.previous();
+			ChatChannel last = chan;
 			while(iter.hasPrevious()) {
-				if(chan.getTitle().equals(actives.get(0)) && iter.hasPrevious()) {
-					//chan.active = false;
-					if(mc.currentScreen instanceof GuiChatTC) {
-						((GuiChatTC)mc.currentScreen).actionPerformed(iter.previous().tab);
-					}
+				if(chan.getTitle().equals(actives.get(0))) {
+					if(mc.currentScreen instanceof GuiChatTC) ((GuiChatTC)mc.currentScreen).checkCommandPrefixChange(chan, iter.previous());
+					this.resetDisplayedChat();
 					return;
 				}
 				chan = iter.previous();
+			}
+			if(chan.getTitle().equals(actives.get(0))) {
+				chan.active = false;
+				iter = new ArrayList(this.channelMap.values()).listIterator(this.channelMap.size());
+				if(iter.hasPrevious() && mc.currentScreen instanceof GuiChatTC) ((GuiChatTC)mc.currentScreen).checkCommandPrefixChange(chan, iter.previous());
+				this.resetDisplayedChat();
 			}
 		}
 	}
@@ -230,10 +238,8 @@ public class TabbyChat {
 			while(iter.hasNext()) {
 				chan = iter.next();
 				if(i == ind) {
-					if(mc.currentScreen instanceof GuiChatTC) {
-						//this.channelMap.get(actives.get(0)).active = false;
-						((GuiChatTC)mc.currentScreen).actionPerformed(chan.tab);
-					}
+					if(mc.currentScreen instanceof GuiChatTC) ((GuiChatTC)mc.currentScreen).checkCommandPrefixChange(this.channelMap.get(actives.get(0)), chan);
+					this.resetDisplayedChat();
 					return;
 				}
 				i++;

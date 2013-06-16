@@ -99,18 +99,26 @@ public class GuiChatTC extends GuiChat {
 			if (!_button.channel.active) {
 				this.scrollBar.scrollBarMouseWheel();
 				if(preActiveTabs.size() == 1) {
-					String oldPrefix = this.tc.channelMap.get(preActiveTabs.get(0)).cmdPrefix.trim();
-					if(this.inputField.getText().trim().equals(oldPrefix)) {
-						String newPrefix = _button.channel.cmdPrefix.trim();
-						if(newPrefix.length() > 0) this.inputField.setText(_button.channel.cmdPrefix.trim() + " ");
-						else this.inputField.setText("");
-					}
+					this.checkCommandPrefixChange(this.tc.channelMap.get(preActiveTabs.get(0)), _button.channel);
+				} else {
+					_button.channel.active = true;
+					_button.channel.unread = false;
 				}
-				_button.channel.active = true;
-				_button.channel.unread = false;
 			}
 			this.tc.resetDisplayedChat();
 		}
+	}
+	
+	public void checkCommandPrefixChange(ChatChannel oldChan, ChatChannel newChan) {
+		String oldPrefix = oldChan.cmdPrefix.trim();
+		if(this.inputField.getText().trim().equals(oldPrefix)) {
+			String newPrefix = newChan.cmdPrefix.trim();
+			if(newPrefix.length() > 0) this.inputField.setText(newPrefix + " ");
+			else this.inputField.setText("");
+		}
+		oldChan.active = false;
+		newChan.active = true;
+		newChan.unread = false;
 	}
 
 	public @Override void completePlayerName() {
@@ -397,25 +405,43 @@ public class GuiChatTC extends GuiChat {
 		if(_code == Keyboard.KEY_TAB) this.completePlayerName();
 		else this.playerNamesFound = false;
 		
-		if(_code == Keyboard.KEY_ESCAPE) this.mc.displayGuiScreen((GuiScreen)null);
-		else if(_code == Keyboard.KEY_RETURN) {
+		if(_code != Keyboard.KEY_TAB) this.playerNamesFound = false;
+		switch (_code) {
+		// TAB: execute vanilla name completion
+		case Keyboard.KEY_TAB:
+			if(GuiScreen.isCtrlKeyDown()) {
+				// CTRL+SHIFT+TAB: switch active tab to previous
+				if(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+					tc.activatePrev();
+				// CTRL+TAB: switch active tab to next
+				} else tc.activateNext();
+				break;
+			}
+			this.completePlayerName();
+			break;
+		// ESCAPE: close the chat interface
+		case Keyboard.KEY_ESCAPE:
+			this.mc.displayGuiScreen((GuiScreen)null);
+			break;
+		// RETURN: send chat to server
+		case Keyboard.KEY_RETURN:
 			StringBuilder _msg = new StringBuilder(1500);
-			for(int i=this.inputList.size()-1; i>=0; i--)
-				_msg.append(this.inputList.get(i).getText());
-			
+			for(int i=this.inputList.size()-1; i>=0; i--) _msg.append(this.inputList.get(i).getText());
 			if(_msg.toString().length() > 0) {
 				TabbyChatUtils.writeLargeChat(_msg.toString());
-				for(int j=1; j<this.inputList.size(); j++) {
-					this.inputList.get(j).setText("");
-					this.inputList.get(j).setVisible(false);
+				for(int i=1; i<this.inputList.size(); i++) {
+					this.inputList.get(i).setText("");
+					this.inputList.get(i).setVisible(false);
 				}
 			}
 			this.mc.displayGuiScreen((GuiScreen)null);
-		} else if(_code == Keyboard.KEY_UP) {
+			break;
+		// UP: if currently in multi-line chat, move into the above textbox.  Otherwise, go back one in the sent history (forced by Ctrl)
+		case Keyboard.KEY_UP:
 			if(GuiScreen.isCtrlKeyDown()) this.getSentHistory(-1);
 			else {
 				int foc = this.getFocusedFieldInd();
-				if(foc+1<this.inputList.size() && this.inputList.get(foc+1).getVisible()) {
+				if(foc+1 < this.inputList.size() && this.inputList.get(foc+1).getVisible()) {
 					int gcp = this.inputList.get(foc).getCursorPosition();
 					int lng = this.inputList.get(foc+1).getText().length();
 					int newPos = Math.min(gcp, lng);
@@ -424,11 +450,13 @@ public class GuiChatTC extends GuiChat {
 					this.inputList.get(foc+1).setCursorPosition(newPos);
 				} else this.getSentHistory(-1);
 			}
-		} else if(_code == Keyboard.KEY_DOWN) { 
+			break;
+		// DOWN: if currently in multi-line chat, move into the below textbox.  Otherwise, go forward one in the sent history (force by Ctrl)
+		case Keyboard.KEY_DOWN:
 			if(GuiScreen.isCtrlKeyDown()) this.getSentHistory(1);
 			else {
 				int foc = this.getFocusedFieldInd();
-				if(foc-1>=0 && this.inputList.get(foc-1).getVisible()) {
+				if(foc-1 >= 0 && this.inputList.get(foc-1).getVisible()) {
 					int gcp = this.inputList.get(foc).getCursorPosition();
 					int lng = this.inputList.get(foc-1).getText().length();
 					int newPos = Math.min(gcp, lng);
@@ -437,30 +465,48 @@ public class GuiChatTC extends GuiChat {
 					this.inputList.get(foc-1).setCursorPosition(newPos);
 				} else this.getSentHistory(1);
 			}
-		} else if(_code == Keyboard.KEY_PRIOR) {
+			break;
+		// PAGE UP: scroll up through chat
+		case Keyboard.KEY_PRIOR:
 			this.gnc.scroll(19);
 			if(this.tc.enabled()) this.scrollBar.scrollBarMouseWheel();
-		} else if(_code == Keyboard.KEY_NEXT) {
+			break;
+		// PAGE DOWN: scroll down through chat
+		case Keyboard.KEY_NEXT:
 			this.gnc.scroll(-19);
 			if(this.tc.enabled()) this.scrollBar.scrollBarMouseWheel();
-		} else if(_code == Keyboard.KEY_BACK) {
+			break;
+		// BACKSPACE: delete previous character, minding potential contents of other input fields
+		case Keyboard.KEY_BACK:
 			if(this.inputField.isFocused() && this.inputField.getCursorPosition() > 0) this.inputField.textboxKeyTyped(_char, _code);
 			else this.removeCharsAtCursor(-1);
-		} else if(_code == Keyboard.KEY_DELETE) {
+			break;
+		// DELETE: delete next character, minding potential contents of other input fields
+		case Keyboard.KEY_DELETE:
 			if(this.inputField.isFocused()) this.inputField.textboxKeyTyped(_char, _code);
 			else this.removeCharsAtCursor(1);
-		} else if(_code == Keyboard.KEY_LEFT || _code == Keyboard.KEY_RIGHT) {
-			if(Keyboard.isKeyDown(Keyboard.KEY_LMENU)) {
-				if(_code == Keyboard.KEY_LEFT) tc.activatePrev();
-				else tc.activateNext();
-			}
+			break;
+		// LEFT/RIGHT: move the cursor
+		case Keyboard.KEY_LEFT:
+		case Keyboard.KEY_RIGHT:
 			this.inputList.get(this.getFocusedFieldInd()).textboxKeyTyped(_char, _code);
-		} else if(Keyboard.isKeyDown(Keyboard.KEY_LMENU) && _code > 1 && _code < 12) {
-			tc.activateIndex(_code-1);
-		} else if(this.inputField.isFocused() && this.fontRenderer.getStringWidth(this.inputField.getText()) < sr.getScaledWidth()-20) {
-			this.inputField.textboxKeyTyped(_char, _code);
-		} else {
-			this.insertCharsAtCursor(Character.toString(_char));
+			break;
+		default:
+			// CTRL + NUM1-9: Make the numbered tab active
+			if(GuiScreen.isCtrlKeyDown()) {
+				if(_code > 1 && _code < 12) {
+					tc.activateIndex(_code-1);
+				// CTRL+O: open options
+				} else if(_code == Keyboard.KEY_O) {
+					this.mc.displayGuiScreen(this.tc.generalSettings);
+				}
+			// Keypress will not trigger overflow, send to default input field
+			} else if(this.inputField.isFocused() && this.fontRenderer.getStringWidth(this.inputField.getText()) < sr.getScaledWidth()-20) {
+				this.inputField.textboxKeyTyped(_char, _code);
+			// Keypress will trigger overflow, send through helper function
+			} else {
+				this.insertCharsAtCursor(Character.toString(_char));
+			}
 		}
 	}
 
