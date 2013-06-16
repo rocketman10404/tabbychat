@@ -39,6 +39,7 @@ public class TCSettingsFilters extends TCSettingsGUI {
 	protected int numTempFilters = 0;
 	public int numFilters = 0;
 	private static String lastMatch = "";
+	private static final Pattern modCodes = Pattern.compile("(?i)(\\u00A7[0-9A-FK-OR])+");
 
 	private static final int INVERSE_MATCH_ID = 9301;
 	private static final int CASE_SENSE_ID = 9302;
@@ -134,39 +135,41 @@ public class TCSettingsFilters extends TCSettingsGUI {
 		
 // Pull data for the requested filter number
 		String fNum = Integer.toString(filterNum);
-		Boolean caseSensitive = (Boolean)this.filterMap.get(fNum + ".caseSensitive");
-		Boolean inverseMatch = (Boolean)this.filterMap.get(fNum + ".inverseMatch");
-		Boolean highlightBool = (Boolean)this.filterMap.get(fNum + ".highlightBool");
-		ColorCodeEnum highlightColor = (ColorCodeEnum)this.filterMap.get(fNum + ".highlightColor");
-		FormatCodeEnum highlightFormat = (FormatCodeEnum)this.filterMap.get(fNum + ".highlightFormat");
-		String expressionString = new String((String)this.filterMap.get(fNum + ".expressionString"));
-		if (expressionString.equals(""))
+		boolean caseSensitive = (Boolean)this.filterMap.get(fNum + ".caseSensitive");
+		boolean inverseMatch = (Boolean)this.filterMap.get(fNum + ".inverseMatch");
+		boolean highlightBool = (Boolean)this.filterMap.get(fNum + ".highlightBool");
+		String prefix = "";
+		if(highlightBool) {
+			ColorCodeEnum highlightColor = (ColorCodeEnum)this.filterMap.get(fNum + ".highlightColor");
+			FormatCodeEnum highlightFormat = (FormatCodeEnum)this.filterMap.get(fNum + ".highlightFormat");
+			prefix = highlightColor.toCode() + highlightFormat.toCode();
+		}
+		String expressionString = (String)this.filterMap.get(fNum + ".expressionString");
+		if (expressionString.length() < 1)
 			return false;
+		
 		Pattern filter = (Pattern)this.filterMap.get(fNum + ".expressionPattern");
-
-		Pattern pullCodes = Pattern.compile("(?i)(\\u00A7[0-9A-FK-OR])+");
 		int _start = 0;
 		int _end = 0;
-		
 		TreeMap<Integer, String>chatCodes = new TreeMap<Integer, String>();
 		HashMap<Integer, String>hlCodes = new HashMap<Integer, String>();
 		
 // Remove color/formatting codes from input, store codes and locations for later re-insertion		
-		StringBuilder result = new StringBuilder(input);
-		Matcher matchCodes = pullCodes.matcher(result.toString());
-		while(matchCodes.find()) {
+		StringBuilder result = new StringBuilder().append(input);
+		Matcher matchCodes = modCodes.matcher(input);
+		while(matchCodes.find(_start)) {
 			_start = matchCodes.start();
 			_end = matchCodes.end();
-			chatCodes.put(_start, result.substring(_start, _end));
-			result.replace(_start, _end, "");		
-			matchCodes = pullCodes.matcher(result.toString());
+			chatCodes.put(_start,  matchCodes.group());
+			result.delete(_start, _end);
+			matchCodes = modCodes.matcher(result.toString());
 		}
 
 // Apply this filter expression to the clean input
 		Matcher matchFilter = filter.matcher(result.toString());
 		boolean matched = false;
-		String prefix = highlightColor.toCode()+ highlightFormat.toCode();
 		String suffix = "\u00A7r";
+		_start = 0;
 
 		while(matchFilter.find()) {
 			matched = true;
@@ -178,7 +181,7 @@ public class TCSettingsFilters extends TCSettingsGUI {
 				if (newSuffix == null)
 					hlCodes.put(_end, suffix);
 				else
-					hlCodes.put(_end, (String)newSuffix.getValue());
+					hlCodes.put(_end, newSuffix.getValue());
 			} else {
 				break;
 			}
@@ -195,14 +198,8 @@ public class TCSettingsFilters extends TCSettingsGUI {
 			lastMatch = result.toString();
 		} else
 			lastMatch = input;
-		if (!matched && inverseMatch)
-			return true;
-		else if (matched && !inverseMatch)
-			return true;
-		else if (matched && inverseMatch)
-			return false;
-		else if (!matched && !inverseMatch)
-			return false;
+		if (!matched && inverseMatch) return true;
+		else if (matched && !inverseMatch) return true;
 		return false;
 	}
 	
