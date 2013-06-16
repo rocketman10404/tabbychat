@@ -83,7 +83,7 @@ public class TCSettingsFilters extends TCSettingsGUI {
 	public TCSettingsFilters(TabbyChat _tc) {
 		super(_tc);
 		this.name = TabbyChat.translator.getString("settings.filters.name");
-		this.settingsFile = new File(tabbyChatDir, "filters.cfg");
+		this.settingsFile = new File(TabbyChatUtils.getServerDir(), "filters.cfg");
 		this.bgcolor = 0x66289f28;
 		this.filterName.setCharLimit(50);
 		this.sendToTabName.setCharLimit(20);
@@ -372,8 +372,7 @@ public class TCSettingsFilters extends TCSettingsGUI {
 	public Properties loadSettingsFile() {
 		this.filterMap.clear();
 		this.numFilters = 0;
-		if(tc.serverSettings.settingsFile == null) return null;
-		this.settingsFile = new File(tc.serverSettings.settingsFile.getParentFile(), "filters.cfg");
+		if(this.settingsFile == null) return null;
 				
 		Properties settingsTable = super.loadSettingsFile();
 
@@ -453,7 +452,6 @@ public class TCSettingsFilters extends TCSettingsGUI {
 	}
 	
 	public void saveSettingsFile() {
-		this.settingsFile = new File(tc.serverSettings.settingsFile.getParentFile(), "filters.cfg");
 		Properties settingsTable = new Properties();
 		Set<String> filterKeys = this.filterMap.keySet();
 		Object stg;
@@ -535,6 +533,10 @@ public class TCSettingsFilters extends TCSettingsGUI {
 			}
 			this.numFilters++;
 		}
+	}
+	
+	public void updateForServer() {
+		this.settingsFile = new File(TabbyChatUtils.getServerDir(), "filters.cfg");
 	}
 
 	public void validateButtonStates() {

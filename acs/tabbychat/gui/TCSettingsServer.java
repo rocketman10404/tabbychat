@@ -49,14 +49,12 @@ public class TCSettingsServer extends TCSettingsGUI {
 	public List<String> defaultChanList = new ArrayList();
 	public List<String> ignoredChanList = new ArrayList();
 	
-	public ServerData server = null;
-	public String serverName = null;
 	public String serverIP = "";
 	
 	public TCSettingsServer(TabbyChat _tc) {
 		super(_tc);
 		this.name = TabbyChat.translator.getString("settings.server.name");
-		this.settingsFile = new File(tabbyChatDir, "settings.cfg");
+		this.settingsFile = new File(TabbyChatUtils.getServerDir(), "settings.cfg");
 		this.bgcolor = 0x66d6d643;
 		this.defaultChannels.setCharLimit(300);
 		this.ignoredChannels.setCharLimit(300);
@@ -128,26 +126,8 @@ public class TCSettingsServer extends TCSettingsGUI {
 	}
 
 	public void updateForServer() {
-		String ip;
-		if(Minecraft.getMinecraft().isSingleplayer()) {
-			this.server = null;
-			this.serverIP = "singleplayer";
-			ip = "singleplayer";
-		} else if (Minecraft.getMinecraft().getServerData() == null) {
-			this.server = null;
-			this.settingsFile = null;
-			this.serverIP = "unknown";
-			ip = "unknown";
-		} else {
-			this.server = Minecraft.getMinecraft().getServerData();
-			this.serverName = this.server.serverName;
-			this.serverIP = this.server.serverIP;
-			ip = this.serverIP;
-			if (ip.contains(":")) {
-				ip = ip.replaceAll(":", "(") + ")";
-			}
-		}
-		this.settingsFile = new File(tabbyChatDir, new StringBuilder(ip).append(File.separatorChar).append("settings.cfg").toString());
+		this.serverIP = TabbyChatUtils.getServerIp();
+		this.settingsFile = new File(TabbyChatUtils.getServerDir(), "settings.cfg");
 	}
 	
 	public void validateButtonStates() {

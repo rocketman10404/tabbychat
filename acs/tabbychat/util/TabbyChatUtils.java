@@ -19,6 +19,7 @@ import acs.tabbychat.core.GuiChatTC;
 import acs.tabbychat.core.GuiNewChatTC;
 import acs.tabbychat.core.TCChatLine;
 import acs.tabbychat.core.TabbyChat;
+import acs.tabbychat.gui.ITCSettingsGUI;
 import acs.tabbychat.settings.ChannelDelimEnum;
 import acs.tabbychat.settings.ColorCodeEnum;
 import acs.tabbychat.settings.FormatCodeEnum;
@@ -41,7 +42,7 @@ public class TabbyChatUtils {
 	private static File logDir = new File(Minecraft.getMinecraftDir(), "TabbyChatLogs");
 	private static File logFile;
 	private static SimpleDateFormat logNameFormat = new SimpleDateFormat("'TabbyChatLog_'MM-dd-yyyy'.txt'");
-	public static String version = "1.8.03";
+	public static String version = "1.8.04";
 	
 	private TabbyChatUtils() {}
 	
@@ -53,11 +54,16 @@ public class TabbyChatUtils {
 			ip = "unknown";
 		} else {
 			ip = Minecraft.getMinecraft().getServerData().serverIP;
-			if (ip.contains(":")) {
-				ip = ip.replaceAll(":", "(") + ")";
-			}
 		}
 		return ip;
+	}
+	
+	public static File getServerDir() {
+		String ip = getServerIp();
+		if (ip.contains(":")) {
+			ip = ip.replaceAll(":", "(") + ")";
+		}
+		return new File(ITCSettingsGUI.tabbyChatDir, ip);
 	}
 	
 	public static String join(String[] arr, String glue) {

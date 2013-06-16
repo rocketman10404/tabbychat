@@ -58,6 +58,7 @@ public class TabbyChat {
 	private static boolean firstRun = true;
 	public static boolean liteLoaded = false;
 	public static boolean modLoaded = false;
+	private static boolean updateChecked = false;
 	public static boolean defaultUnicode;
 	public static String version = TabbyChatUtils.version;
 	public static Minecraft mc;
@@ -67,6 +68,7 @@ public class TabbyChat {
 	public static TCSettingsFilters filterSettings;
 	public static TCSettingsAdvanced advancedSettings;
 	public LinkedHashMap<String, ChatChannel> channelMap = new LinkedHashMap();
+	private static File chanDataFile;
 
 	protected Calendar cal = Calendar.getInstance();
 	protected Semaphore serverDataLock = new Semaphore(0, true);	
@@ -252,10 +254,8 @@ public class TabbyChat {
 	}
 
 	public void checkServer() {
-		//if (mc.getServerData() == null) return;
-
-		if(serverSettings.serverName == null) {
-			serverSettings.serverName = "unknown";
+		if(!updateChecked) {
+			updateChecked = true;
 			BackgroundUpdateCheck buc = new BackgroundUpdateCheck(TabbyChat.getNewestVersion());
 			buc.start();
 		}
@@ -295,14 +295,16 @@ public class TabbyChat {
 		}
 		
 		this.serverDataLock.tryAcquire();
+		this.updateChanDataPath(false);
 		serverSettings.updateForServer();
+		filterSettings.updateForServer();
 		this.reloadServerData();
 		this.reloadSettingsData(false);
-		if(serverSettings.server != null) this.loadPMPatterns();
+		if(serverSettings.serverIP.length() > 0) this.loadPMPatterns();
 		this.serverDataLock.release();
 
 		if (generalSettings.saveChatLog.getValue() && serverSettings.serverIP != null) {
-			TabbyChatUtils.logChat("\nBEGIN CHAT LOGGING FOR "+serverSettings.serverName+"("+serverSettings.serverIP+") -- "+(new SimpleDateFormat()).format(Calendar.getInstance().getTime()));
+			TabbyChatUtils.logChat("\nBEGIN CHAT LOGGING FOR "+serverSettings.serverIP+" -- "+(new SimpleDateFormat()).format(Calendar.getInstance().getTime()));
 		}
 	}
 
@@ -327,19 +329,6 @@ public class TabbyChat {
 
 	protected void loadChannelData() {
 		LinkedHashMap<String, ChatChannel> importData = null;
-		File chanDataFile;
-
-		String ip = TabbyChat.serverSettings.serverIP;
-		if (ip == null || ip.length() == 0) return;
-		if (ip.contains(":")) {
-			ip = ip.replaceAll(":", "(") + ")";
-		}
-
-		String pName = "";
-		if(mc.thePlayer != null && mc.thePlayer.username != null) pName = mc.thePlayer.username;
-
-		File settingsDir = new File(ITCSettingsGUI.tabbyChatDir, ip);
-		chanDataFile = new File(settingsDir, pName+"_chanData.ser");
 		if(!chanDataFile.exists()) return;
 
 		FileInputStream cFileStream = null;
@@ -687,24 +676,8 @@ public class TabbyChat {
 	}
 
 	public void storeChannelData() {
-		LinkedHashMap<String, ChatChannel> chanData = instance.channelMap;
-		File chanDataFile;
-
-		String ip = serverSettings.serverIP;
-		if (ip == null || ip.length() == 0) return;
-		if (ip.contains(":")) {
-			ip = ip.replaceAll(":", "(") + ")";
-		}
-
-		String pName = "";
-		if(mc.thePlayer != null && mc.thePlayer.username != null) pName = mc.thePlayer.username;
-
-		File settingsDir = new File(ITCSettingsGUI.tabbyChatDir, ip);
-
-		if (!settingsDir.exists())
-			settingsDir.mkdirs();
-		chanDataFile = new File(settingsDir, pName+"_chanData.ser");
-
+		if(chanDataFile == null) return;
+		
 		FileOutputStream cFileStream = null;
 		BufferedOutputStream cBuffStream = null;
 		ObjectOutputStream cObjStream = null;
@@ -712,7 +685,7 @@ public class TabbyChat {
 			cFileStream = new FileOutputStream(chanDataFile);
 			cBuffStream = new BufferedOutputStream(cFileStream);
 			cObjStream = new ObjectOutputStream(cBuffStream);
-			cObjStream.writeObject(chanData);
+			cObjStream.writeObject(instance.channelMap);
 			cObjStream.flush();
 		} catch (Exception e) {
 			printErr("Unable to write channel data to file : '" + e.getLocalizedMessage() + "' : " + e.toString());
@@ -722,6 +695,14 @@ public class TabbyChat {
 				cBuffStream.close();
 			} catch (Exception e) {}
 		}
+	}
+	
+	private void updateChanDataPath(boolean make) {
+		String pName = "";
+		if(mc.thePlayer != null && mc.thePlayer.username != null) pName = mc.thePlayer.username;
+		File parentDir = TabbyChatUtils.getServerDir();
+		if(make && !parentDir.exists()) parentDir.mkdirs();
+		chanDataFile = new File(parentDir, pName + "_chanData.ser");
 	}
 
 	protected void updateDefaults() {
