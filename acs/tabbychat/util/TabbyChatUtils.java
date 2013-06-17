@@ -34,6 +34,7 @@ import net.minecraft.src.Gui;
 import net.minecraft.src.GuiChat;
 import net.minecraft.src.GuiIngame;
 import net.minecraft.src.GuiNewChat;
+import net.minecraft.src.GuiSleepMP;
 import net.minecraft.src.GuiTextField;
 
 public class TabbyChatUtils {
@@ -274,6 +275,7 @@ public class TabbyChatUtils {
 		if(mc.currentScreen == null) return;
 		if(!(mc.currentScreen instanceof GuiChat)) return;
 		if(mc.currentScreen.getClass() == GuiChatTC.class) return;
+		if(mc.currentScreen.getClass() == GuiSleepMP.class) return; 
 		
 		String inputBuffer = "";
 		try {

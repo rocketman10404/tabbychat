@@ -207,8 +207,9 @@ public class GuiChatTC extends GuiChat {
 		
 		// Draw chat tabs
 		for(GuiButton _button : (List<GuiButton>)this.buttonList) {
-			if(ChatButton.class.isInstance(_button)) _button.drawButton(this.mc, cursorX, cursorY);
-			else if(_button.id == 0 || _button.id == 2) _button.drawButton(this.mc, cursorX, cursorY);
+			//if(ChatButton.class.isInstance(_button)) _button.drawButton(this.mc, cursorX, cursorY);
+			//else if(_button.id == 0 || _button.id == 2) _button.drawButton(this.mc, cursorX, cursorY);
+			_button.drawButton(this.mc, cursorX, cursorY);
 		}
 		GL11.glPopMatrix();
 		this.fontRenderer.setUnicodeFlag(TabbyChat.defaultUnicode);
