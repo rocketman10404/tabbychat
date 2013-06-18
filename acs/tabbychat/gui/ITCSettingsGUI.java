@@ -11,7 +11,7 @@ public interface ITCSettingsGUI {
 	int CANCELBUTTON = 8902;
 	int MARGIN = 4;
 	int LINE_HEIGHT = 14;
-	int DISPLAY_WIDTH = 325;
+	int DISPLAY_WIDTH = 300;
 	int DISPLAY_HEIGHT = 180;
 	File tabbyChatDir = new File(Minecraft.getMinecraftDir(), new StringBuilder().append("config").append(File.separatorChar).append("tabbychat").toString());
 	

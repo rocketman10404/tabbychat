@@ -84,21 +84,23 @@ abstract class TCSettingsGUI extends GuiScreen implements ITCSettingsGUI {
 		int absTop = effTop - MARGIN;
 		
 		drawRect(absLeft, absTop, absLeft + DISPLAY_WIDTH + 2*MARGIN, absTop + DISPLAY_HEIGHT + 2*MARGIN, 0x88000000);
+		drawRect(absLeft + 45, absTop, absLeft + 46, absTop + DISPLAY_HEIGHT, 0x66ffffff);
 		
 		for (int i = 0; i < ScreenList.size(); i++) {
 			if (ScreenList.get(i) == this) {
 				int curWidth;
-				int tabDist = mc.fontRenderer.getStringWidth(ScreenList.get(i).name) + 2*MARGIN - 40;
+				int tabDist = mc.fontRenderer.getStringWidth(ScreenList.get(i).name) + MARGIN - 40;
 				if (0 <= this.lastOpened && this.lastOpened <= 5) {
 					curWidth = 45 + (this.lastOpened * tabDist) / 5;
 					this.lastOpened++;
 				} else {
 					curWidth = tabDist + 45;
 				}
-				drawRect(absLeft, effTop + 30*i, absLeft + curWidth, effTop + 30*i + 20, ScreenList.get(i).bgcolor);
-				drawRect(absLeft + 45, absTop, absLeft + 46, effTop + 30*i, 0x66ffffff);
-				drawRect(absLeft + 45, effTop + 30*i + 20, absLeft + 46, absTop + DISPLAY_HEIGHT, 0x66ffffff);
-				this.drawString(mc.fontRenderer, mc.fontRenderer.trimStringToWidth(ScreenList.get(i).name, curWidth), effLeft, effTop + 6 + 30 * i, 0xffffff);
+				//drawRect(absLeft, effTop + 30*i, absLeft + curWidth, effTop + 30*i + 20, ScreenList.get(i).bgcolor);
+				drawRect(absLeft - curWidth + 45, effTop + 30*i, absLeft + 45, effTop + 30*i + 20, ScreenList.get(i).bgcolor);
+				//drawRect(absLeft + 45, absTop, absLeft + 46, effTop + 30*i, 0x66ffffff);
+				//drawRect(absLeft + 45, effTop + 30*i + 20, absLeft + 46, absTop + DISPLAY_HEIGHT, 0x66ffffff);
+				this.drawString(mc.fontRenderer, mc.fontRenderer.trimStringToWidth(ScreenList.get(i).name, curWidth-5), effLeft - curWidth + 45, effTop + 6 + 30 * i, 0xffffff);
 			} else {
 				drawRect(absLeft, effTop + 30*i, absLeft + 45, effTop + 30*i + 20, ScreenList.get(i).bgcolor);
 			}

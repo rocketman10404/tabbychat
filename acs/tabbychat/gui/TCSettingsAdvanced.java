@@ -55,8 +55,7 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 	}
 		
 	public void initDrawableSettings() {
-		int col1x = (this.width - DISPLAY_WIDTH)/2 + 100;
-		int col2x = (this.width + DISPLAY_WIDTH)/2 - 65;
+		int col1x = (this.width - DISPLAY_WIDTH)/2 + 55;
 		
 		int buttonColor = (this.bgcolor & 0x00ffffff) + 0xff000000;
 		
