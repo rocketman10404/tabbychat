@@ -677,6 +677,7 @@ public class TabbyChat {
 
 	public void storeChannelData() {
 		if(chanDataFile == null) return;
+		if(!chanDataFile.getParentFile().exists()) chanDataFile.getParentFile().mkdirs();
 		
 		FileOutputStream cFileStream = null;
 		BufferedOutputStream cBuffStream = null;

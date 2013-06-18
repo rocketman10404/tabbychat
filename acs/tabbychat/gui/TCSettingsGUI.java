@@ -221,7 +221,7 @@ abstract class TCSettingsGUI extends GuiScreen implements ITCSettingsGUI {
 	
 	public void saveSettingsFile(Properties settingsTable) {
 		if(this.settingsFile == null) return;
-		if(!tabbyChatDir.exists()) tabbyChatDir.mkdirs();
+		if(!this.settingsFile.getParentFile().exists()) this.settingsFile.getParentFile().mkdirs();
 		
 		for(Object drawable : this.buttonList) {
 			if(drawable instanceof ITCSetting) {
