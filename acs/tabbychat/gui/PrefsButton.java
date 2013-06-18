@@ -62,7 +62,6 @@ public class PrefsButton extends net.minecraft.src.GuiButton {
 	public void drawButton(Minecraft mc, int cursorX, int cursorY) {
 	      if(this.drawButton) {
 	          FontRenderer fr = mc.fontRenderer;
-	          // float var8 = mc.gameSettings.chatOpacity * 0.9F + 0.1F; // don't know what to do with this yet
               drawRect(this.xPosition, this.yPosition, this.xPosition + this.width, this.yPosition + this.height, this.bgcolor);
 	          boolean hovered = cursorX >= this.xPosition && cursorY >= this.yPosition && cursorX < this.xPosition + this.width && cursorY < this.yPosition + this.height;
 

@@ -19,6 +19,7 @@ import acs.tabbychat.gui.ChatBox;
 import acs.tabbychat.gui.ChatButton;
 import acs.tabbychat.gui.ChatChannelGUI;
 import acs.tabbychat.gui.ChatScrollBar;
+import acs.tabbychat.gui.PrefsButton;
 import acs.tabbychat.util.TabbyChatUtils;
 
 import net.minecraft.client.Minecraft;
@@ -28,8 +29,11 @@ import net.minecraft.src.GuiChat;
 import net.minecraft.src.GuiConfirmOpenLink;
 import net.minecraft.src.GuiScreen;
 import net.minecraft.src.GuiTextField;
+import net.minecraft.src.NetClientHandler;
+import net.minecraft.src.Packet19EntityAction;
 import net.minecraft.src.Packet203AutoComplete;
 import net.minecraft.src.ScaledResolution;
+import net.minecraft.src.StringTranslate;
 
 public class GuiChatTC extends GuiChat {
 	public String historyBuffer = "";
@@ -72,6 +76,8 @@ public class GuiChatTC extends GuiChat {
 		// Attempt Emoticons actionPerformed if present
 		EmoticonsCompat.actionPerformed(par1GuiButton, this.buttonList, this.inputField);
 
+		if(par1GuiButton instanceof PrefsButton && par1GuiButton.id == 1) this.playerWakeUp();
+		
 		if(!ChatButton.class.isInstance(par1GuiButton)) return;
 		ChatButton _button = (ChatButton)par1GuiButton;
 		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) && tc.channelMap.get("*") == _button.channel) {
@@ -206,9 +212,15 @@ public class GuiChatTC extends GuiChat {
 		GL11.glScalef(scaleSetting, scaleSetting, 1.0f);
 		
 		// Draw chat tabs
-		for(GuiButton _button : (List<GuiButton>)this.buttonList) {
-			//if(ChatButton.class.isInstance(_button)) _button.drawButton(this.mc, cursorX, cursorY);
-			//else if(_button.id == 0 || _button.id == 2) _button.drawButton(this.mc, cursorX, cursorY);
+		GuiButton _button;
+		for(int i=0; i<this.buttonList.size(); i++) {
+			_button = (GuiButton)this.buttonList.get(i);
+			if(_button instanceof PrefsButton && _button.id == 1) {
+				if(mc.thePlayer != null && !mc.thePlayer.isPlayerSleeping()) {
+					this.buttonList.remove(_button);
+					continue;
+				}
+			}
 			_button.drawButton(this.mc, cursorX, cursorY);
 		}
 		GL11.glPopMatrix();
@@ -378,6 +390,12 @@ public class GuiChatTC extends GuiChat {
 			}
 			ChatBox.enforceScreenBoundary(ChatBox.current);
 		}
+		
+		if(mc.thePlayer != null && mc.theWorld != null && mc.thePlayer.isPlayerSleeping()) {
+			PrefsButton leaveBed = new PrefsButton(1, this.width/2 - 100, this.height - 50, 200, 14, StringTranslate.getInstance().translateKey("multiplayer.stopSleeping"), 0x55ffffff);
+			this.buttonList.add(leaveBed);
+		}
+		
 		// Initialize Emoticons screen if present
 		EmoticonsCompat.initGui(this.buttonList);
 	}
@@ -500,6 +518,8 @@ public class GuiChatTC extends GuiChat {
 				// CTRL+O: open options
 				} else if(_code == Keyboard.KEY_O) {
 					this.mc.displayGuiScreen(this.tc.generalSettings);
+				} else {
+					this.inputField.textboxKeyTyped(_char, _code);
 				}
 			// Keypress will not trigger overflow, send to default input field
 			} else if(this.inputField.isFocused() && this.fontRenderer.getStringWidth(this.inputField.getText()) < sr.getScaledWidth()-20) {
@@ -578,6 +598,11 @@ public class GuiChatTC extends GuiChat {
 	
 	public @Override void onGuiClosed() {
 		ChatBox.dragging = false;
+	}
+	
+	private void playerWakeUp() {
+		NetClientHandler var1 = this.mc.thePlayer.sendQueue;
+		var1.addToSendQueue(new Packet19EntityAction(this.mc.thePlayer, 3));
 	}
 
 	public void removeCharsAtCursor(int _del) {

@@ -43,7 +43,7 @@ public class TabbyChatUtils {
 	private static File logDir = new File(Minecraft.getMinecraftDir(), "TabbyChatLogs");
 	private static File logFile;
 	private static SimpleDateFormat logNameFormat = new SimpleDateFormat("'TabbyChatLog_'MM-dd-yyyy'.txt'");
-	public static String version = "1.8.04";
+	public static String version = "1.8.05";
 	
 	private TabbyChatUtils() {}
 	
@@ -275,7 +275,6 @@ public class TabbyChatUtils {
 		if(mc.currentScreen == null) return;
 		if(!(mc.currentScreen instanceof GuiChat)) return;
 		if(mc.currentScreen.getClass() == GuiChatTC.class) return;
-		if(mc.currentScreen.getClass() == GuiSleepMP.class) return; 
 		
 		String inputBuffer = "";
 		try {
