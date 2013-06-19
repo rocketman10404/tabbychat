@@ -421,8 +421,6 @@ public class GuiChatTC extends GuiChat {
 
 	public @Override void keyTyped(char _char, int _code) {
 		this.waitingOnPlayerNames = false;
-		if(_code == Keyboard.KEY_TAB) this.completePlayerName();
-		else this.playerNamesFound = false;
 		
 		if(_code != Keyboard.KEY_TAB) this.playerNamesFound = false;
 		switch (_code) {
