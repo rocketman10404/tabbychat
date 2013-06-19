@@ -43,7 +43,7 @@ public class TabbyChatUtils {
 	private static File logDir = new File(Minecraft.getMinecraftDir(), "TabbyChatLogs");
 	private static File logFile;
 	private static SimpleDateFormat logNameFormat = new SimpleDateFormat("'TabbyChatLog_'MM-dd-yyyy'.txt'");
-	public static String version = "1.8.05";
+	public static String version = "1.8.06";
 	
 	private TabbyChatUtils() {}
 	

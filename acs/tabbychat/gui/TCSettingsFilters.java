@@ -37,10 +37,6 @@ import net.minecraft.src.ServerData;
 
 public class TCSettingsFilters extends TCSettingsGUI {
 	protected int curFilterId = 0;
-	//protected int numTempFilters = 0;
-	//public int numFilters = 0;
-	//private static String lastMatch = "";
-	//private static final Pattern modCodes = Pattern.compile("(?i)(\\u00A7[0-9A-FK-OR])+");
 
 	private static final int INVERSE_MATCH_ID = 9301;
 	private static final int CASE_SENSE_ID = 9302;
