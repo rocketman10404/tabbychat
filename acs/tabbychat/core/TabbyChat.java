@@ -28,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -48,6 +49,7 @@ import acs.tabbychat.lang.TCTranslate;
 import acs.tabbychat.settings.ChannelDelimEnum;
 import acs.tabbychat.settings.ColorCodeEnum;
 import acs.tabbychat.settings.FormatCodeEnum;
+import acs.tabbychat.settings.TCChatFilter;
 import acs.tabbychat.settings.TimeStampEnum;
 import acs.tabbychat.threads.BackgroundUpdateCheck;
 import acs.tabbychat.util.TabbyChatUtils;
@@ -477,33 +479,37 @@ public class TabbyChat {
 		for (int z=0; z<n; z++)
 			filteredChat.append(theChat.get(z).getChatLineString());
 
-		for (int i = 0; i < filterSettings.numFilters; i++) {
-			if (!filterSettings.applyFilterToDirtyChat(i, filteredChat.toString())) continue;
-			if (filterSettings.removeMatches(i)) {
-				toTabs.clear();
-				toTabs.add("*");
-				skip = true;
-				break;
-			}
-			filteredChat = new StringBuilder(filterSettings.getLastMatchPretty());
-			if (filterSettings.sendToTabBool(i)) {
-				if (filterSettings.sendToAllTabs(i)) {
+		Entry<Integer, TCChatFilter> iFilter = filterSettings.filterMap.firstEntry();
+		//for (int i = 0; i < filterSettings.numFilters; i++) {
+		while(iFilter != null) {
+			if (iFilter.getValue().applyFilterToDirtyChat(filteredChat.toString())) {
+				if (iFilter.getValue().removeMatches) {
 					toTabs.clear();
-					for (ChatChannel chan : this.channelMap.values())
-						toTabs.add(chan.getTitle());
+					toTabs.add("*");
 					skip = true;
-					continue;
-				} else {
-					String destTab = filterSettings.sendToTabName(i);
-					if (!this.channelMap.containsKey(destTab)) {
-						this.channelMap.put(destTab, new ChatChannel(destTab));
-					}
-					if (!toTabs.contains(destTab))
-						toTabs.add(destTab);
+					break;
 				}
+				filteredChat = new StringBuilder(iFilter.getValue().getLastMatchPretty());
+				if (iFilter.getValue().sendToTabBool) {
+					if (iFilter.getValue().sendToAllTabs) {
+						toTabs.clear();
+						for (ChatChannel chan : this.channelMap.values())
+							toTabs.add(chan.getTitle());
+						skip = true;
+						continue;
+					} else {
+						String destTab = iFilter.getValue().sendToTabName;
+						if (!this.channelMap.containsKey(destTab)) {
+							this.channelMap.put(destTab, new ChatChannel(destTab));
+						}
+						if (!toTabs.contains(destTab))
+							toTabs.add(destTab);
+					}
+				}
+				if (iFilter.getValue().audioNotificationBool)
+					iFilter.getValue().audioNotification();
 			}
-			if (filterSettings.audioNotificationBool(i))
-				filterSettings.audioNotification(i);
+			iFilter = filterSettings.filterMap.higherEntry(iFilter.getKey());
 		}
 
 		Iterator splitChat = mc.fontRenderer.listFormattedStringToWidth(filteredChat.toString(), gnc.chatWidth).iterator();
@@ -722,15 +728,16 @@ public class TabbyChat {
 
 	protected void updateFilters() {
 		if (!generalSettings.tabbyChatEnable.getValue()) return;
-		if (filterSettings.numFilters == 0) return;
+		if (filterSettings.filterMap.size() == 0) return;
+
+		Entry<Integer, TCChatFilter> iFilter = filterSettings.filterMap.firstEntry();
 		String newName;
-		for (int i=0; i<filterSettings.numFilters; i++) {
-			newName = filterSettings.sendToTabName(i);
-			if (filterSettings.sendToTabBool(i) &&
-					!filterSettings.sendToAllTabs(i) &&
-					!this.channelMap.containsKey(newName)) {
+		while(iFilter != null) {
+			newName = iFilter.getValue().sendToTabName;
+			if(iFilter.getValue().sendToTabBool && !iFilter.getValue().sendToAllTabs && !this.channelMap.containsKey(newName)) {
 				this.channelMap.put(newName, new ChatChannel(newName));
-			}
+			}			
+			iFilter = filterSettings.filterMap.higherEntry(iFilter.getKey());
 		}
 	}
 

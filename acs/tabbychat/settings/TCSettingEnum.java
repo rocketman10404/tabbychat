@@ -104,4 +104,23 @@ public class TCSettingEnum extends TCSetting implements ITCSetting {
 			this.tempValue = Enum.valueOf(eCast.getClass(), E[eCast.ordinal()-1].name());
 		}
 	}
+	
+	public void setTempValueFromProps(Properties readProps) {
+		String found = (String)readProps.get(this.propertyName);
+		if(found == null) {
+			this.tempValue = this.theDefault;
+			return;
+		}
+		if(this.propertyName.contains("Color")) {
+			this.tempValue = TabbyChatUtils.parseColor(found);
+		} else if(this.propertyName.contains("Format")) {
+			this.tempValue = TabbyChatUtils.parseFormat(found);
+		} else if(this.propertyName.contains("Sound")) {
+			this.tempValue = TabbyChatUtils.parseSound(found);
+		} else if(this.propertyName.contains("delim")) {
+			this.tempValue = TabbyChatUtils.parseDelimiters(found);
+		} else if(this.propertyName.contains("Stamp")) {
+			this.tempValue = TabbyChatUtils.parseTimestamp(found);
+		}
+	}
 }
