@@ -70,7 +70,7 @@ public class TCEnglishDefault {
 		defaults.setProperty("settings.delete", "Delete");
 		
 		// ENGLISH STRINGS FOR SETTINGS - 'GENERAL CONFIG'
-		defaults.setProperty("settings.general.name", "General Config");
+		defaults.setProperty("settings.general.name", "General");
 		defaults.setProperty("settings.general.tabbychatenable", "TabbyChat Enabled");
 		defaults.setProperty("settings.general.savechatlog", "Log chat to file");
 		defaults.setProperty("settings.general.timestampenable", "Timestamp chat");
@@ -80,7 +80,7 @@ public class TCEnglishDefault {
 		defaults.setProperty("settings.general.unreadflashing", "Default unread notification flashing");
 		
 		// ENGLISH STRING FOR SETTINGS - 'SERVER CONFIG'
-		defaults.setProperty("settings.server.name", "Server Config");
+		defaults.setProperty("settings.server.name", "Server");
 		defaults.setProperty("settings.server.autochannelsearch", "Auto-search for new channels");
 		defaults.setProperty("settings.server.delimiterchars", "Chat-channel delimiters");
 		defaults.setProperty("settings.server.delimcolorbool", "Colored delimiters");
@@ -89,7 +89,7 @@ public class TCEnglishDefault {
 		defaults.setProperty("settings.server.ignoredchannels", "Ignored channels");
 		
 		// ENGLISH STRING FOR SETTINGS - 'CUSTOM FILTERS'
-		defaults.setProperty("settings.filters.name", "Custom Filters");
+		defaults.setProperty("settings.filters.name", "Filters");
 		defaults.setProperty("settings.filters.inversematch", "Inverse match");
 		defaults.setProperty("settings.filters.casesensitive", "Case sensitive");
 		defaults.setProperty("settings.filters.highlightbool", "Highlight matches");
@@ -105,7 +105,7 @@ public class TCEnglishDefault {
 		defaults.setProperty("settings.filters.expressionstring", "Expression");
 		
 		// ENGLISH STRINGS FOR SETTINGS - 'ADVANCED SETTINGS'
-		defaults.setProperty("settings.advanced.name", "Advanced Settings");
+		defaults.setProperty("settings.advanced.name", "Advanced");
 		defaults.setProperty("settings.advanced.chatscrollhistory", "Chat history to retain (lines)");
 		defaults.setProperty("settings.advanced.maxlengthchannelname", "Channel name max. length");
 		defaults.setProperty("settings.advanced.multichatdelay", "Multi-chat send delay (ms)");

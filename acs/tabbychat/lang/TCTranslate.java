@@ -16,23 +16,25 @@ public class TCTranslate {
 	
 	public TCTranslate(String _lang) {
 		this.provides = _lang;
-		if(_lang.contentEquals("en_US")) this.dict.putAll((Map)TCEnglishDefault.defaults);
-		else this.loadDictionary();
+		if(_lang.equals("en_US")) this.dict.putAll((Map)TCEnglishDefault.defaults);
+		else if(!this.loadDictionary()) {
+			if(_lang.equals("ru_RU")) this.dict.putAll((Map)TCRussianDefault.defaults);
+			else if(_lang.equals("de_DE")) this.dict.putAll((Map)TCGermanDefault.defaults);
+			else if(_lang.equals("es_ES")) this.dict.putAll((Map)TCSpanishDefault.defaults);
+			else if(_lang.equals("et_EE")) this.dict.putAll((Map)TCEstonianDefault.defaults);
+			else this.dict.putAll((Map)TCEnglishDefault.defaults);
+		}
 	}
 	
-	private void initEnglishDefaults() {
-		Properties defaults = new Properties();
-	}
-	
-	private void loadDictionary() {
-		if(this.provides == null) return;
+	private boolean loadDictionary() {
+		if(this.provides == null) return false;
 		
 		File languageDir = new File(ITCSettingsGUI.tabbyChatDir, "lang");
 		File languageFile = new File(languageDir, "tabbychat.dictionary."+this.provides);
 		if(!languageFile.canRead()) {
 			this.dict.clear();
 			this.dict.putAll((Map)TCEnglishDefault.defaults);
-			return;
+			return false;
 		}
 		
 		Properties dictTable = new Properties(TCEnglishDefault.defaults);
@@ -43,11 +45,12 @@ public class TCTranslate {
 			bInStream.close();
 		} catch (Exception e) {
 			TabbyChat.printErr("Unable to load translation for "+this.provides);
-			return;
+			return false;
 		}
 		
 		this.dict.clear();
 		this.dict.putAll((Map)dictTable);
+		return true;
 	}
 	
 	public String getString(String field) {
