@@ -51,12 +51,12 @@ public class BackgroundChatThread extends Thread {
 					e.printStackTrace();
 				}
 				sendPart = new StringBuilder(119);
+				if(toSplit[word].startsWith("/")) sendPart.append("_");
 			}
 			sendPart.append(toSplit[word] + " ");
 		}
 		if (sendPart.length() > 0 || cmdPrefix.length() > 0) {
 			mc.thePlayer.sendChatMessage(cmdPrefix + sendPart.toString().trim());
-			
 		}
 	}
 }
