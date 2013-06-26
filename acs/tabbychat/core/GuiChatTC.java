@@ -510,7 +510,7 @@ public class GuiChatTC extends GuiChat {
 			break;
 		default:
 			// CTRL + NUM1-9: Make the numbered tab active
-			if(GuiScreen.isCtrlKeyDown()) {
+			if(GuiScreen.isCtrlKeyDown() && !Keyboard.isKeyDown(Keyboard.KEY_LMENU) && !Keyboard.isKeyDown(Keyboard.KEY_RMENU)) {
 				if(_code > 1 && _code < 12) {
 					tc.activateIndex(_code-1);
 				// CTRL+O: open options
