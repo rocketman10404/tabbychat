@@ -9,6 +9,7 @@ import org.lwjgl.input.Keyboard;
 import acs.tabbychat.core.ChatChannel;
 import acs.tabbychat.core.GuiNewChatTC;
 import acs.tabbychat.core.TabbyChat;
+import acs.tabbychat.lang.TCTranslate;
 import acs.tabbychat.settings.ITCSetting;
 import acs.tabbychat.settings.TCSettingBool;
 import acs.tabbychat.settings.TCSettingTextBox;
@@ -143,7 +144,13 @@ public class ChatChannelGUI extends GuiScreen {
 		while(_chanPtr.hasNext()) {
 			if(this.channel.getTitle().equals(_chanPtr.next())) break;
 			position++;
-		}		
+		}
+		if(!TabbyChat.translator.getCurrentLang().equals(mc.gameSettings.language)) {
+			TabbyChat.translator = new TCTranslate(mc.gameSettings.language);
+		}
+		for(Object drawable : this.buttonList) {
+			if(drawable instanceof ITCSetting) ((ITCSetting)drawable).resetDescription();
+		}
 	}
 	
 	protected void keyTyped(char par1, int par2) {

@@ -8,6 +8,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import acs.tabbychat.core.TabbyChat;
+import acs.tabbychat.lang.TCTranslate;
 import acs.tabbychat.settings.ITCSetting;
 import acs.tabbychat.settings.TCSettingSlider;
 import acs.tabbychat.settings.TCSettingTextBox;
@@ -149,7 +150,13 @@ abstract class TCSettingsGUI extends GuiScreen implements ITCSettingsGUI {
 		}
 		this.defineDrawableSettings();
 		this.initDrawableSettings();
-		this.validateButtonStates();	
+		this.validateButtonStates();
+		if(!TabbyChat.translator.getCurrentLang().equals(mc.gameSettings.language)) {
+			TabbyChat.translator = new TCTranslate(mc.gameSettings.language);
+		}
+		for(Object drawable : this.buttonList) {
+			if(drawable instanceof ITCSetting) ((ITCSetting)drawable).resetDescription();
+		}
 	}
 	
 	public void keyTyped(char par1, int par2) {

@@ -2,10 +2,13 @@ package acs.tabbychat.lang;
 
 import java.util.Properties;
 
-public class TCSpanishDefault {
-	protected static Properties defaults = new Properties();
-	
+public class TCLanguageSpanish extends TCLanguage {
+	protected static String provides;
+	protected final static Properties defaults = new Properties();
 	static {
+		provides = "es_ES";
+		defaults.clear();
+		
 		// Espa&ntilde;ol, from juanjose920
 		// SPANISH STRINGS FOR DELIMITERS
 		defaults.setProperty("delims.angles", "<\u00C1ngulos>");

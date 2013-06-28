@@ -2,10 +2,13 @@ package acs.tabbychat.lang;
 
 import java.util.Properties;
 
-public class TCGermanDefault {
-	protected static Properties defaults = new Properties();
-	
+public class TCLanguageGerman extends TCLanguage {
+	protected static String provides;
+	protected final static Properties defaults = new Properties();
 	static {
+		provides = "de_DE";
+		defaults.clear();
+		
 		// Deutsch, from Schoelle/Gleydar11
 		// GERMAN STRINGS FOR DELIMITERS
 		defaults.setProperty("delims.angles", "<Spitze Klammern>");

@@ -15,6 +15,7 @@ abstract class TCSetting extends GuiButton implements ITCSetting {
 	protected int labelX;
 	public String description;
 	protected String type;
+	public final String categoryName;
 	public final String propertyName;
 	protected Object value;
 	protected Object tempValue;
@@ -28,6 +29,7 @@ abstract class TCSetting extends GuiButton implements ITCSetting {
 		this.tempValue = theSetting;
 		this.theDefault = theSetting;
 		this.propertyName = theProperty;
+		this.categoryName = theCategory;
 		this.description = TabbyChat.translator.getString(theCategory + "." + theProperty.toLowerCase());
 	}
 	
@@ -89,6 +91,10 @@ abstract class TCSetting extends GuiButton implements ITCSetting {
 		
 	public void reset() {
 		this.tempValue = this.value;
+	}
+	
+	public void resetDescription() {
+		this.description = TabbyChat.translator.getString(this.categoryName + "." + this.propertyName.toLowerCase());
 	}
 	
 	public void save() {

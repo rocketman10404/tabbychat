@@ -2,10 +2,13 @@ package acs.tabbychat.lang;
 
 import java.util.Properties;
 
-public class TCRussianDefault {
-	protected static Properties defaults = new Properties();
-	
+public class TCLanguageRussian extends TCLanguage {
+	protected static String provides;
+	protected final static Properties defaults = new Properties();
 	static {
+		provides = "ru_RU";
+		defaults.clear();
+		
 		// Russian, from Stalkerdeni971
 		// RUSSIAN STRINGS FOR DELIMITERS
 		defaults.setProperty("delims.angles", "<\u0423\u0433\u043B\u044B>");

@@ -34,6 +34,8 @@ public interface ITCSetting {
 	
 	public void reset();
 	
+	public void resetDescription();
+	
 	public void save();
 	
 	public void saveSelfToProps(Properties writeProps);

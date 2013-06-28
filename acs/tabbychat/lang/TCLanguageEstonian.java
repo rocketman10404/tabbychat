@@ -2,10 +2,13 @@ package acs.tabbychat.lang;
 
 import java.util.Properties;
 
-public class TCEstonianDefault {
-	protected static Properties defaults = new Properties();
-	
+public class TCLanguageEstonian extends TCLanguage {
+	protected static String provides;
+	protected final static Properties defaults = new Properties();
 	static {
+		provides = "et_EE";
+		defaults.clear();
+		
 		// Estonian, from robotkoer
 		// ESTONIAN STRINGS FOR DELIMITERS
 		defaults.setProperty("delims.angles", "<Nurksulud>");
