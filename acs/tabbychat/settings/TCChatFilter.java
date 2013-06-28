@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import net.minecraft.client.Minecraft;
 
@@ -118,8 +119,14 @@ public class TCChatFilter {
 	}
 	
 	public void compilePattern() {
-		if(this.caseSensitive) this.expressionPattern = Pattern.compile(this.expressionString);
-		else this.expressionPattern = Pattern.compile(this.expressionString, Pattern.CASE_INSENSITIVE);
+		try {
+			if(this.caseSensitive) this.expressionPattern = Pattern.compile(this.expressionString);
+			else this.expressionPattern = Pattern.compile(this.expressionString, Pattern.CASE_INSENSITIVE);
+		} catch (PatternSyntaxException e) {
+			TabbyChat.printMessageToChat("Invalid expression entered for filter '"+this.filterName+"', resetting to default.");
+			this.expressionString = ".*";
+			this.expressionPattern = Pattern.compile(this.expressionString);
+		}
 	}
 	
 	public void compilePattern(String newExpression) {
