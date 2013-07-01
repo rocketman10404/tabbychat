@@ -35,6 +35,7 @@ import net.minecraft.src.GuiIngame;
 import net.minecraft.src.GuiNewChat;
 import net.minecraft.src.GuiSleepMP;
 import net.minecraft.src.GuiTextField;
+import net.minecraft.src.ServerData;
 
 public class TabbyChatUtils {
 	
@@ -50,12 +51,29 @@ public class TabbyChatUtils {
 		String ip;
 		if(Minecraft.getMinecraft().isSingleplayer()) {
 			ip = "singleplayer";
-		} else if (Minecraft.getMinecraft().getServerData() == null) {
+		} else if (getServerData() == null) {
 			ip = "unknown";
 		} else {
-			ip = Minecraft.getMinecraft().getServerData().serverIP;
+			ip = getServerData().serverIP;
 		}
 		return ip;
+	}
+	
+	public static ServerData getServerData() {
+		Minecraft mc = Minecraft.getMinecraft();
+		ServerData serverData = null;
+		for(Field field : Minecraft.class.getDeclaredFields()) {
+			if(field.getType() == ServerData.class) {
+				field.setAccessible(true);
+				try {
+					serverData = (ServerData)field.get(mc);
+				} catch (Exception e) {
+					TabbyChat.printException("Unable to find server information", e);
+				}
+				break;
+			}
+		}
+		return serverData;
 	}
 	
 	public static File getServerDir() {
