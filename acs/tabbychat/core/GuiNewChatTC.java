@@ -100,6 +100,7 @@ public class GuiNewChatTC extends GuiNewChat {
 	}
 
 	public @Override void clearChatMessages() {
+		if(this.chatLines == null || this.backupLines == null) return;
 		chatWriteLock.lock();
 		try {
 			this.chatLines.clear();

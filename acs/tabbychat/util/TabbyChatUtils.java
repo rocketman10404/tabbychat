@@ -263,7 +263,7 @@ public class TabbyChatUtils {
 		if(Minecraft.getMinecraft().ingameGUI.getChatGUI().getClass() != GuiNewChatTC.class) {
 			try {
 				Class IngameGui = GuiIngame.class;
-				Field persistantGuiField = IngameGui.getDeclaredFields()[3];
+				Field persistantGuiField = IngameGui.getDeclaredFields()[6];
 				persistantGuiField.setAccessible(true);
 				persistantGuiField.set(Minecraft.getMinecraft().ingameGUI, _gnc);
 				
