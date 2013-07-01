@@ -13,7 +13,7 @@ public interface ITCSettingsGUI {
 	int LINE_HEIGHT = 14;
 	int DISPLAY_WIDTH = 300;
 	int DISPLAY_HEIGHT = 180;
-	File tabbyChatDir = new File(Minecraft.getMinecraftDir(), new StringBuilder().append("config").append(File.separatorChar).append("tabbychat").toString());
+	File tabbyChatDir = new File(Minecraft.getMinecraft().mcDataDir, new StringBuilder().append("config").append(File.separatorChar).append("tabbychat").toString());
 	
 	public void actionPerformed(GuiButton button);
 	

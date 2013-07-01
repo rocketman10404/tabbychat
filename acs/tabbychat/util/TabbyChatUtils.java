@@ -39,7 +39,7 @@ import net.minecraft.src.GuiTextField;
 public class TabbyChatUtils {
 	
 	private static Calendar logDay = Calendar.getInstance();
-	private static File logDir = new File(Minecraft.getMinecraftDir(), "TabbyChatLogs");
+	private static File logDir = new File(Minecraft.getMinecraft().mcDataDir, "TabbyChatLogs");
 	private static File logFile;
 	private static SimpleDateFormat logNameFormat = new SimpleDateFormat("'TabbyChatLog_'MM-dd-yyyy'.txt'");
 	public static String version = "1.8.07";

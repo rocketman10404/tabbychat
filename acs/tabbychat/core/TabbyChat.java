@@ -416,8 +416,8 @@ public class TabbyChat {
 		toMePM.append("|^(\\p{L}{3,16}) whispers to you");
 		fromMePM.append("|^You whisper to (\\p{L}{3,16})");
 		
-		if(mc.thePlayer != null && mc.thePlayer.username != null) {
-			String me = mc.thePlayer.username;
+		if(mc.thePlayer != null && mc.thePlayer.getEntityName() != null) {
+			String me = mc.thePlayer.getEntityName();
 
 			// Matches '[Player->Player1]' and '[Player1->Player]'
 			toMePM.append("|^\\[(\\p{L}{3,16})[ ]?\\-\\>[ ]?").append(me).append("\\]");
@@ -706,7 +706,7 @@ public class TabbyChat {
 	
 	private void updateChanDataPath(boolean make) {
 		String pName = "";
-		if(mc.thePlayer != null && mc.thePlayer.username != null) pName = mc.thePlayer.username;
+		if(mc.thePlayer != null && mc.thePlayer.getEntityName() != null) pName = mc.thePlayer.getEntityName();
 		File parentDir = TabbyChatUtils.getServerDir();
 		if(make && !parentDir.exists()) parentDir.mkdirs();
 		chanDataFile = new File(parentDir, pName + "_chanData.ser");
