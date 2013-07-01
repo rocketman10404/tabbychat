@@ -5,7 +5,7 @@ import java.util.Properties;
 import org.lwjgl.opengl.GL11;
 
 import acs.tabbychat.core.TabbyChat;
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.FontRenderer;
 import net.minecraft.src.GuiButton;
 

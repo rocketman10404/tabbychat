@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 
 import acs.tabbychat.core.TabbyChat;
 

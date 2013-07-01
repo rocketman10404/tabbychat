@@ -3,7 +3,7 @@ package acs.tabbychat.gui;
 import java.io.File;
 import java.util.Properties;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.GuiButton;
 
 public interface ITCSettingsGUI {

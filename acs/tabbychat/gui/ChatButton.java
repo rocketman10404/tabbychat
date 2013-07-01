@@ -9,7 +9,7 @@ import acs.tabbychat.core.ChatChannel;
 import acs.tabbychat.core.GuiNewChatTC;
 import acs.tabbychat.core.TabbyChat;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.FontRenderer;
 import net.minecraft.src.Gui;
 import net.minecraft.src.GuiButton;

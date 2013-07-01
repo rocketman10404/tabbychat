@@ -13,7 +13,7 @@ import org.lwjgl.opengl.GL11;
 import acs.tabbychat.gui.ChatBox;
 import acs.tabbychat.gui.ChatButton;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.ChatLine;
 import net.minecraft.src.Gui;
 import net.minecraft.src.GuiButton;

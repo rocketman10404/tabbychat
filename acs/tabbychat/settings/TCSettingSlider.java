@@ -6,7 +6,7 @@ import org.lwjgl.input.Mouse;
 import acs.tabbychat.util.TabbyChatUtils;
 
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.GuiTextField;
 
 public class TCSettingSlider extends TCSetting implements ITCSetting {

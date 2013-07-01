@@ -11,7 +11,7 @@ import acs.tabbychat.core.GuiNewChatTC;
 import acs.tabbychat.core.TabbyChat;
 import acs.tabbychat.gui.ChatButton;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.GuiButton;
 import net.minecraft.src.GuiScreen;
 import net.minecraft.src.GuiTextField;

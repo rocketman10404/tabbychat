@@ -35,7 +35,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.Gui;
 import net.minecraft.src.GuiMainMenu;
 import net.minecraft.src.StringUtils;

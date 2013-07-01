@@ -2,7 +2,7 @@ package acs.tabbychat.settings;
 
 import org.lwjgl.opengl.GL11;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.FontRenderer;
 
 public class TCSettingBool extends TCSetting implements ITCSetting {

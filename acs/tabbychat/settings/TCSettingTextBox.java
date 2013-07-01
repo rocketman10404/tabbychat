@@ -1,6 +1,6 @@
 package acs.tabbychat.settings;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.GuiTextField;
 
 public class TCSettingTextBox extends TCSetting implements ITCSetting {

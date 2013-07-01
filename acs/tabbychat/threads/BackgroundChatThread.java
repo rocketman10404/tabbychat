@@ -1,7 +1,7 @@
 package acs.tabbychat.threads;
 
 import acs.tabbychat.core.TabbyChat;
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 
 public class BackgroundChatThread extends Thread {
 	String sendChat = "";

@@ -13,7 +13,7 @@ import acs.tabbychat.gui.ChatBox;
 import acs.tabbychat.gui.ChatScrollBar;
 import acs.tabbychat.settings.TimeStampEnum;
 import acs.tabbychat.util.TabbyChatUtils;
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.Gui;
 import net.minecraft.src.GuiChat;
 import net.minecraft.src.GuiNewChat;
@@ -21,6 +21,7 @@ import net.minecraft.src.ILogAgent;
 import net.minecraft.src.MathHelper;
 import net.minecraft.src.ScaledResolution;
 import net.minecraft.src.ChatLine;
+import net.minecraft.src.StatCollector;
 import net.minecraft.src.StringTranslate;
 import net.minecraft.src.StringUtils;
 import net.minecraft.src.ChatClickData;
@@ -81,7 +82,7 @@ public class GuiNewChatTC extends GuiNewChat {
 	}
 	
 	public @Override void addTranslatedMessage(String par1Str, Object ... par2ArrayOfObj) {
-		this.printChatMessage(StringTranslate.getInstance().translateKeyFormat(par1Str, par2ArrayOfObj));
+		this.printChatMessage(StatCollector.translateToLocalFormatted(par1Str, par2ArrayOfObj));
 	}
 
 	public int chatLinesTraveled() {

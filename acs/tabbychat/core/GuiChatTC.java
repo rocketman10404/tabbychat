@@ -22,7 +22,7 @@ import acs.tabbychat.gui.ChatScrollBar;
 import acs.tabbychat.gui.PrefsButton;
 import acs.tabbychat.util.TabbyChatUtils;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.ChatClickData;
 import net.minecraft.src.GuiButton;
 import net.minecraft.src.GuiChat;
@@ -33,6 +33,7 @@ import net.minecraft.src.NetClientHandler;
 import net.minecraft.src.Packet19EntityAction;
 import net.minecraft.src.Packet203AutoComplete;
 import net.minecraft.src.ScaledResolution;
+import net.minecraft.src.StatCollector;
 import net.minecraft.src.StringTranslate;
 
 public class GuiChatTC extends GuiChat {
@@ -392,7 +393,7 @@ public class GuiChatTC extends GuiChat {
 		}
 		
 		if(mc.thePlayer != null && mc.theWorld != null && mc.thePlayer.isPlayerSleeping()) {
-			PrefsButton leaveBed = new PrefsButton(1, this.width/2 - 100, this.height - 50, 200, 14, StringTranslate.getInstance().translateKey("multiplayer.stopSleeping"), 0x55ffffff);
+			PrefsButton leaveBed = new PrefsButton(1, this.width/2 - 100, this.height - 50, 200, 14, StatCollector.translateToLocal("multiplayer.stopSleeping"), 0x55ffffff);
 			this.buttonList.add(leaveBed);
 		}
 		

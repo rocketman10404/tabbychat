@@ -2,7 +2,7 @@ package acs.tabbychat.settings;
 
 import java.util.Properties;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 
 public interface ITCSetting {
 

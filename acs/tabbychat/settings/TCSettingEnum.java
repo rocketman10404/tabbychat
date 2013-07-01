@@ -8,7 +8,7 @@ import org.lwjgl.input.Mouse;
 import acs.tabbychat.util.TabbyChatUtils;
 
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 
 public class TCSettingEnum extends TCSetting implements ITCSetting {
 	{

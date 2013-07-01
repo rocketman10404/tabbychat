@@ -7,7 +7,7 @@ import org.lwjgl.input.Mouse;
 import acs.tabbychat.core.GuiNewChatTC;
 import acs.tabbychat.core.TabbyChat;
 import acs.tabbychat.settings.TimeStampEnum;
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.GuiChat;
 import net.minecraft.src.MathHelper;
 

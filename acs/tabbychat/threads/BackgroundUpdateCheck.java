@@ -7,7 +7,7 @@ import acs.tabbychat.core.GuiNewChatTC;
 import acs.tabbychat.core.TCChatLine;
 import acs.tabbychat.core.TabbyChat;
 import acs.tabbychat.util.TabbyChatUtils;
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 
 public class BackgroundUpdateCheck extends Thread {
 	private static String newest = "";

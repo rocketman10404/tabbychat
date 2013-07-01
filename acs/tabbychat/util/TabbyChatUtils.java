@@ -27,8 +27,7 @@ import acs.tabbychat.settings.NotificationSoundEnum;
 import acs.tabbychat.settings.TimeStampEnum;
 import acs.tabbychat.threads.BackgroundChatThread;
 
-import net.minecraft.client.Minecraft;
-
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.ChatLine;
 import net.minecraft.src.Gui;
 import net.minecraft.src.GuiChat;

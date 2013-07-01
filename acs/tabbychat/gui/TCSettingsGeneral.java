@@ -20,7 +20,7 @@ import acs.tabbychat.settings.TCSettingEnum;
 import acs.tabbychat.settings.TimeStampEnum;
 import acs.tabbychat.util.TabbyChatUtils;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.GuiButton;
 import net.minecraft.src.ServerData;
 

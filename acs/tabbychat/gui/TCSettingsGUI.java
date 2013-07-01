@@ -1,6 +1,6 @@
 package acs.tabbychat.gui;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.GuiScreen;
 import net.minecraft.src.GuiButton;
 import org.lwjgl.input.Mouse;
