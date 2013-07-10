@@ -15,8 +15,8 @@ public class TCLanguageEstonian extends TCLanguage {
 		defaults.setProperty("delims.braces", "{Looksulud}");
 		defaults.setProperty("delims.brackets", "[Kantsulud]");
 		defaults.setProperty("delims.parenthesis", "(\u00DCmarsulud)");
-		defaults.setProperty("delims.anglesparenscombo", "<(Kombinatsioon)Pl.>");
-		defaults.setProperty("delims.anglesbracketscombo", "<[Kombinatsioon]Pl.>");
+		defaults.setProperty("delims.anglesparenscombo", "<(Kombinatsioon)M\u00E4.>");
+		defaults.setProperty("delims.anglesbracketscombo", "<[Kombinatsioon]M\u00E4.>");
 		//
 		// ESTONIAN STRINGS FOR COLORS
 		defaults.setProperty("colors.default", "Tavaline");
@@ -74,21 +74,21 @@ public class TCLanguageEstonian extends TCLanguage {
 		defaults.setProperty("settings.delete", "Kustuta");
 		//
 		// ESTONIAN STRINGS FOR SETTINGS - 'GENERAL CONFIG'
-		defaults.setProperty("settings.general.name", "P\u00F5his\u00E4tted");
+		defaults.setProperty("settings.general.name", "P\u00F5hilised s\u00E4tted");
 		defaults.setProperty("settings.general.tabbychatenable", "TabbyChat lubatud");
 		defaults.setProperty("settings.general.savechatlog", "Logi vestlus faili");
 		defaults.setProperty("settings.general.timestampenable", "Ajatembelda vestlus");
 		defaults.setProperty("settings.general.timestampstyle", "Ajatempli vorming");
 		defaults.setProperty("settings.general.timestampcolor", "Ajatempli v\u00E4rv");
-		defaults.setProperty("settings.general.groupspam", "\u00DChenda spammitud vestlus");
+		defaults.setProperty("settings.general.groupspam", "\u00DChenda korratud s\u00F5numid");
 		defaults.setProperty("settings.general.unreadflashing", "Lugemata teadete korral vilguta");
 		//
 		// ESTONIAN STRING FOR SETTINGS - 'SERVER CONFIG'
 		defaults.setProperty("settings.server.name", "Serveri s\u00E4tted");
 		defaults.setProperty("settings.server.autochannelsearch", "Otsi automaatselt uusi kanaleid");
-		defaults.setProperty("settings.server.delimiterchars", "Vestlus-kanalite eraldajad");
-		defaults.setProperty("settings.server.delimcolorbool", "V\u00E4rvilised eraldajad");
-		defaults.setProperty("settings.server.delimformatbool", "Vormindatud eraldajad");
+		defaults.setProperty("settings.server.delimiterchars", "Vestluskanalite eraldajad");
+		defaults.setProperty("settings.server.delimcolorbool", "Eraldajate v\u00E4rv");
+		defaults.setProperty("settings.server.delimformatbool", "Eraldajate vorming");
 		defaults.setProperty("settings.server.defaultchannels", "Vaikimisi kanalid");
 		defaults.setProperty("settings.server.ignoredchannels", "Ignoreeritud kanalid");
 		//
@@ -109,16 +109,16 @@ public class TCLanguageEstonian extends TCLanguage {
 		defaults.setProperty("settings.filters.expressionstring", "Regular Expression");
 		//
 		// ESTONIAN STRINGS FOR SETTINGS - 'ADVANCED SETTINGS'
-		defaults.setProperty("settings.advanced.name", "Edasij\u00F5udnud s\u00E4tted");
-		defaults.setProperty("settings.advanced.chatscrollhistory", "S\u00E4ilitatav vestluse ajalugu (read)");
-		defaults.setProperty("settings.advanced.maxlengthchannelname", "Kanali nime maksimaalne pikkus");
+		defaults.setProperty("settings.advanced.name", "T\u00E4psemad s\u00E4tted");
+		defaults.setProperty("settings.advanced.chatscrollhistory", "S\u00E4ilitatav vestluse ajalugu (rida)");
+		defaults.setProperty("settings.advanced.maxlengthchannelname", "Kanali nime maksimaalne pikkus (m\u00E4rki)");
 		defaults.setProperty("settings.advanced.multichatdelay", "Multis\u00F5numi saatmise viivitus (ms)");
 		defaults.setProperty("settings.advanced.chatboxunfocheight", "Fokuseerimata vestluse k\u00F5rgus");
-		defaults.setProperty("settings.advanced.chatfadeticks", "Vestluse hajumisaeg (ticks'ides)");
-		defaults.setProperty("settings.advanced.forceunicode", "Sunni Unicode-teksti kuvamine vestluses");
+		defaults.setProperty("settings.advanced.chatfadeticks", "Vestluse hajumisaeg (tick'i)");
+		defaults.setProperty("settings.advanced.forceunicode", "Sunni teksti kuvamine Unicode vormingus");
 		//
 		// ESTONIAN STRINGS FOR SETTINGS - CHAT CHANNEL
-		defaults.setProperty("settings.channel.notificationson", "Lugemata teated");
+		defaults.setProperty("settings.channel.notificationson", "Lugemata s\u00F5numite korral teata");
 		defaults.setProperty("settings.channel.alias", "H\u00FC\u00FCdnimi");
 		defaults.setProperty("settings.channel.cmdprefix", "Vestluse k\u00E4su eesliide");
 		defaults.setProperty("settings.channel.position", "Asukoht:");

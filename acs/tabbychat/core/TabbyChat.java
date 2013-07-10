@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
 import net.minecraft.src.Minecraft;
 import net.minecraft.src.Gui;
 import net.minecraft.src.GuiMainMenu;
+import net.minecraft.src.ServerData;
 import net.minecraft.src.StringUtils;
 import acs.tabbychat.gui.ChatBox;
 import acs.tabbychat.gui.ITCSettingsGUI;
@@ -61,6 +62,7 @@ public class TabbyChat {
 	public static boolean liteLoaded = false;
 	public static boolean modLoaded = false;
 	private static boolean updateChecked = false;
+	private static String mcversion = (new ServerData("","")).gameVersion;
 	public static boolean defaultUnicode;
 	public static String version = TabbyChatUtils.version;
 	public static Minecraft mc;
@@ -112,9 +114,9 @@ public class TabbyChat {
 	private static String getNewestVersion() {
 		String updateURL;
 		if(liteLoaded) {
-			updateURL = "http://tabbychat.port0.org/tabbychat/current_version.php?type=LL&mc=1.5.2";
+			updateURL = "http://tabbychat.port0.org/tabbychat/current_version.php?type=LL&mc="+mcversion;
 		} else {
-			updateURL = "http://tabbychat.port0.org/tabbychat/current_version.php?mc=1.5.2";
+			updateURL = "http://tabbychat.port0.org/tabbychat/current_version.php?mc="+mcversion;
 		}
 		try {
 			HttpURLConnection conn = (HttpURLConnection) new URL(updateURL).openConnection();

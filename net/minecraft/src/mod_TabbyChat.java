@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.src.Minecraft;
 import net.minecraft.src.GuiIngame;
 import acs.tabbychat.core.GuiChatTC;
 import acs.tabbychat.core.GuiNewChatTC;
