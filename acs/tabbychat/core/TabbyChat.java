@@ -23,12 +23,14 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -462,50 +464,31 @@ public class TabbyChat {
 		}
 	}
 
-	public int processChat(List<TCChatLine> theChat) {
-		if(this.serverDataLock.availablePermits() == 0) {
-			this.serverDataLock.acquireUninterruptibly();
-			this.serverDataLock.release();
-		}
-
-		ArrayList<TCChatLine> filteredChatLine = new ArrayList<TCChatLine>(theChat.size());
-		List<String> toTabs = new ArrayList<String>();
-		toTabs.add("*");
-
-		int _ind;
-		int ret = 0;
-		boolean skip = !serverSettings.autoChannelSearch.getValue();
-
-		int n = theChat.size();
-		StringBuilder filteredChat = new StringBuilder(theChat.get(0).getChatLineString().length() * n);
-		for (int z=0; z<n; z++)
-			filteredChat.append(theChat.get(z).getChatLineString());
-
+	private String processChatForFilters(String chat, List<String> destinations) {
+		// Flag case where chat matches a 'remove' filter, bypassing any remaining filter processing
+		boolean skip = false;
+		
+		// Iterate through defined filters
 		Entry<Integer, TCChatFilter> iFilter = filterSettings.filterMap.firstEntry();
-		//for (int i = 0; i < filterSettings.numFilters; i++) {
 		while(iFilter != null) {
-			if (iFilter.getValue().applyFilterToDirtyChat(filteredChat.toString())) {
+			if (iFilter.getValue().applyFilterToDirtyChat(chat)) {
 				if (iFilter.getValue().removeMatches) {
-					toTabs.clear();
-					toTabs.add("*");
+					destinations.clear();
 					skip = true;
 					break;
 				}
-				filteredChat = new StringBuilder(iFilter.getValue().getLastMatchPretty());
+				chat = iFilter.getValue().getLastMatchPretty();
 				if (iFilter.getValue().sendToTabBool) {
 					if (iFilter.getValue().sendToAllTabs) {
-						toTabs.clear();
+						destinations.clear();
 						for (ChatChannel chan : this.channelMap.values())
-							toTabs.add(chan.getTitle());
-						skip = true;
+							destinations.add(chan.getTitle());
+						//skip = true;
 						continue;
 					} else {
 						String destTab = iFilter.getValue().sendToTabName;
-						if (!this.channelMap.containsKey(destTab)) {
-							this.channelMap.put(destTab, new ChatChannel(destTab));
-						}
-						if (!toTabs.contains(destTab))
-							toTabs.add(destTab);
+						if (!destinations.contains(destTab))
+							destinations.add(destTab);
 					}
 				}
 				if (iFilter.getValue().audioNotificationBool)
@@ -513,85 +496,168 @@ public class TabbyChat {
 			}
 			iFilter = filterSettings.filterMap.higherEntry(iFilter.getKey());
 		}
+		
+		if(!skip) return chat;
+		else return null;
+	}
 
-		Iterator splitChat = mc.fontRenderer.listFormattedStringToWidth(filteredChat.toString(), gnc.chatWidth).iterator();
-		boolean firstline = true;
-		while (splitChat.hasNext()) {
-			String _line = (String)splitChat.next();
-			if (!firstline)
-				_line = " " + _line;
-			filteredChatLine.add(new TCChatLine(theChat.get(0).getUpdatedCounter(), _line, theChat.get(0).getChatLineID(), theChat.get(0).statusMsg));
-			firstline = false;
-		}
-
-		for (String c : toTabs) {
-			this.addToChannel(c, filteredChatLine);
-		}
-
-		for (String _act : this.getActive()) {
-			if (toTabs.contains(_act))
-				ret++;
-		}
-
-		String coloredChat = "";
-		for (TCChatLine cl : theChat)
-			coloredChat = coloredChat + cl.getChatLineString();
-		String cleanedChat = StringUtils.stripControlCodes(coloredChat);
-		if (generalSettings.saveChatLog.getValue()) TabbyChatUtils.logChat(this.withTimeStamp(cleanedChat, true));
-
-		Matcher findChannelClean = this.chatChannelPatternClean.matcher(cleanedChat);
-		Matcher findChannelDirty = this.chatChannelPatternDirty.matcher(coloredChat);
-		String cName = null;
-		boolean dirtyValid = (!serverSettings.delimColorBool.getValue() && !serverSettings.delimFormatBool.getValue()) ? true : findChannelDirty.find();
-		if (findChannelClean.find() && dirtyValid) {
-			cName = findChannelClean.group(1);
-			ret += this.addToChannel(cName, filteredChatLine);
-			toTabs.add(cName);
-		} else if(this.chatPMtoMePattern != null && !skip){
-			Matcher findPMtoMe = this.chatPMtoMePattern.matcher(cleanedChat);
+	private String processChatForChannels(String clean, String raw) {
+		Matcher findChannelClean = this.chatChannelPatternClean.matcher(clean);
+		Matcher findChannelDirty = this.chatChannelPatternDirty.matcher(raw);
+		boolean dirtyCheck = (!serverSettings.delimColorBool.getValue() && !serverSettings.delimFormatBool.getValue()) ? true : findChannelDirty.find();
+		if (findChannelClean.find() && dirtyCheck) return findChannelClean.group(1);
+		return null;
+	}
+	
+	private String processChatForPMs(String chat) {
+		if(this.chatPMtoMePattern != null) {
+			Matcher findPMtoMe = this.chatPMtoMePattern.matcher(chat);
 			if (findPMtoMe.find()) {
 				for(int i=1;i<=findPMtoMe.groupCount();i++) {
-					if(findPMtoMe.group(i) != null) {
-						cName = findPMtoMe.group(i);
-						if(!this.channelMap.containsKey(cName)) {
-							ChatChannel newPM = new ChatChannel(cName);
-							newPM.cmdPrefix = "/msg "+cName;
-							this.channelMap.put(cName, newPM);
-						}
-						ret += this.addToChannel(cName, filteredChatLine);
-						toTabs.add(cName);
-						break;
-					}
+					if(findPMtoMe.group(i) != null) return findPMtoMe.group(i);
 				}
 			} else if(this.chatPMfromMePattern != null) {
-				Matcher findPMfromMe = this.chatPMfromMePattern.matcher(cleanedChat);
+				Matcher findPMfromMe = this.chatPMfromMePattern.matcher(chat);
 				if (findPMfromMe.find()) {
 					for(int i=1;i<=findPMfromMe.groupCount();i++) {
-						if(findPMfromMe.group(i) != null) {
-							cName = findPMfromMe.group(i);
-							if(!this.channelMap.containsKey(cName)) {
-								ChatChannel newPM = new ChatChannel(cName);
-								newPM.cmdPrefix = "/msg "+cName;
-								this.channelMap.put(cName, newPM);
-							}
-							ret += this.addToChannel(cName, filteredChatLine);
-							toTabs.add(cName);
-							break;
-						}
+						if(findPMfromMe.group(i) != null) return findPMfromMe.group(i);
 					}
 				}
 			}
 		}
-
-		if (ret == 0) {
-			for (String c : toTabs) {
-				if (c != "*" && this.channelMap.containsKey(c)) {
-					this.channelMap.get(c).unread = true;
-				}
-			}
+		return null;
+	}
+	
+	public int processChat(List<TCChatLine> theChat) {
+		if(this.serverDataLock.availablePermits() == 0) {
+			this.serverDataLock.acquireUninterruptibly();
+			this.serverDataLock.release();
 		}
 
+		List<TCChatLine> resultChatLine;
+		List<String> toTabs = new ArrayList<String>(20);
+		List<String> filterTabs = new ArrayList<String>(20);
+		String channelTab = null;
+		String pmTab = null;
+		toTabs.add("*");
+
+		int _ind;
+		int ret = 0;
+		boolean skip = !serverSettings.autoChannelSearch.getValue();
+
+		StringBuilder rawChat = new StringBuilder();
+		for (int z=0; z<theChat.size(); z++)
+			rawChat.append(theChat.get(z).getChatLineString());
+		
+		String raw = rawChat.toString();
+		String filtered = this.processChatForFilters(raw, filterTabs);
+		// TODO: Handle filtered is null
+		
+
+//
+//		for (String c : toTabs) {
+//			this.addToChannel(c, filteredChatLine);
+//		}
+//
+//		for (String _act : this.getActive()) {
+//			if (toTabs.contains(_act))
+//				ret++;
+//		}
+//
+//		String coloredChat = "";
+//		for (TCChatLine cl : theChat)
+//			coloredChat = coloredChat + cl.getChatLineString();
+		String cleaned = StringUtils.stripControlCodes(raw);
+		if (generalSettings.saveChatLog.getValue()) TabbyChatUtils.logChat(this.withTimeStamp(cleaned, true));
+
+		if(filtered != null) {
+			channelTab = this.processChatForChannels(cleaned, raw);
+			if(channelTab == null) {
+				pmTab = this.processChatForPMs(cleaned);
+				if(pmTab != null) toTabs.add(pmTab);
+			} else toTabs.add(channelTab);
+			resultChatLine = theChat;
+		} else {
+			resultChatLine = new ArrayList<TCChatLine>(theChat.size());
+			Iterator splitChat = mc.fontRenderer.listFormattedStringToWidth(filtered, gnc.chatWidth).iterator();
+			boolean firstline = true;
+			while (splitChat.hasNext()) {
+				String _line = (String)splitChat.next();
+				if (!firstline)
+					_line = " " + _line;
+				resultChatLine.add(new TCChatLine(theChat.get(0).getUpdatedCounter(), _line, theChat.get(0).getChatLineID(), theChat.get(0).statusMsg));
+				firstline = false;
+			}
+		}
+		
+		toTabs.addAll(filterTabs);
+		Set<String> tabSet = new HashSet<String>(toTabs);
 		List<String> activeTabs = this.getActive();
+		
+		Iterator<String> tabIter = tabSet.iterator();
+		while(tabIter.hasNext()) {
+			String tab = tabIter.next();
+			if(!this.channelMap.containsKey(tab)) {
+				this.channelMap.put(tab, new ChatChannel(tab));
+				if(pmTab.equals(tab)) this.channelMap.get(tab).cmdPrefix = "/msg "+tab;
+			}
+			if(!activeTabs.contains(tab)) this.channelMap.get(tab).unread = true;
+			this.addToChannel(tab, resultChatLine);
+		}
+		
+		
+//		Matcher findChannelClean = this.chatChannelPatternClean.matcher(cleanedChat);
+//		Matcher findChannelDirty = this.chatChannelPatternDirty.matcher(coloredChat);
+//		String cName = null;
+//		boolean dirtyValid = (!serverSettings.delimColorBool.getValue() && !serverSettings.delimFormatBool.getValue()) ? true : findChannelDirty.find();
+//		if (findChannelClean.find() && dirtyValid) {
+//			cName = findChannelClean.group(1);
+//			ret += this.addToChannel(cName, filteredChatLine);
+//			toTabs.add(cName);
+//		} else if(this.chatPMtoMePattern != null && !skip){
+//			Matcher findPMtoMe = this.chatPMtoMePattern.matcher(cleanedChat);
+//			if (findPMtoMe.find()) {
+//				for(int i=1;i<=findPMtoMe.groupCount();i++) {
+//					if(findPMtoMe.group(i) != null) {
+//						cName = findPMtoMe.group(i);
+//						if(!this.channelMap.containsKey(cName)) {
+//							ChatChannel newPM = new ChatChannel(cName);
+//							newPM.cmdPrefix = "/msg "+cName;
+//							this.channelMap.put(cName, newPM);
+//						}
+//						ret += this.addToChannel(cName, filteredChatLine);
+//						toTabs.add(cName);
+//						break;
+//					}
+//				}
+//			} else if(this.chatPMfromMePattern != null) {
+//				Matcher findPMfromMe = this.chatPMfromMePattern.matcher(cleanedChat);
+//				if (findPMfromMe.find()) {
+//					for(int i=1;i<=findPMfromMe.groupCount();i++) {
+//						if(findPMfromMe.group(i) != null) {
+//							cName = findPMfromMe.group(i);
+//							if(!this.channelMap.containsKey(cName)) {
+//								ChatChannel newPM = new ChatChannel(cName);
+//								newPM.cmdPrefix = "/msg "+cName;
+//								this.channelMap.put(cName, newPM);
+//							}
+//							ret += this.addToChannel(cName, filteredChatLine);
+//							toTabs.add(cName);
+//							break;
+//						}
+//					}
+//				}
+//			}
+//		}
+
+//		if (ret == 0) {
+//			for (String c : toTabs) {
+//				if (c != "*" && this.channelMap.containsKey(c)) {
+//					this.channelMap.get(c).unread = true;
+//				}
+//			}
+//		}
+
 		this.lastChatWriteLock.lock();
 		try {
 			if (generalSettings.groupSpam.getValue() && activeTabs.size() > 0) {
