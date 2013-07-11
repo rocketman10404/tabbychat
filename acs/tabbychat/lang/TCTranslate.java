@@ -76,7 +76,10 @@ public class TCTranslate {
 	
 	public String getString(String field) {
 		String translated = this.dict.get(field);
-		if(translated == null) return " ";
-		else return translated;
+		if(translated == null) {
+			translated = TCLanguageEnglish.defaults.getProperty(field);
+			if(translated == null) return " ";
+		}
+		return translated;
 	}
 }

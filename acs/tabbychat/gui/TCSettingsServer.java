@@ -32,12 +32,14 @@ public class TCSettingsServer extends TCSettingsGUI {
 	private static final int DELIM_FORMAT_ENUM_ID = 9206;
 	private static final int DEFAULT_CHANNELS_ID = 9207;
 	private static final int IGNORED_CHANNELS_ID = 9208;
+	private static final int AUTO_PM_SEARCH_ID = 9209;
 	
 	{
 		this.propertyPrefix = "settings.server";
 	}
 	
 	public TCSettingBool autoChannelSearch = new TCSettingBool(true, "autoChannelSearch", this.propertyPrefix, AUTO_CHANNEL_SEARCH_ID);
+	public TCSettingBool autoPMSearch = new TCSettingBool(true, "autoPMSearch", this.propertyPrefix, AUTO_PM_SEARCH_ID);
 	public TCSettingEnum delimiterChars = new TCSettingEnum(ChannelDelimEnum.BRACKETS, "delimiterChars", this.propertyPrefix, CHATCHANNEL_DELIMS_ID);
 	public TCSettingBool delimColorBool = new TCSettingBool(false, "delimColorBool", this.propertyPrefix, DELIM_COLOR_BOOL_ID, FormatCodeEnum.ITALIC);
 	public TCSettingEnum delimColorCode = new TCSettingEnum(ColorCodeEnum.DEFAULT, "delimColorCode", "", DELIM_COLOR_ENUM_ID);
@@ -63,6 +65,7 @@ public class TCSettingsServer extends TCSettingsGUI {
 	
 	public void defineDrawableSettings() {
 		this.buttonList.add(this.autoChannelSearch);
+		this.buttonList.add(this.autoPMSearch);
 		this.buttonList.add(this.delimiterChars);
 		this.buttonList.add(this.delimColorBool);
 		this.buttonList.add(this.delimColorCode);
@@ -82,30 +85,34 @@ public class TCSettingsServer extends TCSettingsGUI {
 		this.autoChannelSearch.setLabelLoc(col1x + 19);
 		this.autoChannelSearch.buttonColor = buttonColor;
 		
+		this.autoPMSearch.setButtonLoc(col1x, this.rowY(2));
+		this.autoPMSearch.setLabelLoc(col1x + 19);
+		this.autoPMSearch.buttonColor = buttonColor;
+		
 		this.delimiterChars.setLabelLoc(col1x);
-		this.delimiterChars.setButtonLoc(col1x + 20 + mc.fontRenderer.getStringWidth(this.delimiterChars.description), this.rowY(2));
+		this.delimiterChars.setButtonLoc(col1x + 20 + mc.fontRenderer.getStringWidth(this.delimiterChars.description), this.rowY(3));
 		this.delimiterChars.setButtonDims(80, 11);
 
-		this.delimColorBool.setButtonLoc(col1x + 20, this.rowY(3));
+		this.delimColorBool.setButtonLoc(col1x + 20, this.rowY(4));
 		this.delimColorBool.setLabelLoc(col1x + 49);
 		this.delimColorBool.buttonColor = buttonColor;
 		
-		this.delimColorCode.setButtonLoc(effRight - 70, this.rowY(3));
+		this.delimColorCode.setButtonLoc(effRight - 70, this.rowY(4));
 		this.delimColorCode.setButtonDims(70, 11);
 		
-		this.delimFormatBool.setButtonLoc(col1x + 20, this.rowY(4));
+		this.delimFormatBool.setButtonLoc(col1x + 20, this.rowY(5));
 		this.delimFormatBool.setLabelLoc(col1x + 39);
 		this.delimFormatBool.buttonColor = buttonColor;
 		
-		this.delimFormatCode.setButtonLoc(this.delimColorCode.xPosition, this.rowY(4));
+		this.delimFormatCode.setButtonLoc(this.delimColorCode.xPosition, this.rowY(5));
 		this.delimFormatCode.setButtonDims(70, 11);
 		
 		this.defaultChannels.setLabelLoc(col1x);
-		this.defaultChannels.setButtonLoc(col1x + 5 + mc.fontRenderer.getStringWidth(this.defaultChannels.description), this.rowY(5));
+		this.defaultChannels.setButtonLoc(col1x + 5 + mc.fontRenderer.getStringWidth(this.defaultChannels.description), this.rowY(6));
 		this.defaultChannels.setButtonDims(effRight - this.defaultChannels.xPosition, 11);
 		
 		this.ignoredChannels.setLabelLoc(col1x);
-		this.ignoredChannels.setButtonLoc(col1x + 5 + mc.fontRenderer.getStringWidth(this.ignoredChannels.description), this.rowY(6));
+		this.ignoredChannels.setButtonLoc(col1x + 5 + mc.fontRenderer.getStringWidth(this.ignoredChannels.description), this.rowY(7));
 		this.ignoredChannels.setButtonDims(effRight - this.ignoredChannels.xPosition, 11);
 	}
 

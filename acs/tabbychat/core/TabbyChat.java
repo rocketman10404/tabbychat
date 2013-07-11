@@ -113,7 +113,7 @@ public class TabbyChat {
 		return instance;
 	}
 
-	private static String getNewestVersion() {
+	public static String getNewestVersion() {
 		String updateURL;
 		if(liteLoaded) {
 			updateURL = "http://tabbychat.port0.org/tabbychat/current_version.php?type=LL&mc="+mcversion;
@@ -256,7 +256,7 @@ public class TabbyChat {
 	public void checkServer() {
 		if(!updateChecked) {
 			updateChecked = true;
-			BackgroundUpdateCheck buc = new BackgroundUpdateCheck(TabbyChat.getNewestVersion());
+			BackgroundUpdateCheck buc = new BackgroundUpdateCheck();
 			buc.start();
 		}
 
@@ -544,7 +544,7 @@ public class TabbyChat {
 			channelTab = this.processChatForChannels(cleaned, raw);
 			if(channelTab == null) {
 				pmTab = this.processChatForPMs(cleaned);
-				if(pmTab != null) toTabs.add(pmTab);
+				//if(pmTab != null) toTabs.add(pmTab);
 			} else toTabs.add(channelTab);
 			toTabs.addAll(filterTabs);
 		} else {
@@ -557,10 +557,16 @@ public class TabbyChat {
 		Set<String> tabSet = new HashSet<String>(toTabs);
 		List<String> activeTabs = this.getActive();
 		
-		if(pmTab != null && !this.channelMap.containsKey(pmTab)) {
-			ChatChannel pm = new ChatChannel(pmTab);
-			pm.cmdPrefix = "/msg "+pmTab;
-			this.channelMap.put(pmTab, pm);
+		if(pmTab != null) {
+			if(!this.channelMap.containsKey(pmTab) && serverSettings.autoPMSearch.getValue()) {
+				ChatChannel pm = new ChatChannel(pmTab);
+				pm.cmdPrefix = "/msg "+pmTab;
+				this.channelMap.put(pmTab, pm);
+			}
+			if(this.channelMap.containsKey(pmTab)) {
+				this.addToChannel(pmTab, resultChatLine);
+				if(!activeTabs.contains(pmTab)) this.channelMap.get(pmTab).unread = true;
+			}
 		}
 		
 		boolean visible = false;
@@ -734,15 +740,6 @@ public class TabbyChat {
 		}
 		return stamped;
 	}
-
-//	private TCChatLine withTimeStamp(TCChatLine _orig) {
-//		TCChatLine stamped = _orig;
-//		if (generalSettings.timeStampEnable.getValue()) {
-//			this.cal = Calendar.getInstance();
-//			stamped = new TCChatLine(_orig.getUpdatedCounter(), generalSettings.timeStamp.format(this.cal.getTime())+_orig.getChatLineString(), _orig.getChatLineID());
-//		}
-//		return stamped;
-//	}
 	
 	private void addOptionalTimeStamp(List<TCChatLine> orig) {
 		for(TCChatLine line : orig) {

@@ -159,6 +159,7 @@ public class GuiNewChatTC extends GuiNewChat {
 					tc.advancedSettings.saveSettingsFile();
 				}
 				this.saveNeeded = false;
+				return;
 			} else {
 				this.saveNeeded = true;
 			}

@@ -10,13 +10,12 @@ import acs.tabbychat.util.TabbyChatUtils;
 import net.minecraft.src.Minecraft;
 
 public class BackgroundUpdateCheck extends Thread {
-	private static String newest = "";
 	
-	public BackgroundUpdateCheck(String _newest) {
-		newest = _newest;
+	public BackgroundUpdateCheck() {
 	}
 	
 	public void run() {
+		String newest = TabbyChat.getNewestVersion();
 		if(!TabbyChat.generalSettings.tabbyChatEnable.getValue()) return;
 		Minecraft mc = Minecraft.getMinecraft();
 		ArrayList<TCChatLine> updateMsg = new ArrayList<TCChatLine>();
