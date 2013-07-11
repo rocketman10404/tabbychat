@@ -54,7 +54,7 @@ public class GuiNewChatTC extends GuiNewChat {
 	public void addChatLines(int _pos, List<TCChatLine> _add) {
 		chatReadLock.lock();
 		try {
-			for(int i=_add.size()-1;i>=0;i--) {
+			for(int i=0; i<_add.size(); i++) {
 				this.chatLines.add(_pos,_add.get(i));
 				this.backupLines.add(_pos, _add.get(i));
 			}
