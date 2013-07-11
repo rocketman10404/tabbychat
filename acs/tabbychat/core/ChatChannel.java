@@ -64,6 +64,7 @@ public class ChatChannel implements Serializable {
 		} finally {
 			this.chatWriteLock.unlock();
 		}
+		if(!this.active) this.unread = true; 
 	}
 	
 	public boolean doesButtonEqual(GuiButton btnObj) {

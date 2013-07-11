@@ -563,10 +563,7 @@ public class TabbyChat {
 				pm.cmdPrefix = "/msg "+pmTab;
 				this.channelMap.put(pmTab, pm);
 			}
-			if(this.channelMap.containsKey(pmTab)) {
-				this.addToChannel(pmTab, resultChatLine);
-				if(!activeTabs.contains(pmTab)) this.channelMap.get(pmTab).unread = true;
-			}
+			if(this.channelMap.containsKey(pmTab)) this.addToChannel(pmTab, resultChatLine);
 		}
 		
 		boolean visible = false;
@@ -574,8 +571,7 @@ public class TabbyChat {
 		while(tabIter.hasNext()) {
 			String tab = tabIter.next();
 			this.addToChannel(tab, resultChatLine);
-			if(!activeTabs.contains(tab)) this.channelMap.get(tab).unread = true;
-			else visible = true;
+			if(activeTabs.contains(tab)) visible = true;
 		}
 
 		this.lastChatWriteLock.lock();
