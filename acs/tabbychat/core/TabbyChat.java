@@ -656,7 +656,7 @@ public class TabbyChat {
 			theChan.spamCount++;
 			for (int i=1; i<_size; i++)
 				theChan.setChatLogLine(i, lastChat.get(lastChat.size()-i-1));
-			theChan.setChatLogLine(0, new TCChatLine(lastChat.get(lastChat.size()-1).getUpdatedCounter(), this.withTimeStamp(lastChat.get(lastChat.size()-1).getChatLineString()) + " [" + theChan.spamCount + "x]", lastChat.get(lastChat.size()-1).getChatLineID()));
+			theChan.setChatLogLine(0, new TCChatLine(lastChat.get(lastChat.size()-1).getUpdatedCounter(), lastChat.get(lastChat.size()-1).getChatLineString() + " [" + theChan.spamCount + "x]", lastChat.get(lastChat.size()-1).getChatLineID()));
 		} else {
 			theChan.hasSpam = false;
 			theChan.spamCount = 1;
