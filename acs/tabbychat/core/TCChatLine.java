@@ -26,6 +26,10 @@ public class TCChatLine extends TCChatLineFake implements Serializable {
 		this.statusMsg = _stat;
 	}
 	
+	protected void setChatLineString(String newLine) {
+		this.lineString = newLine;
+	}
+	
 	private void writeObject(ObjectOutputStream _write) throws IOException {
 		_write.writeUTF(this.getChatLineString());
 		_write.writeBoolean(this.statusMsg);

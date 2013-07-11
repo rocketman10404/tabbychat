@@ -328,7 +328,7 @@ public class GuiNewChatTC extends GuiNewChat {
 		
 		// Add chatlines to appropriate lists
 		if(tc.enabled() && !optionalDeletion && !backupFlag) {
-			int ret = tc.processChat(multiLineChat);
+			tc.processChat(multiLineChat);
 		} else {
 			int _len = multiLineChat.size();
 			chatWriteLock.lock();

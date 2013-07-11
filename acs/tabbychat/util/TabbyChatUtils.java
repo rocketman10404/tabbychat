@@ -45,18 +45,36 @@ public class TabbyChatUtils {
 	private static SimpleDateFormat logNameFormat = new SimpleDateFormat("'TabbyChatLog_'MM-dd-yyyy'.txt'");
 	public static String version = "1.8.07";
 	
-	private TabbyChatUtils() {}
-	
-	public static String getServerIp() {		
-		String ip;
-		if(Minecraft.getMinecraft().isSingleplayer()) {
-			ip = "singleplayer";
-		} else if (getServerData() == null) {
-			ip = "unknown";
-		} else {
-			ip = getServerData().serverIP;
+	public static void chatGuiTick(Minecraft mc) {
+		if(mc.currentScreen == null) return;
+		if(!(mc.currentScreen instanceof GuiChat)) return;
+		if(mc.currentScreen.getClass() == GuiChatTC.class) return;
+		
+		String inputBuffer = "";
+		try {
+			int ind = 0;
+			for(Field fields : GuiChat.class.getDeclaredFields()) {
+				if(fields.getType() == String.class) {
+					if(ind == 1) {
+						fields.setAccessible(true);
+						inputBuffer = (String)fields.get(mc.currentScreen);
+						break;
+					}
+					ind++;
+				}				
+			}
+		} catch (Exception e) {
+			TabbyChat.printException("Unable to display chat interface", e);
 		}
-		return ip;
+		mc.displayGuiScreen(new GuiChatTC(inputBuffer));
+	}
+	
+	public static String chatLinesToString(List<TCChatLine> lines) {
+		StringBuilder result = new StringBuilder(500);
+		for(TCChatLine line : lines) {
+			result.append(line.getChatLineString());
+		}
+		return result.toString();
 	}
 	
 	public static ServerData getServerData() {
@@ -84,6 +102,54 @@ public class TabbyChatUtils {
 		return new File(ITCSettingsGUI.tabbyChatDir, ip);
 	}
 	
+	public static String getServerIp() {		
+		String ip;
+		if(Minecraft.getMinecraft().isSingleplayer()) {
+			ip = "singleplayer";
+		} else if (getServerData() == null) {
+			ip = "unknown";
+		} else {
+			ip = getServerData().serverIP;
+		}
+		return ip;
+	}
+	
+	public static void hookIntoChat(GuiNewChatTC _gnc) {
+		if(Minecraft.getMinecraft().ingameGUI.getChatGUI().getClass() != GuiNewChatTC.class) {
+			try {
+				Class IngameGui = GuiIngame.class;
+				Field persistantGuiField = IngameGui.getDeclaredFields()[6];
+				persistantGuiField.setAccessible(true);
+				persistantGuiField.set(Minecraft.getMinecraft().ingameGUI, _gnc);
+				
+				int tmp = 0;
+				for(Field fields : GuiNewChat.class.getDeclaredFields()) {
+					if(fields.getType() == List.class) {
+						fields.setAccessible(true);
+						if(tmp == 0) {
+							_gnc.sentMessages = (List)fields.get(_gnc);
+						} else if(tmp == 1) {
+							_gnc.backupLines = (List)fields.get(_gnc);
+						} else if(tmp == 2) {
+							_gnc.chatLines = (List)fields.get(_gnc);
+							break;
+						}
+						tmp++;
+					}
+				}
+			} catch (Exception e) {
+				TabbyChat.printException("Error loading chat hook.",e);
+			}
+		}
+	}
+	
+	public static boolean is(Gui _gui, String className) {
+		try {
+			return _gui.getClass().getSimpleName().contains(className);
+		} catch (Throwable e) {}
+		return false;
+	}
+	
 	public static String join(String[] arr, String glue) {
 		if (arr.length < 1)
 			return "";
@@ -97,26 +163,7 @@ public class TabbyChatUtils {
 		bucket.append(arr[arr.length-1]);
 		return bucket.toString();
 	}
-	
-	public static boolean is(Gui _gui, String className) {
-		try {
-			return _gui.getClass().getSimpleName().contains(className);
-		} catch (Throwable e) {}
-		return false;
-	}
 
-	public static void writeLargeChat(String toSend) {
-		List<String> actives = TabbyChat.getInstance().getActive();
-		BackgroundChatThread sendProc;
-		if(!TabbyChat.getInstance().enabled() || actives.size() != 1) sendProc = new BackgroundChatThread(toSend);
-		else {
-			String tabPrefix = TabbyChat.getInstance().channelMap.get(actives.get(0)).cmdPrefix;
-			if(tabPrefix != null && tabPrefix.length() > 0) sendProc = new BackgroundChatThread(toSend, tabPrefix);
-			else sendProc = new BackgroundChatThread(toSend);
-		}
-		sendProc.start();
-	}
-	
 	public static void logChat(String theChat) {
 		Calendar tmpcal = Calendar.getInstance();
 	
@@ -151,17 +198,25 @@ public class TabbyChatUtils {
 		else if(val1 > val2 && val1 > val3) return Math.max(val2, val3);
 		else return val1;
 	}
-
-	public static Integer parseInteger(String _input, int min, int max, int fallback) {
-		Integer result;
+	
+	public static ColorCodeEnum parseColor(Object _input) {
+		if(_input == null) return null;
+		String input = _input.toString();
 		try {
-			result = Integer.parseInt(_input);
-			result = Math.max(min, result);
-			result = Math.min(max, result);
-		} catch (NumberFormatException e) {
-			result = fallback;
+			return ColorCodeEnum.valueOf(input);
+		} catch (IllegalArgumentException e) {
+			return null;
 		}
-		return result;
+	}
+
+	public static ChannelDelimEnum parseDelimiters(Object _input) {
+		if(_input == null) return null;
+		String input = _input.toString();
+		try {
+			return ChannelDelimEnum.valueOf(input);
+		} catch (IllegalArgumentException e) {
+			return null;
+		}
 	}
 	
 	public static Float parseFloat(Object _input, float min, float max) {
@@ -178,26 +233,6 @@ public class TabbyChatUtils {
 		return result;
 	}
 
-	public static ChannelDelimEnum parseDelimiters(Object _input) {
-		if(_input == null) return null;
-		String input = _input.toString();
-		try {
-			return ChannelDelimEnum.valueOf(input);
-		} catch (IllegalArgumentException e) {
-			return null;
-		}
-	}
-	
-	public static ColorCodeEnum parseColor(Object _input) {
-		if(_input == null) return null;
-		String input = _input.toString();
-		try {
-			return ColorCodeEnum.valueOf(input);
-		} catch (IllegalArgumentException e) {
-			return null;
-		}
-	}
-	
 	public static FormatCodeEnum parseFormat(Object _input) {
 		if(_input == null) return null;
 		String input = _input.toString();
@@ -206,6 +241,18 @@ public class TabbyChatUtils {
 		} catch (IllegalArgumentException e) {
 			return null;
 		}
+	}
+	
+	public static Integer parseInteger(String _input, int min, int max, int fallback) {
+		Integer result;
+		try {
+			result = Integer.parseInt(_input);
+			result = Math.max(min, result);
+			result = Math.min(max, result);
+		} catch (NumberFormatException e) {
+			result = fallback;
+		}
+		return result;
 	}
 	
 	public static NotificationSoundEnum parseSound(Object _input) {
@@ -231,6 +278,19 @@ public class TabbyChatUtils {
 		} catch (IllegalArgumentException e) {
 			return null;
 		}
+	}
+	
+	public static List<TCChatLine> stringToChatLines(int stamp, String line, int id, boolean status, int stringWidth) {
+		List<String> lineSplit = Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(line, stringWidth);
+		List<TCChatLine> result = new ArrayList<TCChatLine>(lineSplit.size());
+		boolean first = true;
+		for(String split : lineSplit) {
+			if(first) {
+				result.add(new TCChatLine(stamp, split, id, status));
+				first = false;
+			} else result.add(new TCChatLine(stamp, " "+split, id, status));
+		}
+		return result;
 	}
 
 	public static LinkedHashMap<String, ChatChannel> swapChannels(LinkedHashMap<String, ChatChannel> currentMap, int _left, int _right) {
@@ -259,56 +319,17 @@ public class TabbyChatUtils {
 		return returnMap;
 	}
 
-	public static void hookIntoChat(GuiNewChatTC _gnc) {
-		if(Minecraft.getMinecraft().ingameGUI.getChatGUI().getClass() != GuiNewChatTC.class) {
-			try {
-				Class IngameGui = GuiIngame.class;
-				Field persistantGuiField = IngameGui.getDeclaredFields()[6];
-				persistantGuiField.setAccessible(true);
-				persistantGuiField.set(Minecraft.getMinecraft().ingameGUI, _gnc);
-				
-				int tmp = 0;
-				for(Field fields : GuiNewChat.class.getDeclaredFields()) {
-					if(fields.getType() == List.class) {
-						fields.setAccessible(true);
-						if(tmp == 0) {
-							_gnc.sentMessages = (List)fields.get(_gnc);
-						} else if(tmp == 1) {
-							_gnc.backupLines = (List)fields.get(_gnc);
-						} else if(tmp == 2) {
-							_gnc.chatLines = (List)fields.get(_gnc);
-							break;
-						}
-						tmp++;
-					}
-				}
-			} catch (Exception e) {
-				TabbyChat.printException("Error loading chat hook.",e);
-			}
+	public static void writeLargeChat(String toSend) {
+		List<String> actives = TabbyChat.getInstance().getActive();
+		BackgroundChatThread sendProc;
+		if(!TabbyChat.getInstance().enabled() || actives.size() != 1) sendProc = new BackgroundChatThread(toSend);
+		else {
+			String tabPrefix = TabbyChat.getInstance().channelMap.get(actives.get(0)).cmdPrefix;
+			if(tabPrefix != null && tabPrefix.length() > 0) sendProc = new BackgroundChatThread(toSend, tabPrefix);
+			else sendProc = new BackgroundChatThread(toSend);
 		}
+		sendProc.start();
 	}
 	
-	public static void chatGuiTick(Minecraft mc) {
-		if(mc.currentScreen == null) return;
-		if(!(mc.currentScreen instanceof GuiChat)) return;
-		if(mc.currentScreen.getClass() == GuiChatTC.class) return;
-		
-		String inputBuffer = "";
-		try {
-			int ind = 0;
-			for(Field fields : GuiChat.class.getDeclaredFields()) {
-				if(fields.getType() == String.class) {
-					if(ind == 1) {
-						fields.setAccessible(true);
-						inputBuffer = (String)fields.get(mc.currentScreen);
-						break;
-					}
-					ind++;
-				}				
-			}
-		} catch (Exception e) {
-			TabbyChat.printException("Unable to display chat interface", e);
-		}
-		mc.displayGuiScreen(new GuiChatTC(inputBuffer));
-	}
+	private TabbyChatUtils() {}
 }
