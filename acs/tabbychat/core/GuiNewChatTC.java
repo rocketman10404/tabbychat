@@ -187,7 +187,10 @@ public class GuiNewChatTC extends GuiNewChat {
 				chatReadLock.unlock();
 			}
 			chatOpen = this.getChatOpen();
-			if(numLinesTotal == 0 && !chatOpen) return;
+			if(numLinesTotal == 0 && !chatOpen) {
+				this.mc.fontRenderer.setUnicodeFlag(TabbyChat.defaultUnicode);
+				return;
+			}
 			
 			if(tc.enabled()) {
 				if(TabbyChat.generalSettings.timeStampEnable.getValue())
