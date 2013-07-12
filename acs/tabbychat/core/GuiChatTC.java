@@ -449,7 +449,7 @@ public class GuiChatTC extends GuiChat {
 			if(_msg.toString().length() > 0) {
 				List<String> activeTabs = this.tc.getActive();
 				boolean prefixHidden =  this.tc.channelMap.get(activeTabs.get(0)).hidePrefix;
-				String thePrefix = this.tc.channelMap.get(activeTabs.get(0)).cmdPrefix.trim();
+				String thePrefix = this.tc.channelMap.get(activeTabs.get(0)).cmdPrefix;
 				if(!thePrefix.equals("") && prefixHidden && !_msg.substring(0,1).equals("/")) {
 					_msg.insert(0, thePrefix);
 				}
