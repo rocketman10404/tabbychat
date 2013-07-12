@@ -123,6 +123,7 @@ public class TCLanguageEnglish extends TCLanguage {
 		defaults.setProperty("settings.channel.cmdprefix", "Chat command prefix");
 		defaults.setProperty("settings.channel.position", "Position:");
 		defaults.setProperty("settings.channel.of", "of");
+		defaults.setProperty("settings.channel.hideprefix", "Hide prefix while typing");
 		
 		// ENGLISH STRINGS FOR MESSAGES
 		defaults.setProperty("messages.update1", "An update is available! (Current version is ");

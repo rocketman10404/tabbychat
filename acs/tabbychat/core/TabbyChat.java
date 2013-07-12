@@ -362,6 +362,7 @@ public class TabbyChat {
 				_new.setAlias(chan.getValue().getAlias());
 				_new.active = chan.getValue().active;
 				_new.notificationsOn = chan.getValue().notificationsOn;
+				_new.hidePrefix = chan.getValue().hidePrefix;
 				_new.cmdPrefix = chan.getValue().cmdPrefix;
 				this.addToChannel(chan.getKey(), new TCChatLine(-1, "-- chat history from "+(new SimpleDateFormat()).format(chanDataFile.lastModified()), 0, true));
 				_new.importOldChat(chan.getValue());
