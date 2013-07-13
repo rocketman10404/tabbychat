@@ -528,13 +528,15 @@ public class GuiNewChatTC extends GuiNewChat {
 		
 		chatWriteLock.lock();
 		try {
-			for (int i=0; i < _add.size(); i++) {
+			int j;
+			for (int i=_add.size()-1; i>=0; i--) {
+				j = _add.size() - i - 1;
 				if(addInstead) {
 					this.chatLines.add(_add.get(i));
 					this.backupLines.add(_add.get(i));
 				} else {
-					this.chatLines.set(_pos+i, _add.get(i));
-					this.backupLines.set(_pos+i, _add.get(i));
+					this.chatLines.set(_pos+j, _add.get(i));
+					this.backupLines.set(_pos+j, _add.get(i));
 				}
 			}
 		} finally {

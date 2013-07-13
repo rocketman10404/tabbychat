@@ -92,10 +92,12 @@ public class ChatChannel implements Serializable {
 	}
 	
 	public List<TCChatLine> getChatLogSublistCopy(int fromInd, int toInd) {
-		List<TCChatLine> retVal = null;
+		List<TCChatLine> retVal = new ArrayList<TCChatLine>(toInd-fromInd);
 		this.chatReadLock.lock();
 		try {
-			retVal = new ArrayList(this.chatLog.subList(fromInd, toInd));
+			for(int i=toInd-1; i>=fromInd; i--) {
+				retVal.add(this.chatLog.get(i));
+			}
 		} finally {
 			this.chatReadLock.unlock();
 		}
