@@ -118,9 +118,10 @@ public class GuiChatTC extends GuiChat {
 	
 	public void checkCommandPrefixChange(ChatChannel oldChan, ChatChannel newChan) {
 		String oldPrefix = oldChan.cmdPrefix.trim();
-		if(this.inputField2.getText().trim().equals(oldPrefix)) {
+		String currentInput = this.inputField2.getText().trim();
+		if(currentInput.equals(oldPrefix) || currentInput.length() == 0) {
 			String newPrefix = newChan.cmdPrefix.trim();
-			if(newPrefix.length() > 0) this.inputField2.setText(newPrefix + " ");
+			if(newPrefix.length() > 0 && !newChan.hidePrefix) this.inputField2.setText(newPrefix + " ");
 			else this.inputField2.setText("");
 		}
 		oldChan.active = false;
@@ -447,12 +448,6 @@ public class GuiChatTC extends GuiChat {
 			StringBuilder _msg = new StringBuilder(1500);
 			for(int i=this.inputList.size()-1; i>=0; i--) _msg.append(this.inputList.get(i).getText());
 			if(_msg.toString().length() > 0) {
-				List<String> activeTabs = this.tc.getActive();
-				boolean prefixHidden =  this.tc.channelMap.get(activeTabs.get(0)).hidePrefix;
-				String thePrefix = this.tc.channelMap.get(activeTabs.get(0)).cmdPrefix.trim();
-				if(!thePrefix.equals("") && prefixHidden && !_msg.substring(0,1).equals("/")) {
-					_msg.insert(0, thePrefix+" ");
-				}
 				TabbyChatUtils.writeLargeChat(_msg.toString());
 				for(int i=1; i<this.inputList.size(); i++) {
 					this.inputList.get(i).setText("");

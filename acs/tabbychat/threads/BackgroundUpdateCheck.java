@@ -19,7 +19,7 @@ public class BackgroundUpdateCheck extends Thread {
 		if(!TabbyChat.generalSettings.tabbyChatEnable.getValue()) return;
 		Minecraft mc = Minecraft.getMinecraft();
 		ArrayList<TCChatLine> updateMsg = new ArrayList<TCChatLine>();
-		if (!newest.equals(TabbyChatUtils.version)) {
+		if (newest != null && !newest.equals(TabbyChatUtils.version)) {
 			StringBuilder updateReport = new StringBuilder("\u00A77");
 			updateReport.append(TabbyChat.translator.getString("messages.update1"));
 			updateReport.append(TabbyChatUtils.version);

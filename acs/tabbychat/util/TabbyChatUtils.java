@@ -324,8 +324,15 @@ public class TabbyChatUtils {
 		BackgroundChatThread sendProc;
 		if(!TabbyChat.getInstance().enabled() || actives.size() != 1) sendProc = new BackgroundChatThread(toSend);
 		else {
-			String tabPrefix = TabbyChat.getInstance().channelMap.get(actives.get(0)).cmdPrefix;
-			if(tabPrefix != null && tabPrefix.length() > 0) sendProc = new BackgroundChatThread(toSend, tabPrefix);
+			ChatChannel active = TabbyChat.getInstance().channelMap.get(actives.get(0));
+			String tabPrefix = active.cmdPrefix;
+			boolean hiddenPrefix = active.hidePrefix;
+			
+			if(tabPrefix != null && tabPrefix.length() > 0) {
+				if(!hiddenPrefix) sendProc = new BackgroundChatThread(toSend, tabPrefix);
+				else if(!toSend.startsWith("/")) sendProc = new BackgroundChatThread(tabPrefix + " " + toSend, tabPrefix);
+				else sendProc = new BackgroundChatThread(toSend);
+			}
 			else sendProc = new BackgroundChatThread(toSend);
 		}
 		sendProc.start();
