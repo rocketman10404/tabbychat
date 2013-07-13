@@ -34,6 +34,7 @@ public class ChatChannel implements Serializable {
 	protected boolean hasSpam = false;
 	protected int spamCount = 1;
 	public boolean notificationsOn = false;
+	public boolean hidePrefix = false;
 	private String alias;
 	public String cmdPrefix = "";
 	

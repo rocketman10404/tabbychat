@@ -21,7 +21,7 @@ import net.minecraft.src.GuiScreen;
 public class ChatChannelGUI extends GuiScreen {
 	protected ChatChannel channel;
 	public final int displayWidth = 255;
-	public final int displayHeight = 95;
+	public final int displayHeight = 120;
 	private String title;
 	private int position;
 	private TabbyChat tc;
@@ -33,7 +33,9 @@ public class ChatChannelGUI extends GuiScreen {
 	private static final int CMD_PREFIX_ID = 8985;
 	private static final int PREV_ID = 8986;
 	private static final int NEXT_ID = 8987;
+	private static final int HIDE_PREFIX = 8988;
 	
+	private TCSettingBool hidePrefix = new TCSettingBool(false, "hidePrefix", "settings.channel", HIDE_PREFIX);
 	private TCSettingBool notificationsOn = new TCSettingBool(false, "notificationsOn", "settings.channel", NOTIFICATIONS_ON_ID);
 	private TCSettingTextBox alias = new TCSettingTextBox("", "alias", "settings.channel", ALIAS_ID);
 	private TCSettingTextBox cmdPrefix = new TCSettingTextBox("", "cmdPrefix", "settings.channel", CMD_PREFIX_ID);
@@ -41,6 +43,7 @@ public class ChatChannelGUI extends GuiScreen {
 	public ChatChannelGUI(ChatChannel _c) {
 		this.tc = GuiNewChatTC.getInstance().tc;
 		this.channel = _c;
+		this.hidePrefix.setValue(_c.hidePrefix);
 		this.notificationsOn.setValue(_c.notificationsOn);
 		this.alias.setCharLimit(20);
 		this.alias.setValue(_c.getAlias());
@@ -56,6 +59,7 @@ public class ChatChannelGUI extends GuiScreen {
 			this.channel.notificationsOn = this.notificationsOn.getTempValue();
 			this.channel.setAlias(this.alias.getTempValue().trim());
 			this.channel.cmdPrefix = this.cmdPrefix.getTempValue().trim();
+			this.channel.hidePrefix = this.hidePrefix.getTempValue();
 			this.tc.storeChannelData();
 		case CANCEL_ID:
 			mc.displayGuiScreen((GuiScreen)null);
@@ -77,6 +81,8 @@ public class ChatChannelGUI extends GuiScreen {
 			this.tc.channelMap = newMap2;
 			this.position++;
 			break;
+		case HIDE_PREFIX:
+			this.hidePrefix.actionPerformed();
 		}
 	}
 	
@@ -137,6 +143,11 @@ public class ChatChannelGUI extends GuiScreen {
 		this.cmdPrefix.setButtonDims(100, 11);
 		this.buttonList.add(this.cmdPrefix);
 		
+		this.hidePrefix.setButtonLoc(leftX+15, topY+78);
+		this.hidePrefix.setLabelLoc(leftX+34);
+		this.buttonList.add(this.hidePrefix);
+		
+		
 		// Determine tab position
 		position = 1;
 		int numTabs = this.tc.channelMap.size();
@@ -178,6 +189,7 @@ public class ChatChannelGUI extends GuiScreen {
 	}
 	
 	public void resetTempVars() {
+		this.hidePrefix.reset();
 		this.notificationsOn.reset();
 		this.alias.reset();
 		this.cmdPrefix.reset();

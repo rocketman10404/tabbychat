@@ -387,7 +387,8 @@ public class GuiChatTC extends GuiChat {
 				this.inputField2.setText("");
 			} else {
 				String thePrefix = this.tc.channelMap.get(activeTabs.get(0)).cmdPrefix.trim();
-				if(thePrefix.length() > 0) this.inputField2.setText(this.tc.channelMap.get(activeTabs.get(0)).cmdPrefix.trim() + " ");
+				boolean prefixHidden =  this.tc.channelMap.get(activeTabs.get(0)).hidePrefix;
+				if(thePrefix.length() > 0 && !prefixHidden) this.inputField2.setText(this.tc.channelMap.get(activeTabs.get(0)).cmdPrefix.trim() + " ");
 			}
 			ChatBox.enforceScreenBoundary(ChatBox.current);
 		}
@@ -446,6 +447,12 @@ public class GuiChatTC extends GuiChat {
 			StringBuilder _msg = new StringBuilder(1500);
 			for(int i=this.inputList.size()-1; i>=0; i--) _msg.append(this.inputList.get(i).getText());
 			if(_msg.toString().length() > 0) {
+				List<String> activeTabs = this.tc.getActive();
+				boolean prefixHidden =  this.tc.channelMap.get(activeTabs.get(0)).hidePrefix;
+				String thePrefix = this.tc.channelMap.get(activeTabs.get(0)).cmdPrefix.trim();
+				if(!thePrefix.equals("") && prefixHidden && !_msg.substring(0,1).equals("/")) {
+					_msg.insert(0, thePrefix+" ");
+				}
 				TabbyChatUtils.writeLargeChat(_msg.toString());
 				for(int i=1; i<this.inputList.size(); i++) {
 					this.inputList.get(i).setText("");
