@@ -65,7 +65,7 @@ public class ChatChannel implements Serializable {
 		} finally {
 			this.chatWriteLock.unlock();
 		}
-		if(!this.active && !TabbyChat.getInstance().channelMap.get("*").active) this.unread = true; 
+		if(!this.active && !TabbyChat.getInstance().channelMap.get("*").active && !this.title.equals("*")) this.unread = true; 
 	}
 	
 	public boolean doesButtonEqual(GuiButton btnObj) {
