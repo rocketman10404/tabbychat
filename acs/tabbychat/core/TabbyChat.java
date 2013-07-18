@@ -531,6 +531,7 @@ public class TabbyChat {
 			this.serverDataLock.acquireUninterruptibly();
 			this.serverDataLock.release();
 		}
+		if(theChat.isEmpty()) return;
 
 		List<TCChatLine> resultChatLine;
 		List<String> toTabs = new ArrayList<String>(20);
