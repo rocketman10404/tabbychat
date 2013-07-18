@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 
+import com.mumfrey.liteloader.core.LiteLoader;
+
 import acs.tabbychat.core.ChatChannel;
 import acs.tabbychat.core.GuiChatTC;
 import acs.tabbychat.core.GuiNewChatTC;
@@ -112,6 +114,14 @@ public class TabbyChatUtils {
 			ip = getServerData().serverIP;
 		}
 		return ip;
+	}
+	
+	public static File getTabbyChatDir() {
+		if(TabbyChat.liteLoaded) {
+			return new File(LiteLoader.getGameDirectory(), new StringBuilder().append("config").append(File.separatorChar).append("tabbychat").toString());
+		} else {
+			return new File(Minecraft.getMinecraft().mcDataDir, new StringBuilder().append("config").append(File.separatorChar).append("tabbychat").toString());
+		}
 	}
 	
 	public static void hookIntoChat(GuiNewChatTC _gnc) {
