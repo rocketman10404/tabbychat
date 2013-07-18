@@ -116,6 +116,12 @@ public class GuiChatTC extends GuiChat {
 		}
 	}
 	
+	protected void addChannelLive(ChatChannel brandNewChan) {
+		if(!this.buttonList.contains(brandNewChan.tab)) {
+			this.buttonList.add(brandNewChan.tab);
+		}
+	}
+	
 	public void checkCommandPrefixChange(ChatChannel oldChan, ChatChannel newChan) {
 		String oldPrefix = oldChan.cmdPrefix.trim();
 		String currentInput = this.inputField2.getText().trim();

@@ -180,6 +180,9 @@ public class TabbyChat {
 			if(serverSettings.autoChannelSearch.getValue()) {
 				theChan = new ChatChannel(name);
 				this.channelMap.put(name, theChan);
+				if(mc.currentScreen instanceof GuiChatTC) {
+					((GuiChatTC)mc.currentScreen).addChannelLive(theChan);
+				}
 			} else return;
 		}
 
