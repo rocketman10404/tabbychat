@@ -407,23 +407,23 @@ public class TabbyChat {
 		StringBuilder fromMePM = new StringBuilder();
 
 		// Matches '[Player -> me]' and '[me -> Player]'
-		toMePM.append("^\\[(\\p{L}{3,16})[ ]?\\-\\>[ ]?me\\]");
-		fromMePM.append("^\\[me[ ]?\\-\\>[ ]?(\\p{L}{3,16})\\]");
+		toMePM.append("^\\[([\\p{L}\\p{N}_]{3,16})[ ]?\\-\\>[ ]?me\\]");
+		fromMePM.append("^\\[me[ ]?\\-\\>[ ]?([\\p{L}\\p{N}_]{3,16})\\]");
 
-		// Matches 'From Player' and 'From Player'
-		toMePM.append("|^From (\\p{L}{3,16})[ ]?:");
-		fromMePM.append("|^To (\\p{L}{3,16})[ ]?:");
+		// Matches 'From Player' and 'To Player'
+		toMePM.append("|^From ([\\p{L}\\p{N}_]{3,16})[ ]?:");
+		fromMePM.append("|^To ([\\p{L}\\p{N}_]{3,16})[ ]?:");
 		
 		// Matches 'Player whispers to you' and 'You whisper to Player'
-		toMePM.append("|^(\\p{L}{3,16}) whispers to you");
-		fromMePM.append("|^You whisper to (\\p{L}{3,16})");
+		toMePM.append("|^([\\p{L}\\p{N}_]{3,16}) whispers to you:");
+		fromMePM.append("|^You whisper to ([\\p{L}\\p{N}_]{3,16}):");
 		
 		if(mc.thePlayer != null && mc.thePlayer.getEntityName() != null) {
 			String me = mc.thePlayer.getEntityName();
 
 			// Matches '[Player->Player1]' and '[Player1->Player]'
-			toMePM.append("|^\\[(\\p{L}{3,16})[ ]?\\-\\>[ ]?").append(me).append("\\]");
-			fromMePM.append("|^\\[").append(me).append("[ ]?\\-\\>[ ]?(\\p{L}{3,16})\\]");
+			toMePM.append("|^\\[([\\p{L}\\p{N}_]{3,16})[ ]?\\-\\>[ ]?").append(me).append("\\]");
+			fromMePM.append("|^\\[").append(me).append("[ ]?\\-\\>[ ]?([\\p{L}\\p{N}_]{3,16})\\]");
 		}
 
 		this.chatPMtoMePattern = Pattern.compile(toMePM.toString());
@@ -566,8 +566,11 @@ public class TabbyChat {
 				ChatChannel pm = new ChatChannel(pmTab);
 				pm.cmdPrefix = "/msg "+pmTab;
 				this.channelMap.put(pmTab, pm);
-			}
-			if(this.channelMap.containsKey(pmTab)) this.addToChannel(pmTab, resultChatLine);
+				this.addToChannel(pmTab, resultChatLine);
+				if(mc.currentScreen instanceof GuiChatTC) {
+					((GuiChatTC)mc.currentScreen).addChannelLive(pm);
+				}
+			} else if(this.channelMap.containsKey(pmTab)) this.addToChannel(pmTab, resultChatLine);
 		}
 		
 		boolean visible = false;
