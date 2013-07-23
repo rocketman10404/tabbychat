@@ -17,6 +17,7 @@ import java.util.Map;
 import com.mumfrey.liteloader.core.LiteLoader;
 
 import acs.tabbychat.core.ChatChannel;
+//import acs.tabbychat.core.FilterTest;
 import acs.tabbychat.core.GuiChatTC;
 import acs.tabbychat.core.GuiNewChatTC;
 import acs.tabbychat.core.TCChatLine;
@@ -330,6 +331,9 @@ public class TabbyChatUtils {
 	}
 
 	public static void writeLargeChat(String toSend) {
+//		if(toSend.startsWith("/tctest")) {
+//			FilterTest.main(null);
+//		}
 		List<String> actives = TabbyChat.getInstance().getActive();
 		BackgroundChatThread sendProc;
 		if(!TabbyChat.getInstance().enabled() || actives.size() != 1) sendProc = new BackgroundChatThread(toSend);
