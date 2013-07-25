@@ -75,7 +75,7 @@ public class TabbyChatUtils {
 	public static String chatLinesToString(List<TCChatLine> lines) {
 		StringBuilder result = new StringBuilder(500);
 		for(TCChatLine line : lines) {
-			result.append(line.getChatLineString());
+			result.append(line.getChatLineString()).append("\n");
 		}
 		return result.toString();
 	}
@@ -291,8 +291,9 @@ public class TabbyChatUtils {
 		}
 	}
 	
-	public static List<TCChatLine> stringToChatLines(int stamp, String line, int id, boolean status, int stringWidth) {
-		List<String> lineSplit = Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(line, stringWidth);
+	public static List<TCChatLine> stringToChatLines(int stamp, String line, int id, boolean status) {
+		//List<String> lineSplit = Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(line, stringWidth);
+		List<String> lineSplit = Arrays.asList(line.split("\n"));
 		List<TCChatLine> result = new ArrayList<TCChatLine>(lineSplit.size());
 		boolean first = true;
 		for(String split : lineSplit) {
