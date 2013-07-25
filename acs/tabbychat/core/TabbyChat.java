@@ -555,7 +555,7 @@ public class TabbyChat {
 		} else {
 			filtered = raw;
 		}
-		resultChatLine = TabbyChatUtils.stringToChatLines(theChat.get(0).getUpdatedCounter(), filtered, theChat.get(0).getChatLineID(), theChat.get(0).statusMsg, gnc.chatWidth);
+		resultChatLine = TabbyChatUtils.stringToChatLines(theChat.get(0).getUpdatedCounter(), filtered, theChat.get(0).getChatLineID(), theChat.get(0).statusMsg);
 		this.addOptionalTimeStamp(resultChatLine);		
 		
 		Set<String> tabSet = new HashSet<String>(toTabs);
