@@ -21,9 +21,15 @@ public class TCChatFilter {
 	public boolean sendToAllTabs = false;
 	public boolean removeMatches = false;
 	
-	public ColorCodeEnum highlightColor = ColorCodeEnum.YELLOW;
-	public FormatCodeEnum highlightFormat = FormatCodeEnum.BOLD;
-	public NotificationSoundEnum audioNotificationSound = NotificationSoundEnum.ORB;
+	//public ColorCodeEnum highlightColor = ColorCodeEnum.YELLOW
+	public ColorCodeEnum highlightColor = null;
+	//public FormatCodeEnum highlightFormat = FormatCodeEnum.BOLD;
+	public FormatCodeEnum highlightFormat = null;
+	//public NotificationSoundEnum audioNotificationSound = NotificationSoundEnum.ORB;
+	public NotificationSoundEnum audioNotificationSound = null;
+	{
+		this.highlightBool = false;
+	}
 	
 	public String sendToTabName = "";	
 	public String expressionString = ".*";

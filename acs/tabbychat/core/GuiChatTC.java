@@ -565,6 +565,7 @@ public class GuiChatTC extends GuiChat {
 		}
 		
 		// Pass click info to Macro/Keybind mod if present
+		if(MacroKeybindCompat.contextMenuClicked(_x, _y, _button, this)) return;
 		if(MacroKeybindCompat.controlClicked(_x, _y, _button, this)) return;
 		
 		// Replicating GuiScreen's mouseClicked method since 'super' won't work
