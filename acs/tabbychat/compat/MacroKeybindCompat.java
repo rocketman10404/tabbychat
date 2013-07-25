@@ -27,9 +27,7 @@ public class MacroKeybindCompat {
 	private static Method mkDropDownSize = null;
 	public static boolean present = true;
 	public static boolean hovered = false;
-	//public static Point menuLocation;
-	public static Field menuLocation;
-	
+	public static Field menuLocation;	
 	public static Field dropdownvisible;
 
 	public static void load() {
@@ -79,7 +77,6 @@ public class MacroKeybindCompat {
 					mkDropDownMenu = mkContextMenu.get(mkInChatGUI);
 					
 				} catch (Exception e) {
-					e.printStackTrace();
 					present = false;
 				}
 			} else {
@@ -130,7 +127,6 @@ public class MacroKeybindCompat {
 			}
 			return false;			
 		} catch(Exception e) {
-			e.printStackTrace();
 			present = false;
 		}
 		return false;
@@ -156,7 +152,6 @@ public class MacroKeybindCompat {
 				return true;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			present = false;
 		}
 		return clicked;
@@ -186,7 +181,6 @@ public class MacroKeybindCompat {
 			Object isHovered = mkDrawBtnGui.invoke(mkBtnGui, args2);
 			hovered = ((Boolean)isHovered).booleanValue();
 		} catch (Exception e) {
-			e.printStackTrace();
 			present = false;
 		}
 		return;

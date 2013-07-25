@@ -299,6 +299,7 @@ public class GuiNewChatTC extends GuiNewChat {
 	}
 
 	public void func_96129_a(String _msg, int id, int tick, boolean backupFlag) {
+		System.out.println(_msg);	// DEBUGGING
 		boolean chatOpen = this.getChatOpen();
 		boolean isLineOne = true;
 		boolean optionalDeletion = false;
