@@ -77,7 +77,7 @@ public class TabbyChatUtils {
 		for(TCChatLine line : lines) {
 			result.append(line.getChatLineString()).append("\n");
 		}
-		return result.toString();
+		return result.toString().trim();
 	}
 	
 	public static ServerData getServerData() {
