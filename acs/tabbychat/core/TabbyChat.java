@@ -639,7 +639,7 @@ public class TabbyChat {
 		String oldChat = "";
 		String oldChat2 = "";
 		String newChat = "";
-		if (theChan.getChatLogSize() < lastChat.size()) {
+		if (theChan.getChatLogSize() < lastChat.size() || lastChat.size() == 0) {
 			theChan.hasSpam = false;
 			theChan.spamCount = 1;
 			return;
