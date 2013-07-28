@@ -561,6 +561,8 @@ public class TabbyChat {
 		Set<String> tabSet = new HashSet<String>(toTabs);
 		List<String> activeTabs = this.getActive();
 		
+		boolean visible = false;
+		
 		if(pmTab != null) {
 			if(!this.channelMap.containsKey(pmTab) && serverSettings.autoPMSearch.getValue()) {
 				ChatChannel pm = new ChatChannel(pmTab);
@@ -570,10 +572,12 @@ public class TabbyChat {
 				if(mc.currentScreen instanceof GuiChatTC) {
 					((GuiChatTC)mc.currentScreen).addChannelLive(pm);
 				}
-			} else if(this.channelMap.containsKey(pmTab)) this.addToChannel(pmTab, resultChatLine);
+			} else if(this.channelMap.containsKey(pmTab)) {
+				this.addToChannel(pmTab, resultChatLine);
+				if(activeTabs.contains(pmTab)) visible = true;
+			}
 		}
 		
-		boolean visible = false;
 		Iterator<String> tabIter = tabSet.iterator();
 		while(tabIter.hasNext()) {
 			String tab = tabIter.next();
