@@ -549,7 +549,6 @@ public class TabbyChat {
 			channelTab = this.processChatForChannels(cleaned, raw);
 			if(channelTab == null) {
 				pmTab = this.processChatForPMs(cleaned);
-				//if(pmTab != null) toTabs.add(pmTab);
 			} else toTabs.add(channelTab);
 			toTabs.addAll(filterTabs);
 		} else {

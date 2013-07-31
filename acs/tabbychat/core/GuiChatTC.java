@@ -328,10 +328,11 @@ public class GuiChatTC extends GuiChat {
 		if(Mouse.getEventButton() == 0 && Mouse.isButtonDown(0)) {
 			if(ChatBox.resizeHovered() && !ChatBox.dragging) {
 				ChatBox.startResizing(Mouse.getEventX(), Mouse.getEventY());
+			} else if(ChatBox.pinHovered()) {
+				ChatBox.pinned = !ChatBox.pinned;
 			} else if(ChatBox.tabTrayHovered(Mouse.getEventX(), Mouse.getEventY()) && !ChatBox.resizing) {
 				ChatBox.startDragging(Mouse.getEventX(), Mouse.getEventY());	
 			}
-			
 		}
 		
 		int wheelDelta = Mouse.getEventDWheel();
@@ -460,7 +461,10 @@ public class GuiChatTC extends GuiChat {
 					this.inputList.get(i).setVisible(false);
 				}
 			}
-			this.mc.displayGuiScreen((GuiScreen)null);
+			if(!tc.enabled() || !ChatBox.pinned) this.mc.displayGuiScreen((GuiScreen)null);
+			else {
+				this.resetInputFields();
+			}
 			break;
 		// UP: if currently in multi-line chat, move into the above textbox.  Otherwise, go back one in the sent history (forced by Ctrl)
 		case Keyboard.KEY_UP:
@@ -606,6 +610,7 @@ public class GuiChatTC extends GuiChat {
 	
 	public @Override void onGuiClosed() {
 		ChatBox.dragging = false;
+		ChatBox.resizing = false;
 	}
 	
 	private void playerWakeUp() {
@@ -637,6 +642,27 @@ public class GuiChatTC extends GuiChat {
 			this.setText(msg, cPos);
 		} else
 			return;
+	}
+	
+	public void resetInputFields() {
+		for(GuiTextField gtf : this.inputList) {
+			gtf.setText("");
+			gtf.setFocused(false);
+			gtf.setVisible(false);
+		}
+		this.inputField2.setFocused(true);
+		this.inputField2.setVisible(true);
+		
+		List<String> actives = tc.getActive();
+		if(actives.size() == 1) {
+			ChatChannel current = tc.channelMap.get(actives.get(0));
+			String pre = current.cmdPrefix.trim();
+			boolean hidden = current.hidePrefix;
+			if(pre.length() > 0 && !hidden) {
+				this.inputField2.setText(pre + " ");
+			}
+		}
+		this.inputField2.setCursorPositionEnd();
 	}
 
 	public void setText(StringBuilder txt, int pos) {

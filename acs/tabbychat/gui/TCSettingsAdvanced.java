@@ -92,6 +92,7 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		ChatBox.current.width = TabbyChatUtils.parseInteger(result.getProperty("chatbox.width"), ChatBox.absMinW, 10000, 320);
 		ChatBox.current.height = TabbyChatUtils.parseInteger(result.getProperty("chatbox.height"), ChatBox.absMinH, 10000, 180);
 		ChatBox.anchoredTop = Boolean.parseBoolean(result.getProperty("chatbox.anchoredtop"));
+		ChatBox.pinned = Boolean.parseBoolean(result.getProperty("pinchatinterface"));
 		return null;
 	}
 	
@@ -102,6 +103,7 @@ public class TCSettingsAdvanced extends TCSettingsGUI {
 		settingsTable.put("chatbox.width", Integer.toString(ChatBox.current.width));
 		settingsTable.put("chatbox.height", Integer.toString(ChatBox.current.height));
 		settingsTable.put("chatbox.anchoredtop", Boolean.toString(ChatBox.anchoredTop));
+		settingsTable.put("pinchatinterface", Boolean.toString(ChatBox.pinned));
 		super.saveSettingsFile(settingsTable);
 	}
 }

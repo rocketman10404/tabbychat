@@ -32,6 +32,7 @@ public class ChatBox {
 	private static Point dragStart =  new Point(0,0);
 	public static boolean resizing = false;
 	public static boolean anchoredTop = false;
+	public static boolean pinned = false;
 	private static GuiNewChatTC gnc = GuiNewChatTC.getInstance();
 	
 	public static void addRowToTray() {
@@ -62,7 +63,9 @@ public class ChatBox {
 	public static void drawChatBoxBorder(Gui overlay, boolean chatOpen, int opacity) {
 		int borderColor = 0x000000 + (2*opacity/3 << 24);
 		int trayColor = 0x000000 + (opacity/3 << 24);
-		int handleColor = resizeHovered() ? 0xffffa0 + (2*opacity/3 << 24) : borderColor;
+		int highlightColor = 0xffffa0 + (2*opacity/3 << 24);
+		int handleColor = resizeHovered() ? highlightColor : borderColor;
+		int pinColor = pinHovered() ? highlightColor : borderColor;
 		
 		if(chatOpen) {			
 			if(!anchoredTop) {
@@ -84,6 +87,10 @@ public class ChatBox {
 				// 	Draw handle for mouse drag
 				overlay.drawRect(current.width-7, -current.height+2, current.width-2, -current.height+3, handleColor);
 				overlay.drawRect(current.width-3, -current.height+3, current.width-2, -current.height+7, handleColor);
+				
+				// Draw pin button
+				overlay.drawRect(current.width-14, -current.height+2, current.width-9, -current.height+7, pinColor);
+				if(pinned) overlay.drawRect(current.width-13, -current.height+3, current.width-10, -current.height+6, highlightColor);
 			} else {
 				// Draw border around entire chat area
 				overlay.drawRect(-1, -1, current.width+1, 0, borderColor);
@@ -102,7 +109,11 @@ public class ChatBox {
 
 				// 	Draw handle for mouse drag
 				overlay.drawRect(current.width-7, current.height-2, current.width-2, current.height-3, handleColor);
-				overlay.drawRect(current.width-3, current.height-3, current.width-2, current.height-7, handleColor);	
+				overlay.drawRect(current.width-3, current.height-3, current.width-2, current.height-7, handleColor);
+				
+				// Draw pin button
+				overlay.drawRect(current.width-14, current.height-2, current.width-9, current.height-7, pinColor);
+				if(pinned) overlay.drawRect(current.width-13, current.height-3, current.width-10, current.height-6, highlightColor);
 			}
 		} else if (unfocusedHeight > 0) {			
 			if(!anchoredTop) {
@@ -250,6 +261,20 @@ public class ChatBox {
 		
 		enforceScreenBoundary(desired);
 		dragStart = click;
+	}
+	
+	public static boolean pinHovered() {
+		// Check for mouse cursor over pin button
+		
+		Point cursor = scaleMouseCoords(Mouse.getX(), Mouse.getY());
+		if(cursor == null) return false;
+		
+		int rX = current.x + current.width - 15;
+		int rY;
+		if(anchoredTop) rY = current.y + current.height - 8;
+		else rY = current.y - current.height;
+		
+		return (cursor.x > rX && cursor.x < rX + 6 && cursor.y > rY && cursor.y < rY + 8);
 	}
 	
 	public static boolean resizeHovered() {
