@@ -543,8 +543,9 @@ public class TabbyChat {
 		String raw = TabbyChatUtils.chatLinesToString(theChat);
 		String filtered = this.processChatForFilters(raw, filterTabs);
 		String cleaned = StringUtils.stripControlCodes(raw);
-		if (generalSettings.saveChatLog.getValue()) TabbyChatUtils.logChat(this.withTimeStamp(cleaned, true));
-
+		//if (generalSettings.saveChatLog.getValue()) TabbyChatUtils.logChat(this.withTimeStamp(cleaned, true));
+		// TODO: Change timestamp reference to chatline
+		
 		if(filtered != null) {
 			channelTab = this.processChatForChannels(cleaned, raw);
 			if(channelTab == null) {
@@ -651,6 +652,7 @@ public class TabbyChat {
 		for (int i=0; i<_size; i++) {
 			if(lastChat.get(i).getChatLineString() == null || theChan.getChatLine(i).getChatLineString() == null) continue;
 			if (generalSettings.timeStampEnable.getValue()) {
+				// TODO: Verify these are not needed and remove them
 				newChat = newChat + lastChat.get(i).getChatLineString().replaceAll("^(\u00A7.)?"+((TimeStampEnum)generalSettings.timeStampStyle.getValue()).regEx+"(\u00A7r)?", "");
 				oldChat = theChan.getChatLine(i).getChatLineString().replaceAll("^(\u00A7.)?"+((TimeStampEnum)generalSettings.timeStampStyle.getValue()).regEx+"(\u00A7r)?", "") + oldChat;
 			} else {
@@ -733,23 +735,15 @@ public class TabbyChat {
 			iFilter = filterSettings.filterMap.higherEntry(iFilter.getKey());
 		}
 	}
-
-	private String withTimeStamp(String _orig) {
-		return this.withTimeStamp(_orig, false);
-	}
-
-	private String withTimeStamp(String _orig, boolean forceTimeStamp) {
-		String stamped = _orig;
-		if (generalSettings.timeStampEnable.getValue() || forceTimeStamp) {
-			this.cal = Calendar.getInstance();
-			stamped = generalSettings.timeStamp.format(this.cal.getTime()) + _orig;
-		}
-		return stamped;
+	
+	private String getTimeStamp() {
+		if(this.cal == null) this.cal = Calendar.getInstance();
+		return generalSettings.timeStamp.format(this.cal.getTime());
 	}
 	
 	private void addOptionalTimeStamp(List<TCChatLine> orig) {
 		for(TCChatLine line : orig) {
-			line.setChatLineString(this.withTimeStamp(line.getChatLineString()));
+			line.timeStamp = this.getTimeStamp();
 		}
 	}
 }

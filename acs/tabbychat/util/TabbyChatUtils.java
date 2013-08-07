@@ -332,9 +332,6 @@ public class TabbyChatUtils {
 	}
 
 	public static void writeLargeChat(String toSend) {
-//		if(toSend.startsWith("/tctest")) {
-//			FilterTest.main(null);
-//		}
 		List<String> actives = TabbyChat.getInstance().getActive();
 		BackgroundChatThread sendProc;
 		if(!TabbyChat.getInstance().enabled() || actives.size() != 1) sendProc = new BackgroundChatThread(toSend);

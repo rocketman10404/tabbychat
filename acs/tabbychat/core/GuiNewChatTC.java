@@ -173,7 +173,6 @@ public class GuiNewChatTC extends GuiNewChat {
 		if(this.mc.gameSettings.chatVisibility != 2) {			
 			int maxDisplayedLines = 0;
 			boolean chatOpen = false;
-			int validLinesDisplayed = 0;
 			float chatOpacity = this.mc.gameSettings.chatOpacity * 0.9f + 0.1f;
 			float chatScaling = this.func_96131_h();
 			int timeStampOffset = 0;;
@@ -214,19 +213,28 @@ public class GuiNewChatTC extends GuiNewChat {
 			
 			int lineAge;
 			int currentOpacity = 0;
-			TCChatLine _line = null;
+			List<TCChatLine> msgList;
 			
 			// Display valid chat lines
 			for(lineCounter = 0; lineCounter + this.scrollOffset  < numLinesTotal && lineCounter < maxDisplayedLines; ++lineCounter) {
-				_line = null;
+				msgList = new ArrayList<TCChatLine>();
 				chatReadLock.lock();
 				try {
-					_line = this.chatLines.get(lineCounter + this.scrollOffset);
+					msgList.add(this.chatLines.get(lineCounter + this.scrollOffset));
+					if(msgList.get(0) != null && msgList.get(0).getChatLineString().startsWith(" ")) {
+						for(int sameMsgCounter = 1; lineCounter + sameMsgCounter + this.scrollOffset < numLinesTotal && lineCounter + sameMsgCounter < maxDisplayedLines; ++sameMsgCounter) {
+							TCChatLine checkLine = this.chatLines.get(lineCounter + sameMsgCounter + this.scrollOffset);
+							if(checkLine.getUpdatedCounter() != msgList.get(0).getUpdatedCounter()) break;
+							msgList.add(checkLine);
+							if(!checkLine.getChatLineString().startsWith(" ")) break;
+						}
+					}
 				} finally {
 					chatReadLock.unlock();
 				}
-				if(_line == null) continue;
-				lineAge = currentTick - _line.getUpdatedCounter(); 
+				if(msgList.isEmpty() || msgList.get(0) == null) continue;
+				lineCounter += msgList.size() - 1;
+				lineAge = currentTick - msgList.get(0).getUpdatedCounter(); 
 				if(lineAge < fadeTicks || chatOpen) {
 					if(!chatOpen) {
 						double agePercent = (double)lineAge / (double)fadeTicks;
@@ -239,19 +247,26 @@ public class GuiNewChatTC extends GuiNewChat {
 						currentOpacity = 255;
 					}
 					currentOpacity = (int)((float)currentOpacity * chatOpacity);
-					++validLinesDisplayed;
 					if(currentOpacity > 3) {
-						visLineCounter++;
-						byte xOrigin = 0;
-						int yOrigin = ChatBox.anchoredTop && tc.enabled() ? (visLineCounter-1)*9 : -visLineCounter * 9;
-						drawRect(xOrigin, yOrigin, xOrigin + this.chatWidth + timeStampOffset, yOrigin+9, currentOpacity / 2 << 24);
-						GL11.glEnable(GL11.GL_BLEND);
-						String _chat = _line.getChatLineString();
-						if(!this.mc.gameSettings.chatColours)
-							_chat = StringUtils.stripControlCodes(_chat);
-						if(_line.getUpdatedCounter() < 0) {
-							this.mc.fontRenderer.drawStringWithShadow(_chat, xOrigin, yOrigin+1, 0x888888 + (currentOpacity << 24));
-						} else this.mc.fontRenderer.drawStringWithShadow(_chat, xOrigin, yOrigin+1, 0xffffff + (currentOpacity << 24));
+						for(int i=0; i<msgList.size(); i++) {
+							visLineCounter++;
+							byte xOrigin = 0;
+							int yOrigin = ChatBox.anchoredTop && tc.enabled() ? (visLineCounter-1)*9 : -visLineCounter * 9;
+							drawRect(xOrigin, yOrigin, xOrigin + this.chatWidth + timeStampOffset, yOrigin+9, currentOpacity / 2 << 24);
+							GL11.glEnable(GL11.GL_BLEND);
+							String _chat;
+							int idx = ChatBox.anchoredTop && tc.enabled() ? msgList.size() - i - 1 : i;
+							if(tc.enabled() && tc.generalSettings.timeStampEnable.getValue()) {
+								_chat = msgList.get(idx).timeStamp + msgList.get(idx).getChatLineString();
+							} else {
+								_chat = msgList.get(idx).getChatLineString();
+							}
+							if(!this.mc.gameSettings.chatColours)
+								_chat = StringUtils.stripControlCodes(_chat);
+							if(msgList.get(i).getUpdatedCounter() < 0) {
+								this.mc.fontRenderer.drawStringWithShadow(_chat, xOrigin, yOrigin+1, 0x888888 + (currentOpacity << 24));
+							} else this.mc.fontRenderer.drawStringWithShadow(_chat, xOrigin, yOrigin+1, 0xffffff + (currentOpacity << 24));
+						}
 					}
 				}
 			}
