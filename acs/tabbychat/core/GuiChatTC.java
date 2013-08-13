@@ -663,6 +663,7 @@ public class GuiChatTC extends GuiChat {
 			}
 		}
 		this.inputField2.setCursorPositionEnd();
+		this.sentHistoryCursor2 = this.gnc.getSentMessages().size();
 	}
 
 	public void setText(StringBuilder txt, int pos) {

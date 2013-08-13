@@ -656,7 +656,6 @@ public class TabbyChat {
 
 	private void spamCheck(ChatChannel theChan, List<TCChatLine> lastChat) {
 		String oldChat = "";
-		String oldChat2 = "";
 		String newChat = "";
 		if (theChan.getChatLogSize() < lastChat.size() || lastChat.size() == 0) {
 			theChan.hasSpam = false;
@@ -670,15 +669,19 @@ public class TabbyChat {
 			oldChat = theChan.getChatLine(i).getChatLineString() + oldChat;
 		}
 		if (theChan.hasSpam) {
-			oldChat2 = oldChat.substring(0, oldChat.length() - 4 - Integer.toString(theChan.spamCount).length());
-			oldChat = oldChat2;
+			oldChat = oldChat.substring(0, oldChat.length() - 4 - Integer.toString(theChan.spamCount).length());
 		}
 		if (oldChat.equals(newChat)) {
 			theChan.hasSpam = true;
 			theChan.spamCount++;
-			for (int i=1; i<_size; i++)
-				theChan.setChatLogLine(i, lastChat.get(lastChat.size()-i-1));
-			theChan.setChatLogLine(0, new TCChatLine(lastChat.get(lastChat.size()-1).getUpdatedCounter(), lastChat.get(lastChat.size()-1).getChatLineString() + " [" + theChan.spamCount + "x]", lastChat.get(lastChat.size()-1).getChatLineID()));
+			for (int i=1; i<_size; i++) {
+				TCChatLine line = new TCChatLine(lastChat.get(0).getUpdatedCounter(), lastChat.get(lastChat.size()-i-1).getChatLineString(), lastChat.get(0).getChatLineID());
+				line.timeStamp = this.getTimeStamp();
+				theChan.setChatLogLine(i, line);
+			}
+			TCChatLine line = new TCChatLine(lastChat.get(0).getUpdatedCounter(), lastChat.get(lastChat.size()-1).getChatLineString() + " [" + theChan.spamCount + "x]", lastChat.get(0).getChatLineID());
+			line.timeStamp = this.getTimeStamp();
+			theChan.setChatLogLine(0, line);
 		} else {
 			theChan.hasSpam = false;
 			theChan.spamCount = 1;
