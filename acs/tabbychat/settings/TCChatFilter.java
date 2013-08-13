@@ -11,6 +11,7 @@ import java.util.regex.PatternSyntaxException;
 import net.minecraft.src.Minecraft;
 
 import acs.tabbychat.core.TabbyChat;
+import acs.tabbychat.util.TabbyChatUtils;
 
 public class TCChatFilter {	
 	public boolean inverseMatch = false;
@@ -34,7 +35,8 @@ public class TCChatFilter {
 	public Pattern expressionPattern = Pattern.compile(this.expressionString);
 	private static final Pattern allFormatCodes = Pattern.compile("(?i)(\\u00A7[0-9A-FK-OR])+");
 	public String filterName;
-	private String lastMatch = "";	
+	private String lastMatch = "";
+	private String tabName = null;
 	
 	public TCChatFilter(String name) {
 		this.filterName = name;
@@ -96,6 +98,23 @@ public class TCChatFilter {
 					}
 				}
 			} else break;
+		}
+		
+		// Pull name of destination tab
+		if(this.sendToTabBool && !this.sendToAllTabs) {
+			if(this.inverseMatch) this.tabName = this.sendToTabName;
+			else if(this.sendToTabName.startsWith("%")) {
+				int group = TabbyChatUtils.parseInteger(this.sendToTabName.substring(1));
+				if(foundMatch && group >= 0 && findFilterMatches.groupCount() >= group) {
+					this.tabName = findFilterMatches.group(group);
+				} else {
+					this.tabName = this.filterName;
+				}
+			} else {
+				this.tabName = this.sendToTabName;
+			}
+		} else {
+			this.tabName = null;
 		}
 		
 		// Insert old formatting codes and new highlight codes if highlighting has been requested
@@ -177,5 +196,11 @@ public class TCChatFilter {
 		myProps.put("sendToTabName", this.sendToTabName);
 		myProps.put("expressionString", this.expressionString);
 		return myProps;
+	}
+	
+	public String getTabName() {
+		String tmp = this.tabName;
+		this.tabName = null;
+		return tmp;
 	}
 }

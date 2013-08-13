@@ -592,7 +592,7 @@ public class TabbyChat {
 						//skip = true;
 						continue;
 					} else {
-						String destTab = iFilter.getValue().sendToTabName;
+						String destTab = iFilter.getValue().getTabName();
 						if (destTab.length() > 0 && !destinations.contains(destTab))
 							destinations.add(destTab);
 					}
@@ -741,7 +741,7 @@ public class TabbyChat {
 		String newName;
 		while(iFilter != null) {
 			newName = iFilter.getValue().sendToTabName;
-			if(iFilter.getValue().sendToTabBool && !iFilter.getValue().sendToAllTabs && !this.channelMap.containsKey(newName)) {
+			if(iFilter.getValue().sendToTabBool && !iFilter.getValue().sendToAllTabs && !this.channelMap.containsKey(newName) && !newName.startsWith("%")) {
 				this.channelMap.put(newName, new ChatChannel(newName));
 			}			
 			iFilter = filterSettings.filterMap.higherEntry(iFilter.getKey());

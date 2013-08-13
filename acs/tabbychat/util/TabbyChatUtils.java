@@ -6,6 +6,8 @@ import java.io.PrintStream;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.text.NumberFormat;
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -46,7 +48,7 @@ public class TabbyChatUtils {
 	private static File logDir = new File(Minecraft.getMinecraft().mcDataDir, "TabbyChatLogs");
 	private static File logFile;
 	private static SimpleDateFormat logNameFormat = new SimpleDateFormat("'TabbyChatLog_'MM-dd-yyyy'.txt'");
-	public static String version = "1.8.13";
+	public static String version = "1.9.00";
 	
 	public static void chatGuiTick(Minecraft mc) {
 		if(mc.currentScreen == null) return;
@@ -264,6 +266,17 @@ public class TabbyChatUtils {
 			result = fallback;
 		}
 		return result;
+	}
+	
+	public static int parseInteger(String _input) {
+		NumberFormat formatter = NumberFormat.getInstance();
+		boolean state = formatter.isParseIntegerOnly();
+		formatter.setParseIntegerOnly(true);
+		ParsePosition pos = new ParsePosition(0);
+		int result = formatter.parse(_input, pos).intValue();
+		formatter.setParseIntegerOnly(state);
+		if(_input.length() == pos.getIndex()) return result;
+		else return -1;
 	}
 	
 	public static NotificationSoundEnum parseSound(Object _input) {
