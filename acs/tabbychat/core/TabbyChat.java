@@ -137,11 +137,10 @@ public class TabbyChat {
 		boolean firstLine = true;
 		List<String> split = mc.fontRenderer.listFormattedStringToWidth(msg, ChatBox.current.width);
 		for(String splitMsg : split) {
-			if(firstLine) TabbyChat.instance.addToChannel("TabbyChat", new TCChatLine(mc.ingameGUI.getUpdateCounter(), splitMsg, 0, true));
-			else TabbyChat.instance.addToChannel("TabbyChat", new TCChatLine(mc.ingameGUI.getUpdateCounter(), " "+splitMsg, 0, true));
+			if(firstLine) TabbyChat.instance.addToChannel("TabbyChat", new TCChatLine(mc.ingameGUI.getUpdateCounter(), splitMsg, 0, true), false);
+			else TabbyChat.instance.addToChannel("TabbyChat", new TCChatLine(mc.ingameGUI.getUpdateCounter(), " "+splitMsg, 0, true), false);
 			firstLine = false;
 		}
-		TabbyChat.instance.channelMap.get("TabbyChat").unread = true;
 	}
 
 	private TabbyChat(GuiNewChatTC gncInstance) {
@@ -225,38 +224,36 @@ public class TabbyChat {
 		}
 	}
 
-	public void addToChannel(String _name, List<TCChatLine> thisChat) {
+	public void addToChannel(String _name, List<TCChatLine> thisChat, boolean visible) {
 		ChatChannel theChan = this.channelMap.get(_name);
 		if (theChan != null && generalSettings.groupSpam.getValue()) {
 			this.spamCheck(theChan, thisChat);
 			if (!theChan.hasSpam) {
 				for (TCChatLine cl : thisChat) {
-					this.addToChannel(_name, cl);
+					this.addToChannel(_name, cl, visible);
 				}
 			}
 		} else {
 			for (TCChatLine cl : thisChat) {
-				this.addToChannel(_name, cl);
+				this.addToChannel(_name, cl, visible);
 			}
 		}
 	}
 
-	public void addToChannel(String name, TCChatLine thisChat) {
+	public void addToChannel(String name, TCChatLine thisChat, boolean visible) {
 		if(serverSettings.ignoredChanList.contains(name)) return;
 		
 		ChatChannel theChan = this.channelMap.get(name);
 		if(theChan == null) {
 			if(this.channelMap.size() >= 20) return;
-			if(serverSettings.autoChannelSearch.getValue()) {
-				theChan = new ChatChannel(name);
-				this.channelMap.put(name, theChan);
-				if(mc.currentScreen instanceof GuiChatTC) {
-					((GuiChatTC)mc.currentScreen).addChannelLive(theChan);
-				}
-			} else return;
+			theChan = new ChatChannel(name);
+			this.channelMap.put(name, theChan);
+			if(mc.currentScreen instanceof GuiChatTC) {
+				((GuiChatTC)mc.currentScreen).addChannelLive(theChan);
+			}
 		}
 
-		theChan.addChat(thisChat);
+		theChan.addChat(thisChat, visible);
 		theChan.trimLog();
 	}
 
@@ -383,7 +380,7 @@ public class TabbyChat {
 				_new.notificationsOn = chan.getValue().notificationsOn;
 				_new.hidePrefix = chan.getValue().hidePrefix;
 				_new.cmdPrefix = chan.getValue().cmdPrefix;
-				this.addToChannel(chan.getKey(), new TCChatLine(-1, "-- chat history from "+(new SimpleDateFormat()).format(chanDataFile.lastModified()), 0, true));
+				this.addToChannel(chan.getKey(), new TCChatLine(-1, "-- chat history from "+(new SimpleDateFormat()).format(chanDataFile.lastModified()), 0, true), true);
 				_new.importOldChat(chan.getValue());
 				oldIDs++;
 			}
@@ -498,9 +495,9 @@ public class TabbyChat {
 		if (generalSettings.saveChatLog.getValue()) TabbyChatUtils.logChat(this.getCleanTimeStamp() + cleaned);
 		
 		if(filtered != null) {
-			channelTab = this.processChatForChannels(cleaned, raw);
+			if(serverSettings.autoChannelSearch.getValue()) channelTab = this.processChatForChannels(cleaned, raw);
 			if(channelTab == null) {
-				pmTab = this.processChatForPMs(cleaned);
+				if(serverSettings.autoPMSearch.getValue()) pmTab = this.processChatForPMs(cleaned);
 			} else toTabs.add(channelTab);
 			toTabs.addAll(filterTabs);
 		} else {
@@ -509,31 +506,36 @@ public class TabbyChat {
 		resultChatLine = TabbyChatUtils.stringToChatLines(theChat.get(0).getUpdatedCounter(), filtered, theChat.get(0).getChatLineID(), theChat.get(0).statusMsg);
 		this.addOptionalTimeStamp(resultChatLine);		
 		
-		Set<String> tabSet = new HashSet<String>(toTabs);
+		HashSet<String> tabSet = new HashSet<String>(toTabs);
 		List<String> activeTabs = this.getActive();
 		
 		boolean visible = false;
 		
 		if(pmTab != null) {
-			if(!this.channelMap.containsKey(pmTab) && serverSettings.autoPMSearch.getValue()) {
+			if(!this.channelMap.containsKey(pmTab)) {
 				ChatChannel pm = new ChatChannel(pmTab);
 				pm.cmdPrefix = "/msg "+pmTab;
 				this.channelMap.put(pmTab, pm);
-				this.addToChannel(pmTab, resultChatLine);
+				this.addToChannel(pmTab, resultChatLine, false);
 				if(mc.currentScreen instanceof GuiChatTC) {
 					((GuiChatTC)mc.currentScreen).addChannelLive(pm);
 				}
 			} else if(this.channelMap.containsKey(pmTab)) {
-				this.addToChannel(pmTab, resultChatLine);
 				if(activeTabs.contains(pmTab)) visible = true;
+				this.addToChannel(pmTab, resultChatLine, visible);
 			}
+		}
+		
+		if(!visible) {
+			Set<String> tabUnion = (Set<String>)tabSet.clone();
+			tabUnion.retainAll(activeTabs);
+			if(tabUnion.size() > 0) visible = true;
 		}
 		
 		Iterator<String> tabIter = tabSet.iterator();
 		while(tabIter.hasNext()) {
 			String tab = tabIter.next();
-			this.addToChannel(tab, resultChatLine);
-			if(activeTabs.contains(tab)) visible = true;
+			this.addToChannel(tab, resultChatLine, visible);
 		}
 
 		this.lastChatWriteLock.lock();
@@ -586,19 +588,20 @@ public class TabbyChat {
 				chat = iFilter.getValue().getLastMatchPretty();
 				if (iFilter.getValue().sendToTabBool) {
 					if (iFilter.getValue().sendToAllTabs) {
-						destinations.clear();
-						for (ChatChannel chan : this.channelMap.values())
+						for (ChatChannel chan : this.channelMap.values()) {
 							destinations.add(chan.getTitle());
-						//skip = true;
+						}
 						continue;
 					} else {
 						String destTab = iFilter.getValue().getTabName();
-						if (destTab.length() > 0 && !destinations.contains(destTab))
+						if (destTab.length() > 0 && !destinations.contains(destTab)) {
 							destinations.add(destTab);
+						}
 					}
 				}
-				if (iFilter.getValue().audioNotificationBool)
+				if (iFilter.getValue().audioNotificationBool) {
 					iFilter.getValue().audioNotification();
+				}
 			}
 			iFilter = filterSettings.filterMap.higherEntry(iFilter.getKey());
 		}

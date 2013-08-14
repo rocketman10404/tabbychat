@@ -58,14 +58,14 @@ public class ChatChannel implements Serializable {
 		this(3, 3, Minecraft.getMinecraft().fontRenderer.getStringWidth("<"+_title+">") + 8, 14, _title);
 	}
 	
-	public void addChat(TCChatLine newChat) {
+	public void addChat(TCChatLine newChat, boolean visible) {
 		this.chatWriteLock.lock();
 		try {
 			this.chatLog.add(0, newChat);
 		} finally {
 			this.chatWriteLock.unlock();
 		}
-		if(!this.active && !TabbyChat.getInstance().channelMap.get("*").active && !this.title.equals("*") && this.notificationsOn) this.unread = true; 
+		if(!this.title.equals("*") && this.notificationsOn && !visible) this.unread = true; 
 	}
 	
 	public boolean doesButtonEqual(GuiButton btnObj) {

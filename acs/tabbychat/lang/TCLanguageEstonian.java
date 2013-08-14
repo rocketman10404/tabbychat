@@ -86,6 +86,7 @@ public class TCLanguageEstonian extends TCLanguage {
 		// ESTONIAN STRING FOR SETTINGS - 'SERVER CONFIG'
 		defaults.setProperty("settings.server.name", "Serveri s\u00E4tted");
 		defaults.setProperty("settings.server.autochannelsearch", "Otsi automaatselt uusi kanaleid");
+		defaults.setProperty("settings.server.autopmsearch", "Otsi automaatselt uusi privaatsõnumeid");
 		defaults.setProperty("settings.server.delimiterchars", "Vestluskanalite eraldajad");
 		defaults.setProperty("settings.server.delimcolorbool", "Eraldajate v\u00E4rv");
 		defaults.setProperty("settings.server.delimformatbool", "Eraldajate vorming");
@@ -123,6 +124,7 @@ public class TCLanguageEstonian extends TCLanguage {
 		defaults.setProperty("settings.channel.cmdprefix", "Vestluse k\u00E4su eesliide");
 		defaults.setProperty("settings.channel.position", "Asukoht:");
 		defaults.setProperty("settings.channel.of", "/");
+		defaults.setProperty("settings.channel.hideprefix", "Peida eesliide kirjutamise ajal");
 		//
 		// ESTONIAN STRINGS FOR MESSAGES
 		defaults.setProperty("messages.update1", "Uuendus on saadaval! (Praegune versioon on ");
