@@ -594,7 +594,7 @@ public class TabbyChat {
 						continue;
 					} else {
 						String destTab = iFilter.getValue().getTabName();
-						if (destTab.length() > 0 && !destinations.contains(destTab)) {
+						if (destTab != null && destTab.length() > 0 && !destinations.contains(destTab)) {
 							destinations.add(destTab);
 						}
 					}

@@ -107,6 +107,7 @@ public class TCChatFilter {
 				int group = TabbyChatUtils.parseInteger(this.sendToTabName.substring(1));
 				if(foundMatch && group >= 0 && findFilterMatches.groupCount() >= group) {
 					this.tabName = findFilterMatches.group(group);
+					if(this.tabName == null) this.tabName = this.filterName;
 				} else {
 					this.tabName = this.filterName;
 				}
