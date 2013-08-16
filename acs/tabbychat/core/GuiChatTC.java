@@ -231,6 +231,11 @@ public class GuiChatTC extends GuiChat {
 			}
 			_button.drawButton(this.mc, cursorX, cursorY);
 		}
+		
+		if(this.inputField2.getText().length() > 0) {
+			TabbyChat.spListener.checkSpelling(this.inputField2.getText());
+		}
+		
 		GL11.glPopMatrix();
 		this.fontRenderer.setUnicodeFlag(TabbyChat.defaultUnicode);
 		
