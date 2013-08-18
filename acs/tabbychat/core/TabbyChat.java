@@ -49,6 +49,7 @@ import acs.tabbychat.gui.TCSettingsFilters;
 import acs.tabbychat.gui.TCSettingsGeneral;
 import acs.tabbychat.gui.TCSettingsServer;
 import acs.tabbychat.jazzy.TCSpellCheckListener;
+import acs.tabbychat.jazzy.TCSpellCheckManager;
 import acs.tabbychat.lang.TCTranslate;
 import acs.tabbychat.settings.ChannelDelimEnum;
 import acs.tabbychat.settings.ColorCodeEnum;
@@ -77,7 +78,7 @@ public class TabbyChat {
 	public static TCSettingsServer serverSettings;
 	public static TCSettingsFilters filterSettings;
 	public static TCSettingsAdvanced advancedSettings;
-	public static TCSpellCheckListener spListener = new TCSpellCheckListener();
+	public static TCSpellCheckManager spellChecker = TCSpellCheckManager.getInstance();
 	public LinkedHashMap<String, ChatChannel> channelMap = new LinkedHashMap();
 
 	private static File chanDataFile;

@@ -12,8 +12,6 @@ import com.swabunga.spell.event.SpellChecker;
 import com.swabunga.spell.event.StringWordTokenizer;
 
 public class TCSpellCheckListener implements SpellCheckListener {
-
-	//private static File dictPath;
 	private SpellChecker spellCheck = null;
 	
 	public TCSpellCheckListener() {
@@ -40,7 +38,7 @@ public class TCSpellCheckListener implements SpellCheckListener {
 	
 	@Override
 	public void spellingError(SpellCheckEvent event) {
-		System.out.println("MISSPELLING: "+event.getInvalidWord());		
+		TabbyChat.spellChecker.handleListenerEvent(event);		
 	}
 	
 	public void checkSpelling(String line) {

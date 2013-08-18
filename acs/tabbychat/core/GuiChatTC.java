@@ -54,6 +54,7 @@ public class GuiChatTC extends GuiChat {
     public int field_92018_d2 = 0;
     public float zLevel2 = 0.0F;
     private static ScaledResolution sr;
+    private int spellCheckCounter = 0;
 	public TabbyChat tc;
 	public GuiNewChatTC gnc;
 	
@@ -208,6 +209,16 @@ public class GuiChatTC extends GuiChat {
 			this.fontRenderer.drawStringWithShadow(requiredSends, sendsX, this.height-inputHeight, 0x707070);
 		}
 		
+		// Update & draw spell check data
+		if(this.inputField2.getText().length() > 0) {
+			TabbyChat.spellChecker.drawErrors(this, this.inputList);
+			if(this.spellCheckCounter == 200) {
+				TabbyChat.spellChecker.update(this.inputList);
+				this.spellCheckCounter = 0;
+			}
+			this.spellCheckCounter++;
+		}
+		
 		// Update chat tabs (add to buttonlist)
 		ChatBox.updateTabs(this.tc.channelMap);
 
@@ -230,10 +241,6 @@ public class GuiChatTC extends GuiChat {
 				}
 			}
 			_button.drawButton(this.mc, cursorX, cursorY);
-		}
-		
-		if(this.inputField2.getText().length() > 0) {
-			TabbyChat.spListener.checkSpelling(this.inputField2.getText());
 		}
 		
 		GL11.glPopMatrix();
