@@ -1,6 +1,8 @@
 package acs.tabbychat.jazzy;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import acs.tabbychat.core.TabbyChat;
 
@@ -16,8 +18,8 @@ public class TCSpellCheckListener implements SpellCheckListener {
 	
 	public TCSpellCheckListener() {
 		try {
-			File d = new File(TCSpellCheckListener.class.getResource("/english.0").toURI());
-			SpellDictionary dictionary = new SpellDictionaryHashMap(d);
+			InputStream in = TCSpellCheckListener.class.getResourceAsStream("/english.0");
+			SpellDictionary dictionary = new SpellDictionaryHashMap(new InputStreamReader(in));
 			this.spellCheck = new SpellChecker(dictionary);
 			this.spellCheck.addSpellCheckListener(this);
 		} catch (Exception e) {
