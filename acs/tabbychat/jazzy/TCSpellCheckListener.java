@@ -12,7 +12,7 @@ import com.swabunga.spell.event.SpellChecker;
 import com.swabunga.spell.event.StringWordTokenizer;
 
 public class TCSpellCheckListener implements SpellCheckListener {
-	private SpellChecker spellCheck = null;
+	protected SpellChecker spellCheck = null;
 	
 	public TCSpellCheckListener() {
 		try {

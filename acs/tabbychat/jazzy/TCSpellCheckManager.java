@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -26,30 +27,69 @@ public class TCSpellCheckManager {
 		listener = new TCSpellCheckListener();
 	}
 	
+	public void addToIgnoredWords(String word) {
+		if(!listener.spellCheck.isIgnored(word))
+			listener.spellCheck.ignoreAll(word);
+	}
+	
 	public void drawErrors(GuiScreen screen, List<GuiTextField> inputFields) {
-		String inputTemp = inputFields.get(0).getText();
+		List<String> inputCache = new ArrayList<String>();
+		int activeFields = 0;
+		for(GuiTextField field : inputFields) {
+			if(field.getVisible()) activeFields++;
+			inputCache.add(field.getText());
+		}
+		if(activeFields == 0) return;
+		
 		errorReadLock.lock();
 		try {
 			Iterator<Map.Entry<Integer, String>> errors = errorCache.entrySet().iterator();
+			ListIterator<String> inputs;
 			Map.Entry<Integer, String> error;
+			
 			while(errors.hasNext()) {
 				error = errors.next();
-				int y = screen.height - 4;
+				inputs = inputCache.listIterator(activeFields);
+				if(!inputs.hasPrevious()) break;
+				String input = inputs.previous();
+				if(input.length() == 0) break;
+				
+				int y = screen.height - 4 - 12*(activeFields-1);
 				int x = 4;
+				int width = 0;
 				int wordIndex = error.getKey();
-				for(GuiTextField field : inputFields) {
-					if(field.getVisible()) {
-						if(wordIndex > field.getText().length()) {
-							wordIndex -= field.getText().length();
-							y -= 12;
-						} else {
-							inputTemp = field.getText();
-						}
+				int errLength = error.getValue().length();
+				
+				
+				while(wordIndex >= input.length()) {
+					wordIndex -= input.length();
+					y += 12;
+					if(!inputs.hasPrevious()) {
+						return;
 					}
+					input = inputs.previous();
 				}
-				x += Minecraft.getMinecraft().fontRenderer.getStringWidth(inputTemp.substring(0, wordIndex));
-				int width = Minecraft.getMinecraft().fontRenderer.getStringWidth(error.getValue());
-				System.out.println("Underlining '"+error.getValue()+"' @ ("+x+", "+y+"), width="+width);
+				
+				if(wordIndex + errLength > input.length()) {
+					// Misspelled word spans line break
+					x += Minecraft.getMinecraft().fontRenderer.getStringWidth(input.substring(0, wordIndex));
+					width = Minecraft.getMinecraft().fontRenderer.getStringWidth(input.substring(wordIndex, input.length()));
+					this.drawUnderline(screen, x, y, width);
+					
+					if(inputs.hasPrevious()) {
+						int remainder = errLength - input.length() + wordIndex;
+						input = inputs.previous();
+						if(input.length() == 0) continue;
+						else if(remainder > input.length()) return;
+						y += 12;
+						x = 4;
+						width = Minecraft.getMinecraft().fontRenderer.getStringWidth(input.substring(0, remainder));
+					}					
+				} else {
+					x += Minecraft.getMinecraft().fontRenderer.getStringWidth(input.substring(0, wordIndex));
+					width = Minecraft.getMinecraft().fontRenderer.getStringWidth(error.getValue());
+				}
+
 				this.drawUnderline(screen, x, y, width);
 			}
 		} finally {
@@ -58,10 +98,10 @@ public class TCSpellCheckManager {
 	}
 	
 	private void drawUnderline(GuiScreen screen, int x, int y, int width) {
-		int next = x + 2;
+		int next = x + 1;
 		while(next - x < width) {
-			screen.drawRect(next-2, y, next, y+1, 0xffff0000);
-			next+=3;
+			screen.drawRect(next-1, y, next, y+1, 0xaaff0000);
+			next+=2;
 		}
 	}
 	
@@ -92,9 +132,9 @@ public class TCSpellCheckManager {
 		// Clear and re-populate contents of input fields, initiate spell checker
 		String inputCache = "";
 		for(GuiTextField inputField : inputFields) {
-			String text = inputField.getText();
-			if(!inputField.getVisible() || text.length() == 0) break;
-			inputCache = inputCache + text;
+			if(inputField.getVisible()) {
+				inputCache = inputField.getText() + inputCache;
+			}
 		}
 		listener.checkSpelling(inputCache);
 	}

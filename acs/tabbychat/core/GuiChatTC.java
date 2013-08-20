@@ -210,7 +210,7 @@ public class GuiChatTC extends GuiChat {
 		}
 		
 		// Update & draw spell check data
-		if(this.inputField2.getText().length() > 0) {
+		if(TabbyChat.generalSettings.spellCheckEnable.getValue() && this.inputField2.getText().length() > 0) {
 			TabbyChat.spellChecker.drawErrors(this, this.inputList);
 			if(this.spellCheckCounter == 200) {
 				TabbyChat.spellChecker.update(this.inputList);
@@ -267,7 +267,10 @@ public class GuiChatTC extends GuiChat {
 			
 			for(int i=0; i<_len; ++i) {
 				String name = _copy[i];
-				if(name.length() > 0) this.foundPlayerNames.add(name);
+				if(name.length() > 0) {
+					this.foundPlayerNames.add(name);
+					TabbyChat.spellChecker.addToIgnoredWords(name);
+				}
 			}
 			
 			if(this.foundPlayerNames.size() > 0) {
