@@ -1,5 +1,8 @@
 package acs.tabbychat.jazzy;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -8,6 +11,9 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import acs.tabbychat.core.TabbyChat;
+import acs.tabbychat.gui.ITCSettingsGUI;
 
 import com.swabunga.spell.event.SpellCheckEvent;
 
@@ -22,9 +28,10 @@ public class TCSpellCheckManager {
 	private static final ReentrantReadWriteLock errorLock = new ReentrantReadWriteLock();
 	private static final Lock errorReadLock = errorLock.readLock();
 	private static final Lock errorWriteLock = errorLock.writeLock();
+	private static String lastAttemptedLocale;
 	
 	private TCSpellCheckManager() {
-		listener = new TCSpellCheckListener();
+		this.reloadDictionaries();
 	}
 	
 	public void addToIgnoredWords(String word) {
@@ -121,7 +128,44 @@ public class TCSpellCheckManager {
 		}
 	}
 	
+	public boolean loadLocaleDictionary() {
+		File localeDict = new File(ITCSettingsGUI.tabbyChatDir, Minecraft.getMinecraft().gameSettings.language + ".dic");
+		if(localeDict.canRead()) {
+			listener = new TCSpellCheckListener(localeDict);
+			return true;
+		} else return false;
+	}
+	
+	public void loadUserDictionary() {
+		File userDict = new File(ITCSettingsGUI.tabbyChatDir, "user.dic");
+		BufferedReader in = null;
+		if(userDict.canRead()) {
+			try {
+				in = new BufferedReader(new FileReader(userDict));
+				String word;
+				while((word = in.readLine()) != null) {
+					listener.spellCheck.ignoreAll(word);
+				}
+			} catch(Exception e) {
+				TabbyChat.printException("Unable to load user dictionary for spell checking", e);
+			} finally {
+				try {
+					in.close();
+				} catch(Exception e) {}
+			}
+		}
+	}
+	
+	public void reloadDictionaries() {
+		if(!this.loadLocaleDictionary())
+			listener = new TCSpellCheckListener();
+		lastAttemptedLocale = Minecraft.getMinecraft().gameSettings.language;
+		this.loadUserDictionary();
+	}
+	
 	public void update(List<GuiTextField> inputFields) {
+		if(lastAttemptedLocale != Minecraft.getMinecraft().gameSettings.language)
+			this.reloadDictionaries();
 		// Clear stored error words and locations
 		errorWriteLock.lock();
 		try {

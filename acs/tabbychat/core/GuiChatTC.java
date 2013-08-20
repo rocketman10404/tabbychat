@@ -453,7 +453,7 @@ public class GuiChatTC extends GuiChat {
 		case Keyboard.KEY_TAB:
 			if(GuiScreen.isCtrlKeyDown()) {
 				// CTRL+SHIFT+TAB: switch active tab to previous
-				if(Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+				if(GuiScreen.isShiftKeyDown()) {
 					tc.activatePrev();
 				// CTRL+TAB: switch active tab to next
 				} else tc.activateNext();

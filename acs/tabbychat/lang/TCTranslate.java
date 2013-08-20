@@ -20,6 +20,10 @@ public class TCTranslate {
 		langSupport.put("et_EE", TCLanguageEstonian.class);
 		langSupport.put("es_ES", TCLanguageSpanish.class);
 		langSupport.put("de_DE", TCLanguageGerman.class);
+		langSupport.put("uk_UA", TCLanguageUkranian.class);
+		langSupport.put("sv_SE", TCLanguageSwedish.class);
+		langSupport.put("fr_FR", TCLanguageFrench.class);
+		langSupport.put("fi_FI", TCLanguageFinnish.class);
 	}
 	
 	public TCTranslate(String _lang) {

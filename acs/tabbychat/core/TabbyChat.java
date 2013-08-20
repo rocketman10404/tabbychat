@@ -78,7 +78,7 @@ public class TabbyChat {
 	public static TCSettingsServer serverSettings;
 	public static TCSettingsFilters filterSettings;
 	public static TCSettingsAdvanced advancedSettings;
-	public static TCSpellCheckManager spellChecker = TCSpellCheckManager.getInstance();
+	public static TCSpellCheckManager spellChecker;
 	public LinkedHashMap<String, ChatChannel> channelMap = new LinkedHashMap();
 
 	private static File chanDataFile;
@@ -154,6 +154,7 @@ public class TabbyChat {
 		serverSettings = new TCSettingsServer(this);
 		filterSettings = new TCSettingsFilters(this);
 		advancedSettings = new TCSettingsAdvanced(this);
+		spellChecker = TCSpellCheckManager.getInstance();
 		generalSettings.loadSettingsFile();
 		advancedSettings.loadSettingsFile();
 		defaultUnicode = mc.fontRenderer.getUnicodeFlag();
