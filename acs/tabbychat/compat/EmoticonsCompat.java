@@ -18,6 +18,7 @@ import net.minecraft.src.GuiTextField;
 
 public class EmoticonsCompat {
 	public static Object emoteObject = null;
+	public static Class emoteButtonClass = null;
 	private static Constructor emoteConstructor = null;
 	private static Method emoteActionPerformed = null;
 	private static Method emoteInitGui = null;
@@ -27,10 +28,11 @@ public class EmoticonsCompat {
 	
 	public static void load() {
 		if(present) {
-			if(emoteConstructor == null || emoteActionPerformed == null || emoteInitGui == null || emoteDrawScreen == null) {
+			if(emoteConstructor == null || emoteActionPerformed == null || emoteInitGui == null || emoteDrawScreen == null || emoteButtonClass == null) {
 				try {
 					// Load new Emoticons object
 					Class EmoticonsClass = Class.forName("mudbill.Emoticons");
+					emoteButtonClass = Class.forName("mudbill.GuiSimpleButton");
 					emoteConstructor = EmoticonsClass.getConstructor((Class[])null);
 					emoteObject = emoteConstructor.newInstance((Object[])null);
 					// Assign Emoticons actionPerformed Method
