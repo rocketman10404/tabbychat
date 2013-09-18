@@ -240,8 +240,12 @@ public class GuiChatTC extends GuiChat {
 					continue;
 				}
 			}
-			if(!EmoticonsCompat.emoteButtonClass.isInstance(_button) && _button.id != 54 && _button.id != 53)
+			if(EmoticonsCompat.present) {
+				if(!EmoticonsCompat.emoteButtonClass.isInstance(_button) && _button.id != 54 && _button.id != 53)
+					_button.drawButton(this.mc, cursorX, cursorY);
+			} else {
 				_button.drawButton(this.mc, cursorX, cursorY);
+			}				
 		}
 		
 		GL11.glPopMatrix();
