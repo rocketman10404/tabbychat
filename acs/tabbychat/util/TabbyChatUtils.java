@@ -120,11 +120,11 @@ public class TabbyChatUtils {
 	}
 	
 	public static File getTabbyChatDir() {
-		if(TabbyChat.liteLoaded) {
-			return new File(LiteLoader.getGameDirectory(), new StringBuilder().append("config").append(File.separatorChar).append("tabbychat").toString());
-		} else {
+//		if(TabbyChat.liteLoaded) {
+//			return new File(LiteLoader.getGameDirectory(), new StringBuilder().append("config").append(File.separatorChar).append("tabbychat").toString());
+//		} else {
 			return new File(Minecraft.getMinecraft().mcDataDir, new StringBuilder().append("config").append(File.separatorChar).append("tabbychat").toString());
-		}
+//		}
 	}
 	
 	public static void hookIntoChat(GuiNewChatTC _gnc) {

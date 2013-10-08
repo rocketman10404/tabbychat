@@ -16,7 +16,7 @@ import com.mumfrey.liteloader.core.LiteLoader;
 
 public class LiteModTabbyChat implements InitCompleteListener {
 	private static GuiNewChatTC gnc;
-
+	
 	@Override
 	public String getName() {
 		return "TabbyChat";

@@ -24,7 +24,7 @@ public class BackgroundChatThread extends Thread {
 		int start;
 		if(this.knownPrefix != null && this.sendChat.startsWith(this.knownPrefix)) {
 			cmdPrefix = this.knownPrefix.trim() + " ";
-			this.sendChat = this.sendChat.substring(this.knownPrefix.length());
+			this.sendChat = this.sendChat.substring(this.knownPrefix.length()).trim();
 			toSplit = this.sendChat.split(" ");
 			start = 0;
 		} else {
