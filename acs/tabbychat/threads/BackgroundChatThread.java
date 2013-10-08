@@ -56,7 +56,7 @@ public class BackgroundChatThread extends Thread {
 			sendPart.append(toSplit[word] + " ");
 		}
 		if (sendPart.length() > 0 || cmdPrefix.length() > 0) {
-			mc.thePlayer.sendChatMessage(cmdPrefix + sendPart.toString());
+			mc.thePlayer.sendChatMessage(cmdPrefix + sendPart.toString().trim());
 		}
 	}
 }
