@@ -328,7 +328,7 @@ public class GuiNewChatTC extends GuiNewChat {
 		int maxWidth = MathHelper.floor_float((float)this.func_96126_f() / this.func_96131_h());
 		if(tc.enabled()) {
 			if(!backupFlag) tc.checkServer();
-			maxWidth = this.chatWidth;
+			maxWidth = ChatBox.getMinChatWidth();
 		}
 		Iterator lineIter = this.mc.fontRenderer.listFormattedStringToWidth(_msg, maxWidth).iterator();
 

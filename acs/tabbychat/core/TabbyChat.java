@@ -138,7 +138,7 @@ public class TabbyChat {
 			TabbyChat.instance.channelMap.put("TabbyChat", new ChatChannel("TabbyChat"));
 		}
 		boolean firstLine = true;
-		List<String> split = mc.fontRenderer.listFormattedStringToWidth(msg, ChatBox.current.width);
+		List<String> split = mc.fontRenderer.listFormattedStringToWidth(msg, ChatBox.getMinChatWidth());
 		for(String splitMsg : split) {
 			if(firstLine) TabbyChat.instance.addToChannel("TabbyChat", new TCChatLine(mc.ingameGUI.getUpdateCounter(), splitMsg, 0, true), false);
 			else TabbyChat.instance.addToChannel("TabbyChat", new TCChatLine(mc.ingameGUI.getUpdateCounter(), " "+splitMsg, 0, true), false);

@@ -67,7 +67,7 @@ public class ChatBox {
 		int handleColor = resizeHovered() ? highlightColor : borderColor;
 		int pinColor = pinHovered() ? highlightColor : borderColor;
 		
-		if(chatOpen) {			
+		if(chatOpen) {
 			if(!anchoredTop) {
 				// Draw border around entire chat area
 				overlay.drawRect(-1, -current.height-1, current.width+1, -current.height, borderColor);
@@ -124,7 +124,7 @@ public class ChatBox {
 				overlay.drawRect(-1, 0, current.width+1, 1, borderColor);
 				
 				// Draw filler for scrollbar
-				overlay.drawRect(current.width-ChatScrollBar.barWidth-2, -unfocusedHeight, current.width, 0, opacity / 2 << 24);
+				//overlay.drawRect(current.width-ChatScrollBar.barWidth-2, -unfocusedHeight, current.width, 0, opacity / 2 << 24);
 			} else {
 				// Draw border around unfocused chatbox
 				overlay.drawRect(-1, unfocusedHeight, current.width+1, unfocusedHeight+1, borderColor);
@@ -133,7 +133,7 @@ public class ChatBox {
 				overlay.drawRect(-1, 0, current.width+1, -1, borderColor);
 				
 				// Draw filler for scrollbar
-				overlay.drawRect(current.width-ChatScrollBar.barWidth-2, unfocusedHeight, current.width, 0, opacity / 2 << 24);
+				//overlay.drawRect(current.width-ChatScrollBar.barWidth-2, unfocusedHeight, current.width, 0, opacity / 2 << 24);
 			}
 		}
 	}
@@ -205,7 +205,12 @@ public class ChatBox {
 	}
 	
 	public static int getChatWidth() {
-		return current.width - ChatScrollBar.barWidth-2;
+		if(gnc.getChatOpen()) return current.width - ChatScrollBar.barWidth - 2;
+		else return current.width;
+	}
+	
+	public static int getMinChatWidth() {
+		return current.width - ChatScrollBar.barWidth - 2;
 	}
 	
 	public static int getUnfocusedHeight() {
