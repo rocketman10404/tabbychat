@@ -117,6 +117,7 @@ public class TCLanguageEnglish extends TCLanguage {
 		defaults.setProperty("settings.advanced.chatboxunfocheight", "Unfocused Height");
 		defaults.setProperty("settings.advanced.chatfadeticks", "Chat fade time (ticks)");
 		defaults.setProperty("settings.advanced.forceunicode", "Force Unicode Chat Rendering");
+		defaults.setProperty("settings.advanced.textignoreopacity", "Text ignores opacity setting");
 		
 		// ENGLISH STRINGS FOR SETTINGS - CHAT CHANNEL
 		defaults.setProperty("settings.channel.notificationson", "Unread Notifications");

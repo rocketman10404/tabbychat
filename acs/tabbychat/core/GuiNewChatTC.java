@@ -263,9 +263,10 @@ public class GuiNewChatTC extends GuiNewChat {
 							}
 							if(!this.mc.gameSettings.chatColours)
 								_chat = StringUtils.stripControlCodes(_chat);
+							int textOpacity = (TabbyChat.advancedSettings.textIgnoreOpacity.getValue() ? 255 : currentOpacity);
 							if(msgList.get(i).getUpdatedCounter() < 0) {
-								this.mc.fontRenderer.drawStringWithShadow(_chat, xOrigin, yOrigin+1, 0x888888 + (currentOpacity << 24));
-							} else this.mc.fontRenderer.drawStringWithShadow(_chat, xOrigin, yOrigin+1, 0xffffff + (currentOpacity << 24));
+								this.mc.fontRenderer.drawStringWithShadow(_chat, xOrigin, yOrigin+1, 0x888888 + (textOpacity << 24));
+							} else this.mc.fontRenderer.drawStringWithShadow(_chat, xOrigin, yOrigin+1, 0xffffff + (textOpacity << 24));
 						}
 					}
 				}

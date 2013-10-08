@@ -66,6 +66,7 @@ public class ChatButton extends net.minecraft.src.GuiButton {
 	          FontRenderer fr = mc.fontRenderer;
 	          float _mult = mc.gameSettings.chatOpacity * 0.9F + 0.1F;
 	          int _opacity = (int)((float)255 * _mult);
+	          int textOpacity = (TabbyChat.advancedSettings.textIgnoreOpacity.getValue() ? 255 : _opacity);
 	          
 	          Rectangle cursor = translateButtonDims(new Rectangle(this.xPosition, this.yPosition, this.width, this.height));
 	          
@@ -89,9 +90,9 @@ public class ChatButton extends net.minecraft.src.GuiButton {
 	          GL11.glEnable(GL11.GL_BLEND);
 	          if(hovered && Keyboard.isKeyDown(42)) {
 	        	  String special = (this.channel.getTitle().equalsIgnoreCase("*") ? "\u2398" : "\u26A0");
-	        	  this.drawCenteredString(fr, special, this.xPosition + this.width / 2, this.yPosition + (this.height-8) / 2, var7 + (_opacity << 24));
+	        	  this.drawCenteredString(fr, special, this.xPosition + this.width / 2, this.yPosition + (this.height-8) / 2, var7 + (textOpacity << 24));
 	          } else {
-	        	  this.drawCenteredString(fr, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height-8) / 2, var7 + (_opacity << 24));
+	        	  this.drawCenteredString(fr, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height-8) / 2, var7 + (textOpacity << 24));
 	          }
 	       }		
 	}
